@@ -1,4 +1,7 @@
-# AutoPet/LC r5 — luyện trong hành trang trước, dùng và nâng sau
+# AutoPet/LC r6 — luyện trong hành trang trước, dùng và nâng sau
+
+Bản r6 sửa nhật ký chẩn đoán; chưa xác định được nguyên nhân Auto chờ trên máy chủ thật.
+Luồng luyện/dùng/nâng của r5 được giữ nguyên.
 
 Bản thử cho 251.jar (Java ME MIDP 2.1 / CLDC 1.1), theo luồng người dùng đã sửa:
 **tự nhận → luyện trong hành trang → đủ chỉ số mới dùng → xác nhận trang bị → nâng cấp**.
@@ -9,7 +12,7 @@ Chưa xác minh trực tiếp trên máy chủ thật.
 1. Tự nhận vật phẩm tại Tashino. Để **Pet Long ID 1305 ở ô 1** và
    **Long Châu Mika2 ID 1282 ở ô 2** hành trang; chưa sử dụng.
 2. Đứng gần Tashino ở Làng Tone (map 22).
-3. Menu → MenuAuto → AutoPet/LC. Màn hình phải ghi **AutoPet/LC r5**.
+3. Menu → MenuAuto → AutoPet/LC. Màn hình phải ghi **AutoPet/LC r6**.
 4. Bật Enable từng vật phẩm cần chạy, chọn chỉ số, Luyện/Nâng cấp, giới hạn lượt và cấp đích.
 5. Bấm Lưu, rồi Auto dưới minimap. Bấm Auto lần nữa để dừng (`đã dừng auto`).
 
@@ -40,10 +43,12 @@ trong catalog không được dùng làm kết quả luyện. Chỉ số ô giao
 ## Khi gặp lỗi
 
 Nút **?** ở góc trên phải màn hình cấu hình mở nhật ký lần chạy. Nhật ký giữ giới hạn trong
-bộ nhớ, chỉ có bước thao tác, mã gói và nguồn/ô vật phẩm: Q = đã xếp hàng, TX = gửi thành công
+bộ nhớ, ghim riêng bước đang chờ và các lệnh gửi/nhận, chỉ có mã gói và nguồn/ô vật phẩm: Q = đã xếp hàng, TX = gửi thành công
 qua bộ ghi của client, RX = nhận và xử lý gói. Không lưu nội dung đăng nhập, chat hoặc giá trị
 thông tin tài khoản. Khi dừng do lỗi, thông báo cũng kèm nhật ký để phân biệt lỗi client và
-bước chờ phản hồi. Nhật ký không tự gửi ra ngoài và không tồn tại sau khi đóng game.
+bước chờ phản hồi. Các gói nền -30 được đếm theo mã gói con thay vì ghi lặp từng dòng. Dừng Auto vẫn giữ
+bước cuối cùng để xem lại; 1.200 gói nền liên tiếp không được làm mất thông tin gửi.
+Nhật ký không tự gửi ra ngoài và không tồn tại sau khi đóng game.
 
 ## Build và kiểm tra
 
@@ -54,7 +59,7 @@ python tools/bootstrap.py
 bash build.sh input/251.jar
 ```
 
-Đầu ra: `dist/251-AutoPetLC-Tashino-test.jar`, cấu hình hiển thị r5.
+Đầu ra: `dist/251-AutoPetLC-Tashino-test.jar`, cấu hình hiển thị r6.
 Công cụ tải qua TLS, kiểm tra SHA-256. Biên dịch Java 1.3 với API CLDC 1.1, tạo StackMap Java ME.
 
 Các kiểm tra gồm cấu hình/động cơ, Canvas/RMS, nạp 319 lớp, kịch bản lớp game thật với bộ gửi

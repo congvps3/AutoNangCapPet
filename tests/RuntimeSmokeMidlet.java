@@ -184,6 +184,18 @@ public class RuntimeSmokeMidlet extends MIDlet {
             dialog.setAccessible(true);check(dialog.get(null)==null,"timeout must close native Xin cho dialog");
             check(count("menu:101")==0,"manual receiving mode must never enter receive menu");
             senderBytes();
+            // Background packets must not erase the last real send or the step we stopped on.
+            for(int i=0;i<1200;i++) {
+                WZKDTXfSh background=new WZKDTXfSh((byte)-30,new byte[]{(byte)-124});
+                AutoPetRuntime.beforePacket(background);
+                if(i==0)check(AutoPetAccess.input(background).available()==1,"subcommand observer consumed payload");
+                AutoPetRuntime.afterPacket();
+            }
+            String report=AutoPetRuntime.diagnostics();
+            check(report.indexOf("TX 13 src=32 pos=0")>=0,"background packet flood erased actual send");
+            check(report.indexOf("-124x1200")>=0 && report.indexOf("RX -30")<0,"background subcommand not summarized");
+            check(report.indexOf("xác nhận của máy chủ")>=0,"stopping erased the pending step");
+            check(report.length()<2048,"diagnostics exceeded text box size");
             System.out.println("RUNTIME_SMOKE_PASS "+checks+" (actual game classes, transport interception; no live server)");
         } catch(Throwable t) {System.out.println("RUNTIME_SMOKE_FAIL "+t);t.printStackTrace();}
         notifyDestroyed();

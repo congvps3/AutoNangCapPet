@@ -22,11 +22,15 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
     private static boolean auditing;
     private static long traceStart;
     private static String trace="";
+    private static String lastRunState="Chưa chạy",actionQ="-",actionTX="-",infoQ="-",infoTX="-",lastReply="-";
+    private static int eventSub=-999;
+    private static final int[] subCounts=new int[256];
 
     public static synchronized boolean running() {return INSTANCE.active;}
     public static synchronized void toggle() {
         AutoPetRuntime r=INSTANCE;
         if(r.active) {
+            lastRunState=r.waitingFor();
             r.active=false;r.phase=0;r.notices="";AutoPetAccess.dismiss();
             if(r.engine.running()) r.engine.stop();else AutoPetBridge.notice("đã dừng auto");
             return;
@@ -40,7 +44,9 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             if(r.npcId<0) {AutoPetBridge.notice("Chưa thấy Tashino trong bản đồ hiện tại");return;}
             for(int i=0;i<2;i++) if(r.config[i].enabled) r.bagItem(i);
             r.active=true;r.notices="";serverError=null;r.bootIndex=0;r.phase=BOOT;r.deadline=System.currentTimeMillis()+15000;
-            auditing=true;trace="";traceStart=System.currentTimeMillis();record("START r5");
+            auditing=true;trace="";traceStart=System.currentTimeMillis();actionQ="-";actionTX="-";infoQ="-";infoTX="-";lastReply="-";
+            for(int i=0;i<subCounts.length;i++)subCounts[i]=0;
+            lastRunState=r.waitingFor();record("START r6");
             r.boot();
         } catch(Exception e) {r.fail("Không khởi động được: "+e.getMessage());}
     }
@@ -145,7 +151,8 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
     public static synchronized void tick() {
         AutoPetRuntime r=INSTANCE;
         if(!r.active) return;
-        try {r.step(System.currentTimeMillis());} catch(Exception e) {r.fail(e.getMessage());}
+        lastRunState=r.waitingFor();
+        try {r.step(System.currentTimeMillis());if(r.active)lastRunState=r.waitingFor();} catch(Exception e) {r.fail(e.getMessage());}
     }
     private void step(long now) {
         if(serverError!=null) {String text=serverError;serverError=null;fail(text);return;}
@@ -254,23 +261,33 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             serverError=text;
     }
     public static synchronized void beforePacket(WZKDTXfSh msg) {
-        eventCommand=msg==null?0:msg.GAuWiEMckbFHeh;eventSource=-1;eventIndex=-1;
-        if(eventCommand!=33 && eventCommand!=42) return;
+        eventCommand=msg==null?0:msg.GAuWiEMckbFHeh;eventSource=-1;eventIndex=-1;eventSub=-999;
+        if(eventCommand!=33 && eventCommand!=42 && eventCommand!=-30) return;
         try {
             DataInputStream in=AutoPetAccess.input(msg);in.mark(3);
-            eventSource=in.readUnsignedByte();if(eventCommand==42) eventIndex=in.readUnsignedByte();in.reset();
+            try {
+                if(eventCommand==-30) eventSub=in.readByte();
+                else {eventSource=in.readUnsignedByte();if(eventCommand==42) eventIndex=in.readUnsignedByte();}
+            } finally {in.reset();}
         } catch(Exception ignored) {eventSource=-1;}
     }
     public static synchronized void afterPacket() {
         if(eventCommand==33 && eventSource>=0) {listRevisions[eventSource]=++listVersion;}
         if(eventCommand==42 && eventSource>=0 && eventIndex>=0) {infoEventSource=eventSource;infoEventIndex=eventIndex;++infoVersion;}
-        if(eventCommand==13 || eventCommand==11 || eventCommand==30 || eventCommand==33 || eventCommand==42 || eventCommand==107 || eventCommand==-26 || eventCommand==-30)
-            record("RX "+eventCommand+(eventSource>=0?" src="+eventSource:"")+(eventIndex>=0?" pos="+eventIndex:""));
+        if(eventCommand==-30) {
+            if(auditing && eventSub!=-999) ++subCounts[eventSub & 255];
+            return;
+        }
+        if(eventCommand==13 || eventCommand==11 || eventCommand==30 || eventCommand==33 || eventCommand==42 || eventCommand==107 || eventCommand==-26) {
+            String line="RX "+eventCommand+(eventSource>=0?" src="+eventSource:"")+(eventIndex>=0?" pos="+eventIndex:"");
+            if(auditing) lastReply=line;
+            record(line);
+        }
     }
     private static void record(String line) {
         if(!auditing) return;
         trace+=(System.currentTimeMillis()-traceStart)/1000+"s "+line+"\n";
-        while(trace.length()>900) {int n=trace.indexOf('\n');if(n<0) break;trace=trace.substring(n+1);}
+        while(trace.length()>600) {int n=trace.indexOf('\n');if(n<0) break;trace=trace.substring(n+1);}
     }
     private static void wire(String stage,WZKDTXfSh msg) {
         if(!auditing || msg==null) return;
@@ -278,14 +295,27 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
         // Never inspect login/chat payloads. These fields are only item source/index or confirmation code.
         if(command!=13 && command!=42 && command!=107 && command!=11 && command!=-30) return;
         byte[] bytes=msg.EgoDKTjkxEUMu();
+        String line=null;
         if(command==-30) {
-            if(bytes.length==2 && bytes[0]==-103) record(stage+" LIST src="+(bytes[1]&255));
-        } else if((command==13 || command==42) && bytes.length>=2) record(stage+" "+command+" src="+(bytes[0]&255)+" pos="+(bytes[1]&255));
-        else if(bytes.length>=1) record(stage+" "+command+" code="+(bytes[0]&255));
+            if(bytes.length==2 && bytes[0]==-103) line=stage+" LIST src="+(bytes[1]&255);
+        } else if((command==13 || command==42) && bytes.length>=2) line=stage+" "+command+" src="+(bytes[0]&255)+" pos="+(bytes[1]&255);
+        else if(bytes.length>=1) line=stage+" "+command+" code="+(bytes[0]&255);
+        if(line==null)return;
+        if(command==42) {if(stage.equals("Q"))infoQ=line;else infoTX=line;}
+        else if(command==13 || command==11 || command==107) {if(stage.equals("Q"))actionQ=line;else actionTX=line;}
+        record(line);
     }
     public static synchronized void queued(WZKDTXfSh msg) {try {wire("Q",msg);}catch(Exception ignored) {}}
     public static synchronized void transmitted(WZKDTXfSh msg) {try {wire("TX",msg);}catch(Exception ignored) {}}
     public static synchronized String diagnostics() {
-        return "r5 | "+INSTANCE.waitingFor()+" | ID "+INSTANCE.templateId(INSTANCE.item)+"\n"+trace;
+        String subs="";boolean[] seen=new boolean[256];
+        for(int n=0;n<8;n++) {
+            int best=-1;for(int i=0;i<256;i++)if(!seen[i] && subCounts[i]>0 && (best<0 || subCounts[i]>subCounts[best]))best=i;
+            if(best<0)break;seen[best]=true;
+            if(subs.length()>0)subs+=", ";subs+=(best>127?best-256:best)+"x"+subCounts[best];
+        }
+        return "r6 | "+lastRunState+" | ID "+INSTANCE.templateId(INSTANCE.item)+"\n"
+            +actionQ+"\n"+actionTX+"\n"+infoQ+"\n"+infoTX+"\n"+lastReply+"\n"
+            +"Nhóm -30: "+(subs.length()==0?"-":subs)+"\n"+trace;
     }
 }
