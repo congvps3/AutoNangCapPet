@@ -10,7 +10,7 @@ class MockTransport implements Opcodes {
             var entries=src.entries();
             while(entries.hasMoreElements()) {
                 var e=entries.nextElement();byte[] b=src.getInputStream(e).readAllBytes();
-                if(e.getName().equals("EAVbpdxFGDnFcb.class") || e.getName().equals("zxnsayePWpajv.class") || e.getName().equals("AutoPetBridge.class") || (wire && e.getName().equals("LZitKUUsicXFt.class"))) {
+                if(e.getName().equals("yRvgxykm.class") || e.getName().equals("EAVbpdxFGDnFcb.class") || e.getName().equals("zxnsayePWpajv.class") || e.getName().equals("AutoPetBridge.class") || (wire && e.getName().equals("LZitKUUsicXFt.class"))) {
                     ClassWriter w=new ClassWriter(ClassWriter.COMPUTE_MAXS);
                     new ClassReader(b).accept(new ClassVisitor(ASM9,w) {
                         public MethodVisitor visitMethod(int a,String n,String d,String sig,String[] ex) {
@@ -26,6 +26,9 @@ class MockTransport implements Opcodes {
                             if(e.getName().equals("zxnsayePWpajv.class") && n.equals("oXAaoinDuwaN") && d.equals("(I)V"))op="npc";
                             if(e.getName().equals("AutoPetBridge.class") && n.equals("open") && d.equals("()V"))op="setup";
                             MethodVisitor v=super.visitMethod(a,n,d,sig,ex);
+                            if(e.getName().equals("yRvgxykm.class") && n.equals("autoPetOriginalMessage")) return new MethodVisitor(ASM9,v) {
+                                public void visitCode() {super.visitCode();super.visitMethodInsn(INVOKESTATIC,"TestTransport","packetEntered","()V",false);}
+                            };
                             if(wire && e.getName().equals("LZitKUUsicXFt.class") && n.equals("QpKzrQoqbjfLc") && d.equals("(LWZKDTXfSh;)V")) {
                                 v.visitCode();v.visitVarInsn(ALOAD,1);v.visitMethodInsn(INVOKESTATIC,"TestTransport","wire","(LWZKDTXfSh;)V",false);v.visitInsn(RETURN);v.visitMaxs(0,0);v.visitEnd();return null;
                             }

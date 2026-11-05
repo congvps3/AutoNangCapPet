@@ -40,6 +40,32 @@ public class RuntimeSmokeMidlet extends MIDlet {
         AutoPetRuntime.afterPacket();
     }
     static void info(wpiwfWAXuWze it) throws Exception {it.ffWUPzwfbDA=true;event(42,it.tTqVmuHPEhAbg,it.AZmTbjgvi);AutoPetRuntime.tick();}
+    static void concurrentMatchingInfo(final wpiwfWAXuWze it) throws Exception {
+        HcmUnYtL[] defs=new HcmUnYtL[2];
+        for(int i=0;i<2;i++) {defs[i]=new HcmUnYtL();defs[i].wLHNXXbvUSit=AutoPetConfig.OPTIONS[i];}
+        field(zxnsayePWpajv.class,null,"peMayxrZEBA",HcmUnYtL[].class,defs);
+        final Thread[] worker=new Thread[1];final Throwable[] error=new Throwable[1];
+        TestTransport.duringPacket=new Runnable() {public void run() {
+            // Emulate the native parser's temporary empty option vector while
+            // the update thread tries to make its next train/use decision.
+            options(it,0);
+            final java.util.concurrent.CountDownLatch started=new java.util.concurrent.CountDownLatch(1);
+            worker[0]=new Thread(new Runnable(){public void run(){started.countDown();try{AutoPetRuntime.tick();}catch(Throwable t){error[0]=t;}}});
+            worker[0].start();
+            try {started.await();worker[0].join(100);}catch(InterruptedException e){throw new RuntimeException(e);}
+            check(worker[0].isAlive(),"Auto must wait until option packet is completely parsed");
+        }};
+        java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();
+        java.io.DataOutputStream out=new java.io.DataOutputStream(bytes);
+        out.writeByte(3);out.writeByte(it.AZmTbjgvi);out.writeLong(0);out.writeInt(1);out.writeByte(0);
+        out.writeByte(0);out.writeInt(10);out.writeByte(1);out.writeInt(20);out.flush();
+        WZKDTXfSh packet=new WZKDTXfSh((byte)42,bytes.toByteArray());
+        new yRvgxykm().WRmEtfNMLdMb(packet);
+        worker[0].join(2000);
+        check(!worker[0].isAlive() && error[0]==null,"Auto did not resume after complete packet");
+        check(it.ffWUPzwfbDA && it.ScymBikfyop.size()==2,"native item packet must parse both wanted stats; ready="+it.ffWUPzwfbDA+" count="+it.ScymBikfyop.size()+" left="+AutoPetAccess.input(packet).available()+" type="+it.EgoDKTjkxEUMu.peMayxrZEBA+" sys="+it.NUZGwRkdSQ);
+        AutoPetRuntime.tick();
+    }
     static void openShop(int source,String title) throws Exception {
         java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();
         java.io.DataOutputStream out=new java.io.DataOutputStream(bytes);
@@ -143,7 +169,7 @@ public class RuntimeSmokeMidlet extends MIDlet {
             info(pet);check(TestTransport.last.equals("npc") && TestTransport.a==9 && count("equip:")==usedBefore,"bag training must precede use");
             rootAndShop();check(count("menu:101")==0,"Auto must never select receiving");
             confirm(false);refreshNow();check(TestTransport.a==3 && TestTransport.b==0,"training must refresh bag item");
-            options(pet,3);info(pet);check(TestTransport.last.equals("equip") && TestTransport.a==0 && body[0]==null,"use must start only after matching stats");
+            concurrentMatchingInfo(pet);check(TestTransport.last.equals("equip") && TestTransport.a==0 && body[0]==null,"use must start only after matching stats");
             useReply(0,0);check(TestTransport.last.equals("npc"),"upgrade did not wait for equipped stats");
             rootAndShop();confirm(true);refreshNow();pet.yKHpKzQyZroJ=1;info(pet);
             check(!AutoPetRuntime.running() && TestTransport.notice.indexOf("đủ cấp 1")>=0,"Pet target-level completion");

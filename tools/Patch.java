@@ -194,9 +194,19 @@ class Patch implements Opcodes {
             }
             public void visitEnd() {
                 MethodVisitor v=super.visitMethod(ACC_PUBLIC|ACC_FINAL,"WRmEtfNMLdMb","(LWZKDTXfSh;)V",null,null);v.visitCode();
+                // The native parser rebuilds option vectors in place. Holding the
+                // same monitor as tick prevents a second packet from clearing a
+                // vector between Engine's match decision and Runtime's USE check.
+                v.visitMethodInsn(INVOKESTATIC,"AutoPetRuntime","packetLock","()Ljava/lang/Object;",false);
+                v.visitInsn(DUP);v.visitVarInsn(ASTORE,2);v.visitInsn(MONITORENTER);
+                Label start=new Label(),end=new Label(),failed=new Label();
+                v.visitTryCatchBlock(start,end,failed,null);v.visitLabel(start);
                 v.visitVarInsn(ALOAD,1);v.visitMethodInsn(INVOKESTATIC,"AutoPetRuntime","beforePacket","(LWZKDTXfSh;)V",false);
                 v.visitVarInsn(ALOAD,0);v.visitVarInsn(ALOAD,1);v.visitMethodInsn(INVOKEVIRTUAL,"yRvgxykm","autoPetOriginalMessage","(LWZKDTXfSh;)V",false);
-                v.visitMethodInsn(INVOKESTATIC,"AutoPetRuntime","afterPacket","()V",false);v.visitInsn(RETURN);v.visitMaxs(0,0);v.visitEnd();super.visitEnd();
+                v.visitMethodInsn(INVOKESTATIC,"AutoPetRuntime","afterPacket","()V",false);
+                v.visitLabel(end);v.visitVarInsn(ALOAD,2);v.visitInsn(MONITOREXIT);v.visitInsn(RETURN);
+                v.visitLabel(failed);v.visitVarInsn(ASTORE,3);v.visitVarInsn(ALOAD,2);v.visitInsn(MONITOREXIT);
+                v.visitVarInsn(ALOAD,3);v.visitInsn(ATHROW);v.visitMaxs(0,0);v.visitEnd();super.visitEnd();
             }
         },ClassReader.SKIP_DEBUG);return w.toByteArray();
     }

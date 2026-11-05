@@ -26,6 +26,9 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
     private static int eventSub=-999;
     private static final int[] subCounts=new int[256];
 
+    /** Native packet parsing and Auto decisions must see the same complete inventory. */
+    public static Object packetLock() {return AutoPetRuntime.class;}
+
     public static synchronized boolean running() {return INSTANCE.active;}
     public static synchronized void toggle() {
         AutoPetRuntime r=INSTANCE;
@@ -46,7 +49,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             r.active=true;r.notices="";serverError=null;r.bootIndex=0;r.phase=BOOT;r.deadline=System.currentTimeMillis()+15000;
             auditing=true;trace="";traceStart=System.currentTimeMillis();actionQ="-";actionTX="-";infoQ="-";infoTX="-";lastReply="-";
             for(int i=0;i<subCounts.length;i++)subCounts[i]=0;
-            lastRunState=r.waitingFor();record("START r7");
+            lastRunState=r.waitingFor();record("START r8");
             r.boot();
         } catch(Exception e) {r.fail("Không khởi động được: "+e.getMessage());}
     }
@@ -328,7 +331,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             if(best<0)break;seen[best]=true;
             if(subs.length()>0)subs+=", ";subs+=(best>127?best-256:best)+"x"+subCounts[best];
         }
-        return "r7 | "+lastRunState+" | ID "+INSTANCE.templateId(INSTANCE.item)+"\n"
+        return "r8 | "+lastRunState+" | ID "+INSTANCE.templateId(INSTANCE.item)+"\n"
             +actionQ+"\n"+actionTX+"\n"+infoQ+"\n"+infoTX+"\n"+lastReply+"\n"
             +"Nhóm -30: "+(subs.length()==0?"-":subs)+"\n"+trace;
     }

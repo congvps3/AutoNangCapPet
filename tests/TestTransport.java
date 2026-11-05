@@ -3,6 +3,11 @@ public class TestTransport implements qHSDVwkeNovng {
     public static String last,notice;
     public static int a,b,c,buys,confirms,lists;
     public static ArrayList<String> log=new ArrayList<String>();
+    public static Runnable duringPacket;
+    public static void packetEntered() {
+        if(!Thread.holdsLock(AutoPetRuntime.packetLock())) throw new RuntimeException("Native parser races Auto inventory reads");
+        Runnable hook=duringPacket;duringPacket=null;if(hook!=null)hook.run();
+    }
     public static void record(String name,int x,int y,int z) {
         last=name;a=x;b=y;c=z;log.add(name+":"+x+":"+y+":"+z);
         if(name.equals("buy") || name.equals("box"))++buys;if(name.equals("confirm"))++confirms;
