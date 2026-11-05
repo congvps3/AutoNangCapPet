@@ -19,6 +19,9 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
     private static String confirmText;
     private static String serverError;
     private static kacyVKUNru menu;
+    private static boolean auditing;
+    private static long traceStart;
+    private static String trace="";
 
     public static synchronized boolean running() {return INSTANCE.active;}
     public static synchronized void toggle() {
@@ -30,12 +33,14 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
         }
         try {
             r.config=AutoPetUI.settings();boolean any=false;
-            for(int i=0;i<2;i++) {r.config[i].validate();any|=r.config[i].enabled;}
+            for(int i=0;i<2;i++) {r.config[i].receive=false;r.config[i].validate();any|=r.config[i].enabled;}
             if(!any) {AutoPetBridge.notice("Hãy bật Enable trong Menu > AutoPet/LC và lưu cấu hình");return;}
             if(AutoPetAccess.map()!=AutoPetRules.TONE) {AutoPetBridge.notice("Hãy đến Làng Tone (map 22), đứng gần Tashino rồi bấm Auto");return;}
             r.npcId=r.findNpc();
             if(r.npcId<0) {AutoPetBridge.notice("Chưa thấy Tashino trong bản đồ hiện tại");return;}
+            for(int i=0;i<2;i++) if(r.config[i].enabled) r.bagItem(i);
             r.active=true;r.notices="";serverError=null;r.bootIndex=0;r.phase=BOOT;r.deadline=System.currentTimeMillis()+15000;
+            auditing=true;trace="";traceStart=System.currentTimeMillis();record("START r5");
             r.boot();
         } catch(Exception e) {r.fail("Không khởi động được: "+e.getMessage());}
     }
@@ -53,6 +58,13 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
         return found;
     }
     private int templateId(int target) {return target==0?AutoPetRules.PET:AutoPetRules.MIKA;}
+    private wpiwfWAXuWze bagItem(int target) {
+        wpiwfWAXuWze[] bag=AutoPetAccess.items(3);
+        wpiwfWAXuWze it=bag!=null && bag.length>target?bag[target]:null;
+        if(it==null || it.EgoDKTjkxEUMu==null || it.EgoDKTjkxEUMu.QpKzrQoqbjfLc!=templateId(target) || it.tTqVmuHPEhAbg!=3 || it.AZmTbjgvi!=target)
+            throw new RuntimeException("Hãy tự nhận "+AutoPetConfig.NAMES[target]+" và đặt đúng ô "+(target+1)+" hành trang, chưa sử dụng");
+        return it;
+    }
     private wpiwfWAXuWze locate(int target,boolean equippedOnly) {
         int[] sources=equippedOnly?new int[]{5,41,51,52,53}:new int[]{3,5,41,51,52,53};
         wpiwfWAXuWze result=null;
@@ -84,11 +96,11 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             }
         }
         if(hpmp==3) options|=1<<9;
-        return new AutoPetEngine.Item(true,options,it.yKHpKzQyZroJ);
+        return new AutoPetEngine.Item(true,options,it.yKHpKzQyZroJ,it.tTqVmuHPEhAbg!=3);
     }
     private void boot() {
         while(bootIndex<2) {
-            wpiwfWAXuWze it=config[bootIndex].enabled?locate(bootIndex,false):null;
+            wpiwfWAXuWze it=config[bootIndex].enabled?bagItem(bootIndex):null;
             initial[bootIndex]=snapshot(it);
             if(it!=null) {askInfo(it);return;}
             ++bootIndex;
@@ -102,14 +114,17 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
         EAVbpdxFGDnFcb.peMayxrZEBA().uYrMAoZFCm(infoSource,infoIndex);
     }
     public void send(int generation,int sequence,int target,int operation) {
+        record("TASK id="+templateId(target)+" op="+operation);
         run=generation;request=sequence;item=target;action=operation;
         deadline=System.currentTimeMillis()+15000;
-        wpiwfWAXuWze equipped=locate(item,true);
-        if(operation!=AutoPetEngine.RECEIVE && equipped==null) {
-            wpiwfWAXuWze bag=locate(item,false);
-            if(bag==null || bag.tTqVmuHPEhAbg!=3) {fail("Không tìm thấy vật phẩm cần trang bị");return;}
+        if(operation==AutoPetEngine.RECEIVE) {fail("Bạn cần tự nhận vật phẩm trước khi bật Auto");return;}
+        if(operation==AutoPetEngine.TRAIN) {bagItem(item);openNpc();return;}
+        if(operation==AutoPetEngine.USE) {
+            wpiwfWAXuWze bag=bagItem(item);
+            if((snapshot(bag).options & config[item].selected)!=config[item].selected) {fail("Chưa đủ chỉ số, không sử dụng vật phẩm");return;}
             phase=EQUIP;EAVbpdxFGDnFcb.peMayxrZEBA().jPtiHTBf(bag.AZmTbjgvi);return;
         }
+        if(locate(item,true)==null) {fail("Chưa xác nhận vật phẩm được sử dụng, không nâng cấp");return;}
         openNpc();
     }
     private void openNpc() {
@@ -122,9 +137,10 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
         if(!engine.running()) {active=false;phase=0;AutoPetAccess.dismiss();AutoPetBridge.notice(notices);notices="";}
     }
     private void fail(String message) {
+        String report=diagnostics();
         active=false;phase=0;AutoPetAccess.dismiss();
         // Invalidate the engine before any queued server event can advance it.
-        engine.cancel();notices="";AutoPetBridge.notice("Dừng auto: "+message);
+        engine.cancel();notices="";AutoPetBridge.notice("Dừng auto: "+message+"\n\n"+report);
     }
     public static synchronized void tick() {
         AutoPetRuntime r=INSTANCE;
@@ -144,7 +160,11 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             else {phase=0;engine.reply(run,request,true,snapshot(it),now);}
             return;
         }
-        if(phase==EQUIP) {if(locate(item,true)!=null) openNpc();return;}
+        if(phase==EQUIP) {
+            wpiwfWAXuWze usedItem=locate(item,true);
+            if(usedItem!=null) {phase=REFRESH;askInfo(usedItem);}
+            return;
+        }
         if(phase==ROOT && menuVersion>menuBaseline) {
             menuBaseline=menuVersion;int selected=-1;
             for(int i=0;i<menu.size();i++) if(AutoPetRules.menu(((bmxqULQDW)menu.elementAt(i)).oXAaoinDuwaN)==action) {
@@ -191,7 +211,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
                 return;
             }
             AutoPetAccess.focusShop(chosenIndex);
-            confirmBaseline=confirmVersion;phase=action==AutoPetEngine.RECEIVE?ACK:CONFIRM;
+            confirmBaseline=confirmVersion;phase=CONFIRM;
             nextInfo=now+300;deadline=now+15000;
             EAVbpdxFGDnFcb.peMayxrZEBA().BMWCZFcnBgzHkh(chosen.tTqVmuHPEhAbg,chosen.AZmTbjgvi,1);return;
         }
@@ -208,8 +228,8 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             EAVbpdxFGDnFcb.peMayxrZEBA().hFWcqhZjekJK(confirmCode);return;
         }
         if(phase==ACK && now>=nextInfo) {
-            wpiwfWAXuWze it=locate(item,false);
-            if(it==null) return; // receiving must actually create the item
+            wpiwfWAXuWze it=action==AutoPetEngine.TRAIN?bagItem(item):locate(item,true);
+            if(it==null) {fail("Không tìm thấy vật phẩm sau thao tác");return;}
             phase=REFRESH;askInfo(it);
         }
     }
@@ -222,7 +242,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
         return "thông tin mới của vật phẩm";
     }
     public static synchronized void sawMenu(kacyVKUNru choices) {menu=choices;++menuVersion;}
-    public static synchronized void sawShop(int source) {openedShop=source;++shopVersion;}
+    public static synchronized void sawShop(int source) {openedShop=source;++shopVersion;record("SHOP "+source);}
     public static synchronized void sawConfirm(String text,int yes,Object code,int no) {
         if(yes!=8890 || no!=8891 || !(code instanceof Integer)) return;
         confirmText=text;confirmCode=((Integer)code).intValue();++confirmVersion;
@@ -230,7 +250,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
     public static synchronized void sawNotice(String text) {
         if(!INSTANCE.active || text==null) return;
         String s=AutoPetRules.plain(text);
-        if(s.indexOf("khong du")>=0 || s.indexOf("hay trang bi")>=0 || s.indexOf("khong the")>=0 || s.indexOf("that bai")>=0 || s.indexOf("chua du")>=0)
+        if(s.indexOf("khong du")>=0 || s.indexOf("hay trang bi")>=0 || s.indexOf("hay nhan vat pham")>=0 || s.indexOf("khong the")>=0 || s.indexOf("that bai")>=0 || s.indexOf("chua du")>=0)
             serverError=text;
     }
     public static synchronized void beforePacket(WZKDTXfSh msg) {
@@ -244,5 +264,28 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
     public static synchronized void afterPacket() {
         if(eventCommand==33 && eventSource>=0) {listRevisions[eventSource]=++listVersion;}
         if(eventCommand==42 && eventSource>=0 && eventIndex>=0) {infoEventSource=eventSource;infoEventIndex=eventIndex;++infoVersion;}
+        if(eventCommand==13 || eventCommand==11 || eventCommand==30 || eventCommand==33 || eventCommand==42 || eventCommand==107 || eventCommand==-26 || eventCommand==-30)
+            record("RX "+eventCommand+(eventSource>=0?" src="+eventSource:"")+(eventIndex>=0?" pos="+eventIndex:""));
+    }
+    private static void record(String line) {
+        if(!auditing) return;
+        trace+=(System.currentTimeMillis()-traceStart)/1000+"s "+line+"\n";
+        while(trace.length()>900) {int n=trace.indexOf('\n');if(n<0) break;trace=trace.substring(n+1);}
+    }
+    private static void wire(String stage,WZKDTXfSh msg) {
+        if(!auditing || msg==null) return;
+        int command=msg.GAuWiEMckbFHeh;
+        // Never inspect login/chat payloads. These fields are only item source/index or confirmation code.
+        if(command!=13 && command!=42 && command!=107 && command!=11 && command!=-30) return;
+        byte[] bytes=msg.EgoDKTjkxEUMu();
+        if(command==-30) {
+            if(bytes.length==2 && bytes[0]==-103) record(stage+" LIST src="+(bytes[1]&255));
+        } else if((command==13 || command==42) && bytes.length>=2) record(stage+" "+command+" src="+(bytes[0]&255)+" pos="+(bytes[1]&255));
+        else if(bytes.length>=1) record(stage+" "+command+" code="+(bytes[0]&255));
+    }
+    public static synchronized void queued(WZKDTXfSh msg) {try {wire("Q",msg);}catch(Exception ignored) {}}
+    public static synchronized void transmitted(WZKDTXfSh msg) {try {wire("TX",msg);}catch(Exception ignored) {}}
+    public static synchronized String diagnostics() {
+        return "r5 | "+INSTANCE.waitingFor()+" | ID "+INSTANCE.templateId(INSTANCE.item)+"\n"+trace;
     }
 }

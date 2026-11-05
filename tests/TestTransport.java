@@ -9,5 +9,18 @@ public class TestTransport implements qHSDVwkeNovng {
         if(name.equals("list"))++lists;
     }
     public static void notice(String text) {notice=text;}
+    public static void wire(WZKDTXfSh message) {
+        try {
+            byte[] bytes=message.EgoDKTjkxEUMu();
+            java.io.DataInputStream in=new java.io.DataInputStream(new java.io.ByteArrayInputStream(bytes));
+            int command=message.GAuWiEMckbFHeh;
+            if(command==13) {int source=in.readUnsignedByte(),index=in.readUnsignedByte();record("buy",source,index,in.available()==0?1:in.readUnsignedShort());}
+            else if(command==42) record("info",in.readUnsignedByte(),in.readUnsignedByte(),0);
+            else if(command==11) record("equip",in.readUnsignedByte(),0,0);
+            else if(command==107) record("confirm",in.readUnsignedByte(),0,0);
+            else if(command==-30 && in.readByte()==-103) record("list",in.readUnsignedByte(),0,0);
+            else throw new RuntimeException("Unexpected wire command "+command);
+        } catch(java.io.IOException e) {throw new RuntimeException(e);}
+    }
     public void peMayxrZEBA(int id,Object value) {record("menu",id,0,0);}
 }

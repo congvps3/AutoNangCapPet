@@ -6,7 +6,7 @@ import java.io.*;
 
 /** Changes only three original methods and the Canvas pointer dispatchers. */
 class Patch implements Opcodes {
-    static int menu,action,paint,pointer,menuObserver,shopObserver,confirmObserver,packetObserver,noticeObserver,update;
+    static int menu,action,paint,pointer,menuObserver,shopObserver,confirmObserver,packetObserver,noticeObserver,update,queued,transmitted;
     public static void main(String[] args) throws Exception {
         Path original=Path.of(args[0]),classes=Path.of(args[1]),output=Path.of(args[2]);
         Files.createDirectories(output.getParent());
@@ -19,6 +19,7 @@ class Patch implements Opcodes {
                 if(e.getName().equals("ceMGdFNBJnq.class")) data=observe(data,0);
                 if(e.getName().equals("NBAFgUXWGCkgPq.class")) data=observe(data,1);
                 if(e.getName().equals("yRvgxykm.class")) data=packets(data);
+                if(e.getName().equals("LZitKUUsicXFt.class")) data=transport(data);
                 out.putNextEntry(new ZipEntry(e.getName()));out.write(data);out.closeEntry();
             }
             try(var paths=Files.list(classes)) {
@@ -29,7 +30,7 @@ class Patch implements Opcodes {
                 }
             }
         }
-        if(menu!=2 || action!=1 || paint!=1 || pointer!=3 || menuObserver!=1 || shopObserver!=1 || confirmObserver!=1 || packetObserver!=1 || noticeObserver!=2 || update!=1) {
+        if(menu!=2 || action!=1 || paint!=1 || pointer!=3 || menuObserver!=1 || shopObserver!=1 || confirmObserver!=1 || packetObserver!=1 || noticeObserver!=2 || update!=1 || queued!=1 || transmitted!=1) {
             Files.deleteIfExists(output);
             throw new IllegalStateException("Unexpected hooks: "+menu+","+action+","+paint+","+pointer);
         }
@@ -191,6 +192,28 @@ class Patch implements Opcodes {
                 v.visitVarInsn(ALOAD,1);v.visitMethodInsn(INVOKESTATIC,"AutoPetRuntime","beforePacket","(LWZKDTXfSh;)V",false);
                 v.visitVarInsn(ALOAD,0);v.visitVarInsn(ALOAD,1);v.visitMethodInsn(INVOKEVIRTUAL,"yRvgxykm","autoPetOriginalMessage","(LWZKDTXfSh;)V",false);
                 v.visitMethodInsn(INVOKESTATIC,"AutoPetRuntime","afterPacket","()V",false);v.visitInsn(RETURN);v.visitMaxs(0,0);v.visitEnd();super.visitEnd();
+            }
+        },ClassReader.SKIP_DEBUG);return w.toByteArray();
+    }
+    static byte[] transport(byte[] bytes) {
+        ClassWriter w=new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        new ClassReader(bytes).accept(new ClassVisitor(ASM9,w) {
+            public MethodVisitor visitMethod(int a,String n,String d,String s,String[] ex) {
+                MethodVisitor v=super.visitMethod(a,n,d,s,ex);
+                boolean queue=n.equals("QpKzrQoqbjfLc") && d.equals("(LWZKDTXfSh;)V");
+                boolean send=n.equals("fNmLnhTF") && d.equals("(LWZKDTXfSh;)V");
+                return new MethodVisitor(ASM9,v) {
+                    public void visitInsn(int op) {
+                        if(queue && op==RETURN) {queued++;visitVarInsn(ALOAD,1);visitMethodInsn(INVOKESTATIC,"AutoPetRuntime","queued","(LWZKDTXfSh;)V",false);}
+                        super.visitInsn(op);
+                    }
+                    public void visitMethodInsn(int op,String owner,String name,String desc,boolean itf) {
+                        super.visitMethodInsn(op,owner,name,desc,itf);
+                        if(send && owner.equals("java/io/DataOutputStream") && name.equals("flush") && desc.equals("()V")) {
+                            transmitted++;visitVarInsn(ALOAD,1);super.visitMethodInsn(INVOKESTATIC,"AutoPetRuntime","transmitted","(LWZKDTXfSh;)V",false);
+                        }
+                    }
+                };
             }
         },ClassReader.SKIP_DEBUG);return w.toByteArray();
     }

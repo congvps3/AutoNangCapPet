@@ -24,7 +24,7 @@ public final class AutoPetConfig {
         if ((selected & ~2047) != 0) throw new IllegalArgumentException("Chỉ số không hợp lệ");
         if (enabled && (train || upgrade) && selected == 0)
             throw new IllegalArgumentException("Hãy chọn ít nhất một chỉ số");
-        if (enabled && !receive && !train && !upgrade)
+        if (enabled && !train && !upgrade)
             throw new IllegalArgumentException("Hãy chọn thao tác cần chạy");
     }
     public static byte[] encode(AutoPetConfig[] cs) throws IOException {
@@ -45,9 +45,10 @@ public final class AutoPetConfig {
         AutoPetConfig[] cs=new AutoPetConfig[2];
         for(int i=0;i<2;i++) {
             AutoPetConfig c=new AutoPetConfig();
-            c.enabled=d.readBoolean(); c.receive=d.readBoolean();
+            c.enabled=d.readBoolean(); d.readBoolean(); c.receive=false;
             c.train=d.readBoolean(); c.upgrade=d.readBoolean();
             c.selected=d.readInt(); c.attempts=d.readInt(); c.target=d.readInt();
+            if(c.enabled && !c.train && !c.upgrade) c.enabled=false;
             c.validate(); cs[i]=c;
         }
         if(d.available()!=0) throw new IOException("Dữ liệu thừa");

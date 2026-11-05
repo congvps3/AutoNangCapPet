@@ -5,11 +5,12 @@ import java.util.zip.*;
 /** Test artifact only: replaces every runtime send site; never shipped. */
 class MockTransport implements Opcodes {
     public static void main(String[] args) throws Exception {
+        boolean wire=args.length>2 && args[2].equals("wire");
         try(ZipFile src=new ZipFile(args[0]);ZipOutputStream dst=new ZipOutputStream(Files.newOutputStream(Path.of(args[1])))) {
             var entries=src.entries();
             while(entries.hasMoreElements()) {
                 var e=entries.nextElement();byte[] b=src.getInputStream(e).readAllBytes();
-                if(e.getName().equals("EAVbpdxFGDnFcb.class") || e.getName().equals("zxnsayePWpajv.class") || e.getName().equals("AutoPetBridge.class")) {
+                if(e.getName().equals("EAVbpdxFGDnFcb.class") || e.getName().equals("zxnsayePWpajv.class") || e.getName().equals("AutoPetBridge.class") || (wire && e.getName().equals("LZitKUUsicXFt.class"))) {
                     ClassWriter w=new ClassWriter(ClassWriter.COMPUTE_MAXS);
                     new ClassReader(b).accept(new ClassVisitor(ASM9,w) {
                         public MethodVisitor visitMethod(int a,String n,String d,String sig,String[] ex) {
@@ -24,6 +25,10 @@ class MockTransport implements Opcodes {
                             if(e.getName().equals("zxnsayePWpajv.class") && n.equals("oXAaoinDuwaN") && d.equals("(I)V"))op="npc";
                             if(e.getName().equals("AutoPetBridge.class") && n.equals("open") && d.equals("()V"))op="setup";
                             MethodVisitor v=super.visitMethod(a,n,d,sig,ex);
+                            if(wire && e.getName().equals("LZitKUUsicXFt.class") && n.equals("QpKzrQoqbjfLc") && d.equals("(LWZKDTXfSh;)V")) {
+                                v.visitCode();v.visitVarInsn(ALOAD,1);v.visitMethodInsn(INVOKESTATIC,"TestTransport","wire","(LWZKDTXfSh;)V",false);v.visitInsn(RETURN);v.visitMaxs(0,0);v.visitEnd();return null;
+                            }
+                            if(wire && e.getName().equals("EAVbpdxFGDnFcb.class")) return v;
                             if(e.getName().equals("AutoPetBridge.class") && n.equals("notice") && d.equals("(Ljava/lang/String;)V")) {
                                 v.visitCode();v.visitVarInsn(ALOAD,0);v.visitMethodInsn(INVOKESTATIC,"TestTransport","notice","(Ljava/lang/String;)V",false);v.visitInsn(RETURN);v.visitMaxs(0,0);v.visitEnd();return null;
                             }

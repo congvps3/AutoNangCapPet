@@ -14,6 +14,7 @@ public final class AutoPetUI extends Canvas implements CommandListener {
     private TextBox input;
     private final Command accept=new Command("OK",Command.OK,1);
     private final Command cancel=new Command("Huỷ",Command.CANCEL,2);
+    private final Command traceBack=new Command("Trở lại",Command.BACK,1);
 
     public static AutoPetConfig[] settings() {
         load(); return new AutoPetConfig[]{saved[0].copy(),saved[1].copy()};
@@ -43,7 +44,7 @@ public final class AutoPetUI extends Canvas implements CommandListener {
         AutoPetConfig c=draft[tab];
         if(row==0) return "Enable "+AutoPetConfig.NAMES[tab];
         if(row<=11) return AutoPetConfig.OPTIONS[row-1];
-        if(row==12) return "Nhận khi hành trang chưa có";
+        if(row==12) return "Tự nhận, đặt "+AutoPetConfig.NAMES[tab]+" ở ô "+(tab+1)+" hành trang";
         if(row==13) return "Luyện "+AutoPetConfig.NAMES[tab];
         if(row==14) return "Nâng cấp "+AutoPetConfig.NAMES[tab];
         if(row==15) return "Số lần luyện: "+c.attempts;
@@ -60,7 +61,8 @@ public final class AutoPetUI extends Canvas implements CommandListener {
     protected void paint(Graphics g) {
         int w=getWidth(),h=getHeight(),rh=rowHeight();
         g.setColor(0x12202b);g.fillRect(0,0,w,h);g.setFont(font);
-        g.setColor(0xffffff);g.drawString("AutoPet/LC r4",w/2,2,Graphics.TOP|Graphics.HCENTER);
+        g.setColor(0xffffff);g.drawString("AutoPet/LC r5",w/2,2,Graphics.TOP|Graphics.HCENTER);
+        g.drawString("?",w-8,2,Graphics.TOP|Graphics.RIGHT);
         for(int i=0;i<2;i++) {
             g.setColor(i==tab?0x247c9e:0x30414f);g.fillRect(i*w/2,22,w/2-1,24);
             g.setColor(0xffffff);g.drawString(i==0?"Pet Long":"LC Mika2",i*w/2+w/4,26,Graphics.TOP|Graphics.HCENTER);
@@ -71,11 +73,11 @@ public final class AutoPetUI extends Canvas implements CommandListener {
             boolean active=row==0 || draft[tab].enabled;
             if(row==focus) {g.setColor(active?0x355061:0x26343c);g.fillRect(0,y,w,rh);}
             g.setColor(active?0xeeeeee:0x68757d);
-            if(row<=14) {
+            if(row<=14 && row!=12) {
                 g.drawRect(5,y+5,12,12);
                 if(checked(row)) {g.drawLine(7,y+11,10,y+14);g.drawLine(10,y+14,15,y+7);}
             }
-            drawLabel(g,label(row),row<=14?23:5,y+4,w-28);
+            drawLabel(g,label(row),row<=14 && row!=12?23:5,y+4,w-28);
         }
         g.setClip(0,0,w,h);
         if(top>0) {g.setColor(0xffffff);g.drawString("^",w-8,48,Graphics.TOP|Graphics.RIGHT);}
@@ -102,7 +104,7 @@ public final class AutoPetUI extends Canvas implements CommandListener {
         if(row==0) c.enabled=!c.enabled;
         else if(!c.enabled) return;
         else if(row<=11) c.selected ^= 1<<(row-1);
-        else if(row==12) c.receive=!c.receive;
+        else if(row==12) return;
         else if(row==13) c.train=!c.train;
         else if(row==14) c.upgrade=!c.upgrade;
         else {
@@ -119,6 +121,11 @@ public final class AutoPetUI extends Canvas implements CommandListener {
         downX=x;downY=y;dragStart=y;dragged=false;
     }
     private void tap(int x,int y) {
+        if(y<22 && x>=getWidth()-28) {
+            String log=AutoPetRuntime.diagnostics();
+            TextBox box=new TextBox("Nhật ký Auto r5",log,2048,TextField.ANY|TextField.UNEDITABLE);
+            box.addCommand(traceBack);box.setCommandListener(this);display.setCurrent(box);return;
+        }
         if(y>=22 && y<46) {tab=x<getWidth()/2?0:1;top=0;focus=0;repaint();return;}
         if(y>=getHeight()-26) {if(x>=getWidth()-66) save();else display.setCurrent(previous);return;}
         if(y>=48 && y<48+visible()*rowHeight()) select(top+(y-48)/rowHeight());
@@ -164,6 +171,7 @@ public final class AutoPetUI extends Canvas implements CommandListener {
         finally {if(rs!=null) try {rs.closeRecordStore();} catch(Exception e) {}}
     }
     public void commandAction(Command c,Displayable screen) {
+        if(c==traceBack) {display.setCurrent(this);return;}
         if(c==accept) {
             try {
                 int value=Integer.parseInt(input.getString());

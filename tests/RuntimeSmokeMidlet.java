@@ -18,7 +18,7 @@ public class RuntimeSmokeMidlet extends MIDlet {
     }
     static void config(boolean petEnabled,boolean mikaEnabled,int attempts) throws Exception {
         AutoPetConfig a=new AutoPetConfig();a.enabled=petEnabled;a.receive=true;a.train=true;a.upgrade=true;a.selected=3;a.attempts=attempts;a.target=1;
-        AutoPetConfig b=new AutoPetConfig();b.enabled=mikaEnabled;b.receive=true;
+        AutoPetConfig b=a.copy();b.enabled=mikaEnabled;
         field(AutoPetUI.class,null,"saved",AutoPetConfig[].class,new AutoPetConfig[]{a,b});
         field(AutoPetUI.class,null,"loaded",boolean.class,Boolean.TRUE);
     }
@@ -82,9 +82,37 @@ public class RuntimeSmokeMidlet extends MIDlet {
         first.qHSDVwkeNovng();
         check(TestTransport.last.equals("setup"),method+" entry does not dispatch to settings");
     }
+    static void reset(boolean petEnabled,boolean mikaEnabled,int attempts) throws Exception {
+        for(int i=0;i<bag.length;i++)bag[i]=null;
+        for(int i=0;i<body.length;i++)body[i]=null;
+        config(petEnabled,mikaEnabled,attempts);
+        if(petEnabled)bag[0]=item(1305,3,0);
+        if(mikaEnabled)bag[1]=item(1282,3,1);
+    }
+    static int count(String prefix) {int n=0;for(String entry:TestTransport.log)if(entry.startsWith(prefix))++n;return n;}
+    static void useReply(int bagSlot,int equipSlot) throws Exception {
+        wpiwfWAXuWze it=bag[bagSlot];bag[bagSlot]=null;body[equipSlot]=it;it.tTqVmuHPEhAbg=5;it.AZmTbjgvi=equipSlot;
+        AutoPetRuntime.tick();check(TestTransport.last.equals("info") && TestTransport.a==5,"use must await actual equipped item info");info(it);
+    }
+    static void senderBytes() throws Exception {
+        WZKDTXfSh packet=new WZKDTXfSh((byte)13);
+        java.io.DataOutputStream out=null;
+        for(Method m:WZKDTXfSh.class.getMethods())if(m.getName().equals("peMayxrZEBA") && m.getReturnType()==java.io.DataOutputStream.class && m.getParameterTypes().length==0)out=(java.io.DataOutputStream)m.invoke(packet);
+        out.writeByte(32);out.writeByte(0);out.flush();
+        LZitKUUsicXFt service=LZitKUUsicXFt.peMayxrZEBA();
+        java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();
+        field(LZitKUUsicXFt.class,service,"peMayxrZEBA",java.io.DataOutputStream.class,new java.io.DataOutputStream(bytes));
+        Method send=LZitKUUsicXFt.class.getDeclaredMethod("fNmLnhTF",WZKDTXfSh.class);send.setAccessible(true);send.invoke(service,packet);
+        byte[] wire=bytes.toByteArray();
+        check(wire.length==5 && wire[0]==13 && wire[1]==0 && wire[2]==2 && wire[3]==32 && wire[4]==0,"original sender produced wrong frame");
+        check(AutoPetRuntime.diagnostics().indexOf("TX 13 src=32 pos=0")>=0,"successful flush not observed");
+    }
     protected void startApp() {
         try {
             sVdEtbWKGxAKR.QWSFikNNoKDGiu();
+            field(NBAFgUXWGCkgPq.class,null,"peMayxrZEBA",XxukxTaDkERtV.class,new XxukxTaDkERtV());
+            field(NBAFgUXWGCkgPq.class,null,"peMayxrZEBA",RjDwVJrHk.class,new RjDwVJrHk());
+            field(NBAFgUXWGCkgPq.class,null,"peMayxrZEBA",gqQMxdaie.class,new gqQMxdaie());
             field(SBnKDsbzS.class,null,"uTxJizAJr",short.class,Short.valueOf((short)22));
             field(NBAFgUXWGCkgPq.class,null,"peMayxrZEBA",ceMGdFNBJnq.class,new ceMGdFNBJnq());
             HAeSnYtYmns t=new HAeSnYtYmns();t.mvjvhHcftNANDP=9;t.wLHNXXbvUSit="Tashino";
@@ -93,78 +121,70 @@ public class RuntimeSmokeMidlet extends MIDlet {
             field(zxnsayePWpajv.class,null,"HSjEMvafS",kacyVKUNru.class,ns);
             player=currentPlayer();field(oFpffzUyucjDJX.class,player,"peMayxrZEBA",wpiwfWAXuWze[].class,bag);
             field(oFpffzUyucjDJX.class,player,"rdmjdEJDQ",wpiwfWAXuWze[].class,body);
-            checkSetupMenu("GRYYuFfQZGmfH");
-            checkSetupMenu("xbqjzadR");
-            config(true,false,2);pet=item(1305,3,0);bag[0]=pet;
-            AutoPetRuntime.toggle();check(TestTransport.last.equals("info") && TestTransport.a==3,"boot did not request bag stats");
-            info(pet);check(TestTransport.last.equals("equip"),"pet not equipped before training");
-            bag[0]=null;body[0]=pet;pet.tTqVmuHPEhAbg=5;AutoPetRuntime.tick();
-            check(TestTransport.last.equals("npc") && TestTransport.a==9,"NPC ID was guessed rather than loaded");
-            rootAndShop();confirm(false);refreshNow();options(pet,3);info(pet);
-            check(TestTransport.last.equals("npc"),"all matching options did not open upgrade menu");
+            checkSetupMenu("GRYYuFfQZGmfH");checkSetupMenu("xbqjzadR");
+            reset(true,false,2);pet=bag[0];int usedBefore=count("equip:");
+            AutoPetRuntime.toggle();check(TestTransport.last.equals("info") && TestTransport.a==3 && TestTransport.b==0,"Pet must start at bag slot 1");
+            info(pet);check(TestTransport.last.equals("npc") && TestTransport.a==9 && count("equip:")==usedBefore,"bag training must precede use");
+            rootAndShop();check(count("menu:101")==0,"Auto must never select receiving");
+            confirm(false);refreshNow();check(TestTransport.a==3 && TestTransport.b==0,"training must refresh bag item");
+            options(pet,3);info(pet);check(TestTransport.last.equals("equip") && TestTransport.a==0 && body[0]==null,"use must start only after matching stats");
+            useReply(0,0);check(TestTransport.last.equals("npc"),"upgrade did not wait for equipped stats");
             rootAndShop();confirm(true);refreshNow();pet.yKHpKzQyZroJ=1;info(pet);
-            check(!AutoPetRuntime.running() && TestTransport.notice.indexOf("đủ cấp 1")>=0,"target-level completion failed");
-            config(true,false,1);pet.yKHpKzQyZroJ=0;options(pet,1);
+            check(!AutoPetRuntime.running() && TestTransport.notice.indexOf("đủ cấp 1")>=0,"Pet target-level completion");
+            reset(true,false,1);pet=bag[0];usedBefore=count("equip:");
             AutoPetRuntime.toggle();info(pet);rootAndShop();confirm(false);refreshNow();info(pet);
-            check(!AutoPetRuntime.running() && TestTransport.notice.indexOf("Không nâng cấp")>=0,"exhausted training upgraded");
-            config(true,false,2);AutoPetRuntime.toggle();info(pet);rootAndShop();
-            int confirms=TestTransport.confirms;AutoPetRuntime.toggle();
+            check(!AutoPetRuntime.running() && count("equip:")==usedBefore && bag[0]==pet && body[0]==null,"exhaustion must leave Pet in bag");
+            check(TestTransport.notice.indexOf("Không nâng cấp")>=0,"exhaustion notice");
+            reset(false,true,2);wpiwfWAXuWze mika=bag[1];AutoPetRuntime.toggle();
+            check(TestTransport.last.equals("info") && TestTransport.b==1,"Mika must start at bag slot 2");info(mika);
+            rootAndShop();check(TestTransport.b==1,"Mika used Pet shop index");confirm(false);refreshNow();options(mika,3);info(mika);
+            check(TestTransport.last.equals("equip") && TestTransport.a==1,"Mika must use bag slot 2 after training");
+            useReply(1,1);rootAndShop();
+            AutoPetRuntime.sawConfirm("Nâng cấp: Long Châu Mika2\nXác nhận nâng cấp?",8890,Integer.valueOf(7),8891);AutoPetRuntime.tick();
+            check(TestTransport.last.equals("confirm"),"Mika upgrade confirmation");refreshNow();mika.yKHpKzQyZroJ=1;info(mika);
+            check(!AutoPetRuntime.running(),"Mika completion");
+            reset(true,true,2);wpiwfWAXuWze bothPet=bag[0],bothMika=bag[1];options(bothPet,3);options(bothMika,3);
+            AutoPetRuntime.toggle();info(bothPet);
+            check(TestTransport.last.equals("info") && TestTransport.a==3 && TestTransport.b==1,"both enabled items must be read before acting");
+            info(bothMika);check(TestTransport.last.equals("equip") && TestTransport.a==0,"matching Pet must be processed first");
+            useReply(0,0);rootAndShop();confirm(true);refreshNow();bothPet.yKHpKzQyZroJ=1;info(bothPet);
+            check(TestTransport.last.equals("equip") && TestTransport.a==1,"second bag slot must stay available after first item completes");
+            useReply(1,1);rootAndShop();AutoPetRuntime.sawConfirm("Nâng cấp: Long Châu Mika2\nXác nhận nâng cấp?",8890,Integer.valueOf(7),8891);AutoPetRuntime.tick();
+            refreshNow();bothMika.yKHpKzQyZroJ=1;info(bothMika);
+            check(!AutoPetRuntime.running(),"both fixed-slot items did not complete");
+            reset(true,true,2);bag[1]=null;int before=TestTransport.log.size();AutoPetRuntime.toggle();
+            check(!AutoPetRuntime.running() && TestTransport.log.size()==before,"preflight must validate both slots before any command");
+            reset(true,false,2);bag[1]=bag[0];bag[0]=null;before=TestTransport.log.size();AutoPetRuntime.toggle();
+            check(!AutoPetRuntime.running() && TestTransport.log.size()==before,"wrong Pet slot must not be searched or received automatically");
+            reset(true,false,2);pet=bag[0];AutoPetRuntime.toggle();info(pet);rootAndShop();
+            int confirmed=TestTransport.confirms;AutoPetRuntime.toggle();
             AutoPetRuntime.sawConfirm("Xác nhận luyện vật phẩm đã chọn?",8890,Integer.valueOf(8),8891);AutoPetRuntime.tick();
-            check(!AutoPetRuntime.running() && TestTransport.confirms==confirms && TestTransport.notice.equals("đã dừng auto"),"late confirmation advanced stopped Auto");
-            config(false,true,0);AutoPetRuntime.toggle();rootAndShop();
-            check(TestTransport.b==1,"Mika receive used Pet Long index");
-            wpiwfWAXuWze mika=item(1282,3,1);bag[1]=mika;refreshNow();info(mika);
-            check(!AutoPetRuntime.running(),"Mika receiving did not finish");
-            bag[1]=null;config(true,false,2);options(pet,1);
-            AutoPetRuntime.toggle();info(pet);rootAndShop();
-            int beforeWrong=TestTransport.confirms;
-            AutoPetRuntime.sawConfirm("Xác nhận bán vật phẩm?",8890,Integer.valueOf(9),8891);AutoPetRuntime.tick();
-            check(!AutoPetRuntime.running() && TestTransport.confirms==beforeWrong,"unrelated confirmation was accepted");
-            config(true,false,2);AutoPetRuntime.toggle();info(pet);rootAndShop();
-            int beforeError=TestTransport.buys;
-            AutoPetRuntime.sawNotice("Không đủ lượng");AutoPetRuntime.tick();
-            check(!AutoPetRuntime.running() && TestTransport.buys==beforeError && TestTransport.notice.indexOf("Không đủ lượng")>=0,"resource error did not stop runtime");
-            // Real servers may send the list before the shop-open packet; it must not be discarded.
-            config(false,true,0);bag[1]=null;AutoPetRuntime.toggle();
-            kacyVKUNru receiveMenu=new kacyVKUNru();
-            receiveMenu.addElement(new bmxqULQDW("Nhận Vật Phẩm",new TestTransport(),101,null));
-            AutoPetRuntime.sawMenu(receiveMenu);AutoPetRuntime.tick();
-            QfMjPqGqZaRx.EgoDKTjkxEUMu(item(1282,32,9).EgoDKTjkxEUMu);
-            // Actual controller and binary list packet, not an event-only fixture.
-            new yRvgxykm().WRmEtfNMLdMb(new WZKDTXfSh((byte)33,new byte[]{32,1,9,5,2}));
-            int earlyBuys=TestTransport.buys;
-            openShop(52,"Nhận Vật Phẩm");
-            int nativeRequests=TestTransport.lists;
-            AutoPetRuntime.tick();AutoPetRuntime.tick();
-            check(TestTransport.buys==earlyBuys+1 && TestTransport.b==9,"fresh list received before shop-open was lost");
-            check(TestTransport.lists==nativeRequests,"fresh native list caused a duplicate list request");
-            AutoPetRuntime.toggle();
-            // The native UI can display a cached catalog without emitting another list packet.
-            config(false,true,0);AutoPetRuntime.toggle();
-            AutoPetRuntime.sawMenu(receiveMenu);AutoPetRuntime.tick();
-            openShop(52,"Nhận Vật Phẩm");int staleBuys=TestTransport.buys;AutoPetRuntime.tick();
-            check(TestTransport.buys==staleBuys,"cached shop catalog used before refresh grace period");
+            check(!AutoPetRuntime.running() && TestTransport.confirms==confirmed && TestTransport.notice.equals("đã dừng auto"),"stop must ignore pending training confirmation");
+            reset(true,false,2);pet=bag[0];AutoPetRuntime.toggle();info(pet);rootAndShop();
+            AutoPetRuntime.sawNotice("Hãy nhận vật phẩm ở npc tashino rồi để ở hành trang rồi vào đây luyện");AutoPetRuntime.tick();
+            check(!AutoPetRuntime.running() && bag[0]==pet,"server bag requirement must stop without using");
+            reset(true,false,2);pet=bag[0];AutoPetRuntime.toggle();info(pet);
+            kacyVKUNru trainMenu=new kacyVKUNru();trainMenu.addElement(new bmxqULQDW("Luyện Trang Bị",new TestTransport(),102,null));
+            AutoPetRuntime.sawMenu(trainMenu);AutoPetRuntime.tick();
+            QfMjPqGqZaRx.EgoDKTjkxEUMu(item(1305,32,0).EgoDKTjkxEUMu);
+            new yRvgxykm().WRmEtfNMLdMb(new WZKDTXfSh((byte)33,new byte[]{32,1,0,5,25}));
+            openShop(52,"Luyện");int buys=TestTransport.buys;AutoPetRuntime.tick();
+            check(TestTransport.buys==buys+1,"binary list-before-open training selection");AutoPetRuntime.toggle();
+            reset(true,false,2);pet=bag[0];AutoPetRuntime.toggle();info(pet);AutoPetRuntime.sawMenu(trainMenu);AutoPetRuntime.tick();
+            openShop(52,"Luyện");AutoPetRuntime.tick();
             Field instance=AutoPetRuntime.class.getDeclaredField("INSTANCE");instance.setAccessible(true);
             field(AutoPetRuntime.class,instance.get(null),"shopRequestAt",long.class,Long.valueOf(0));
-            int reads=TestTransport.lists;AutoPetRuntime.tick();AutoPetRuntime.tick();
-            check(TestTransport.lists==reads+1 && TestTransport.buys==staleBuys && TestTransport.a==32,"window 52 must refresh source 32 once");
-            event(33,2,0);AutoPetRuntime.tick();
-            check(TestTransport.buys==staleBuys,"unrelated shop source advanced receiving");
+            AutoPetRuntime.tick();check(TestTransport.last.equals("list") && TestTransport.a==32,"native window 52 must refresh list 32");
             field(AutoPetRuntime.class,instance.get(null),"shopCacheAt",long.class,Long.valueOf(0));AutoPetRuntime.tick();
-            check(TestTransport.buys==staleBuys+1 && TestTransport.b==9,"visible cached catalog was never selected");
-            Field cursor=zxnsayePWpajv.class.getDeclaredField("taYdGEeyp");cursor.setAccessible(true);
-            Field panel=zxnsayePWpajv.class.getDeclaredField("LrmZsvFaTiKDi");panel.setAccessible(true);
-            check(cursor.getInt(null)==0 && panel.getInt(null)==1,"array cursor confused with server indexUI 9");
-            new yRvgxykm().WRmEtfNMLdMb(new WZKDTXfSh((byte)33,new byte[]{32,1,9,5,2}));
-            event(33,2,0);AutoPetRuntime.tick();AutoPetRuntime.tick();
-            check(TestTransport.buys==staleBuys+1,"late list duplicated the receive operation");
-            AutoPetRuntime.toggle();
-            config(false,true,0);AutoPetRuntime.toggle();AutoPetRuntime.sawMenu(receiveMenu);AutoPetRuntime.tick();
-            openShop(52,"Nâng cấp vật phẩm");AutoPetRuntime.tick();
-            field(AutoPetRuntime.class,instance.get(null),"shopCacheAt",long.class,Long.valueOf(0));
-            int wrongWindowBuys=TestTransport.buys;AutoPetRuntime.tick();
-            check(!AutoPetRuntime.running() && TestTransport.buys==wrongWindowBuys,"wrong native shop accepted a cached catalog");
-            System.out.println("RUNTIME_SMOKE_PASS "+checks+" (actual game classes, mocked transport; no live server)");
+            check(TestTransport.last.equals("buy") && TestTransport.b==0,"cached native catalog training selection");
+            int stoppedBuys=TestTransport.buys;AutoPetRuntime.tick();check(TestTransport.buys==stoppedBuys,"no duplicate training request");
+            field(AutoPetRuntime.class,instance.get(null),"deadline",long.class,Long.valueOf(0));AutoPetRuntime.tick();
+            check(!AutoPetRuntime.running() && TestTransport.notice.indexOf("Quá thời gian")>=0,"waiting request must time out");
+            Field dialog=null;for(Field f:NBAFgUXWGCkgPq.class.getDeclaredFields())if(f.getName().equals("peMayxrZEBA") && f.getType()==NbLzSVpmyzydCP.class)dialog=f;
+            dialog.setAccessible(true);check(dialog.get(null)==null,"timeout must close native Xin cho dialog");
+            check(count("menu:101")==0,"manual receiving mode must never enter receive menu");
+            senderBytes();
+            System.out.println("RUNTIME_SMOKE_PASS "+checks+" (actual game classes, transport interception; no live server)");
         } catch(Throwable t) {System.out.println("RUNTIME_SMOKE_FAIL "+t);t.printStackTrace();}
         notifyDestroyed();
     }

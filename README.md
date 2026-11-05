@@ -1,83 +1,68 @@
-# AutoPet/LC — Tashino, 251.jar
+# AutoPet/LC r5 — luyện trong hành trang trước, dùng và nâng sau
 
-**Bản thử có xử lý nhận/luyện/nâng, chưa được xác minh trên máy chủ thật.**
-Đầu vào là Java ME MIDP 2.1 / CLDC 1.1. File gốc giữ nguyên trong `input/251.jar`.
-Màn hình cấu hình bản hiện tại hiển thị `AutoPet/LC r4`.
+Bản thử cho 251.jar (Java ME MIDP 2.1 / CLDC 1.1), theo luồng người dùng đã sửa:
+**tự nhận → luyện trong hành trang → đủ chỉ số mới dùng → xác nhận trang bị → nâng cấp**.
+Chưa xác minh trực tiếp trên máy chủ thật.
 
-## Cách sử dụng
+## Cách dùng
 
-1. Đứng gần **Tashino ở Làng Tone, map 22**.
-2. Mở Menu → MenuAuto → AutoPet/LC, bật Enable cho vật phẩm cần chạy.
-   AutoPet/LC cũng nằm ở đầu menu chính, nên không cần cuộn ngang để tìm.
-3. Chọn chỉ số, thao tác nhận/luyện/nâng, giới hạn lượt luyện và cấp đích.
-4. Bấm Lưu ở góc dưới phải, rồi bấm Auto dưới minimap.
-5. Bấm Auto lần nữa để dừng; thông báo: `đã dừng auto`.
+1. Tự nhận vật phẩm tại Tashino. Để **Pet Long ID 1305 ở ô 1** và
+   **Long Châu Mika2 ID 1282 ở ô 2** hành trang; chưa sử dụng.
+2. Đứng gần Tashino ở Làng Tone (map 22).
+3. Menu → MenuAuto → AutoPet/LC. Màn hình phải ghi **AutoPet/LC r5**.
+4. Bật Enable từng vật phẩm cần chạy, chọn chỉ số, Luyện/Nâng cấp, giới hạn lượt và cấp đích.
+5. Bấm Lưu, rồi Auto dưới minimap. Bấm Auto lần nữa để dừng (`đã dừng auto`).
 
-Hai tab lưu riêng bằng RMS. Chưa Enable thì các trường bị khóa. Đóng không lưu bỏ thay đổi.
-Cuộn bằng kéo hoặc phím lên/xuống. Dừng Auto trước khi sửa cấu hình.
+Không có tự nhận vật phẩm. Dòng nhận tự động cũ đã thay bằng hướng dẫn vị trí hành trang.
+Cấu hình từng tab lưu riêng bằng RMS. Chưa Enable thì không sửa được các trường.
+Chỉ kiểm tra các ô của vật phẩm đã Enable; sai hoặc thiếu bất kỳ ô nào thì dừng trước khi gửi lệnh.
+Cấu hình cũ chỉ bật nhận sẽ được tắt Enable khi tải, để người dùng chọn lại Luyện/Nâng cấp.
 
-## Luồng xử lý
+## Quy tắc xử lý
 
-- **Pet Long: ID 1305**, **Long Châu Mika2: ID 1282**, theo ảnh người dùng.
-- Tìm ID của Tashino từ NPC trong map; không cố định ID NPC.
-- Chọn đúng nhãn `Nhận Vật Phẩm`, `Luyện Trang Bị`, `Nâng cấp vật phẩm`.
-- Đọc hành trang/trang bị thật; không lấy chỉ số xem trước trong shop làm kết quả.
-  Nếu có nhiều bản cùng vật phẩm, dừng để tránh chọn sai.
-- Vật phẩm trong hành trang được sử dụng/trang bị bằng thao tác gốc trước khi luyện/nâng.
-- Chọn template trong danh sách của cửa sổ Tashino đang mở, gửi thao tác shop gốc, đối chiếu nội dung
-  xác nhận rồi dùng mã xác nhận server gửi. Đọc lại dữ liệu vật phẩm sau thao tác.
-- Chấp nhận danh sách mới đến trước hoặc sau lệnh mở cửa sổ. Nếu client dùng catalog
-  đã tải sẵn, sau thời gian chờ ngắn vẫn chọn được vật phẩm đang hiển thị, không bắt buộc
-  server gửi lại danh sách. Đối chiếu tiêu đề cửa sổ và ID trước khi gửi lệnh. Cửa sổ
-  52 dùng nguồn danh sách 32, giống hàm làm mới gốc; chỉ đọc lại tối đa một lần.
-- Đặt con trỏ chọn vào đúng ô; chỉ số ô giao diện và indexUI gửi server được giữ riêng.
-- Chỉ nâng khi đủ tất cả các dòng đã chọn. Hết lượt mà chưa đủ thì dừng, không nâng.
-  Đạt cấp đích thì thông báo. Hai vật phẩm được xử lý tuần tự với cấu hình riêng.
-- Dừng khi rời Tashino/map, gặp thông báo lỗi, nội dung xác nhận không khớp, dữ liệu
-  không rõ ràng, hoặc quá 15 giây chờ một bước. Không tự gửi lại thao tác tiêu nguyên liệu.
-- Bấm dừng chặn các bước tiếp theo; thao tác đã gửi trước đó có thể vẫn được server xử lý.
+- Đọc chỉ số thật của vật phẩm ở ô quy định trước khi bắt đầu.
+- Luyện khi vật phẩm vẫn ở hành trang. Chưa đủ tất cả chỉ số đã chọn thì chưa được dùng.
+- Hết lượt mà chưa đủ chỉ số: thông báo dừng, giữ vật phẩm trong hành trang, không nâng.
+- Đủ chỉ số: sử dụng vật phẩm đúng ô. Chờ server cập nhật vào vùng trang bị và đọc lại
+  thông tin mới; sau đó mới nâng tới cấp đích nếu đã chọn Nâng cấp.
+- Chỉ bật Luyện thì vẫn dùng khi đã đủ chỉ số, sau đó hoàn tất mà không nâng.
+- Hai vật phẩm xử lý tuần tự, giới hạn lượt và cấp đích độc lập.
+- Mika2 yêu cầu nhân vật cấp 20 theo ảnh người dùng; máy chủ vẫn kiểm tra điều kiện sử dụng.
+- Dừng khi sai ô, thiếu vật phẩm, nhận lỗi từ server, rời Tashino/map hoặc chờ một bước quá
+  15 giây. Không tự gửi lại lệnh tiêu nguyên liệu. Dừng đóng hộp chờ gốc của game.
+- Lệnh đã gửi trước khi bấm dừng có thể vẫn được máy chủ xử lý.
 
-Auto được điều khiển từ vòng cập nhật game; phần vẽ nút Auto không gửi lệnh nhận/luyện/nâng.
+ID Tashino và vị trí menu lấy từ dữ liệu NPC đang tải. Đối chiếu nhãn Luyện Trang Bị /
+Nâng cấp vật phẩm và tiêu đề cửa sổ. Nguồn danh sách của cửa sổ 52 là 32, giống hàm làm mới gốc.
+Có thể dùng catalog đang hiển thị mà client đã tải sẵn, sau khoảng chờ ngắn. Chỉ số xem trước
+trong catalog không được dùng làm kết quả luyện. Chỉ số ô giao diện và indexUI gửi server giữ riêng.
 
-Option được nhận diện theo tên template tải từ server. Phân biệt tấn công số/phần trăm;
-hồi HP và MP cần dòng kết hợp hoặc đủ cả hai dòng hồi. Nhãn khác không được tự suy đoán.
+## Khi gặp lỗi
 
-## Giới hạn xác minh
-
-Ảnh xác nhận ID, menu, hộp luyện/nâng và yêu cầu trang bị. Hộp nâng Pet Long ghi cần
-1.000 lượng, tỉ lệ 100%; không cố định giá/tỉ lệ đó trong mã. Ảnh Mika2 ghi yêu cầu cấp
-nhân vật 20; máy chủ vẫn kiểm tra điều kiện này.
-
-Chưa đăng nhập game trong môi trường, nên chưa xác nhận kết quả và thời điểm cập nhật
-vật phẩm trên server đang chơi. Đây là bản thử; chưa có tuyên bố chạy thành công trên server thật.
+Nút **?** ở góc trên phải màn hình cấu hình mở nhật ký lần chạy. Nhật ký giữ giới hạn trong
+bộ nhớ, chỉ có bước thao tác, mã gói và nguồn/ô vật phẩm: Q = đã xếp hàng, TX = gửi thành công
+qua bộ ghi của client, RX = nhận và xử lý gói. Không lưu nội dung đăng nhập, chat hoặc giá trị
+thông tin tài khoản. Khi dừng do lỗi, thông báo cũng kèm nhật ký để phân biệt lỗi client và
+bước chờ phản hồi. Nhật ký không tự gửi ra ngoài và không tồn tại sau khi đóng game.
 
 ## Build và kiểm tra
 
-Cần Java 21, Python 3 và rg. Công cụ phát bytecode Java 1.3 với API CLDC 1.1;
-ProGuard tạo StackMap Java ME. Công cụ tải qua TLS và kiểm tra SHA-256.
+Giữ file gốc tại `input/251.jar`. Cần Java 21, Python 3 và rg.
 
 ```sh
 python tools/bootstrap.py
 bash build.sh input/251.jar
 ```
 
-Kết quả: `dist/251-AutoPetLC-Tashino-test.jar`.
+Đầu ra: `dist/251-AutoPetLC-Tashino-test.jar`, cấu hình hiển thị r5.
+Công cụ tải qua TLS, kiểm tra SHA-256. Biên dịch Java 1.3 với API CLDC 1.1, tạo StackMap Java ME.
 
-Build kiểm tra:
+Các kiểm tra gồm cấu hình/động cơ, Canvas/RMS, nạp 319 lớp, kịch bản lớp game thật với bộ gửi
+mô phỏng và kịch bản giữ nguyên EAVbpdxFGDnFcb (bộ tạo gói gốc), chỉ chặn tại hàng đợi mạng.
+Kiểm tra cả frame nhị phân được bộ ghi gốc tạo, thứ tự luyện → dùng → nâng, ô 1/2, không tự nhận,
+không dùng khi hết lượt/chưa đủ chỉ số, xác nhận trang bị, hủy phản hồi sau khi dừng và đóng hộp chờ
+khi timeout. Đây là kiểm tra cục bộ, không chứng minh thao tác đã thành công trên máy chủ thật.
 
-- 40 assertion về cấu hình, nhãn từ ảnh và bộ điều khiển với server mô phỏng.
-- 5 assertion Canvas/RMS trong MicroEmulator.
-- Runtime dùng lớp game/accessor thật với transport giả: trang bị, menu, luyện/nâng,
-  hết lượt, dừng khi chờ xác nhận, nhận đúng Mika2 và bảo toàn vị trí đọc packet.
-- Kiểm tra thứ tự danh sách/cửa sổ bằng packet nhị phân qua bộ xử lý gốc, loại danh sách
-  sai nguồn, dùng catalog có sẵn khi không có packet mới, từ chối cửa sổ sai thao tác,
-  không gửi trùng lệnh nhận, và làm mới đúng nguồn 32 thay vì mã cửa sổ 52.
-- Preverification CLDC và nạp/kiểm tra 319 lớp bằng JVM.
-- Tài nguyên và lớp không vá giống hệt file gốc theo byte.
-
-`build/runtime-fixture.jar` và TestTransport chỉ để thử, không đóng vào JAR phát hành.
-Cảnh báo thiếu hình của giả lập trong phép thử logic không chứng minh hiển thị game hoạt động;
-phần hiển thị trong phiên chơi thật chưa được kiểm tra.
-
-Workspace cloud đã cô lập; dùng checkout hiện có, không tạo Git worktree.
-Không cần tiến trình nền để build. Chưa publish thay đổi lên GitHub.
+`build/runtime-fixture.jar`, `build/wire-fixture.jar`, TestTransport và các lớp test không được đóng
+vào JAR phát hành. Mọi tài nguyên và lớp không vá phải giống file gốc theo byte.
+Workspace cloud đã cô lập; dùng checkout hiện có, không tạo Git worktree. Không cần tiến trình nền.

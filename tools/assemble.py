@@ -5,7 +5,7 @@ import zipfile
 
 original, verified, destination = map(pathlib.Path, sys.argv[1:])
 destination.parent.mkdir(parents=True, exist_ok=True)
-patched = {"zxnsayePWpajv.class", "PyYQMyyC.class", "ceMGdFNBJnq.class", "NBAFgUXWGCkgPq.class", "yRvgxykm.class"}
+patched = {"zxnsayePWpajv.class", "PyYQMyyC.class", "ceMGdFNBJnq.class", "NBAFgUXWGCkgPq.class", "yRvgxykm.class", "LZitKUUsicXFt.class"}
 with zipfile.ZipFile(original) as src, zipfile.ZipFile(verified) as changed:
     additions = {n for n in changed.namelist() if n.startswith("AutoPet") and n.endswith(".class")}
     assert additions == {"AutoPetAccess.class", "AutoPetBridge.class", "AutoPetUI.class",

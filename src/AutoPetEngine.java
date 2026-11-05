@@ -1,15 +1,19 @@
 /** Server adapter must acknowledge each operation before another is sent. */
 public final class AutoPetEngine {
-    public static final int RECEIVE=1, TRAIN=2, UPGRADE=3;
+    public static final int RECEIVE=1, TRAIN=2, UPGRADE=3, USE=4;
     public interface Port {
         void send(int run, int request, int item, int action);
         void notice(String message);
     }
     public static final class Item {
-        public final boolean present;
+        public final boolean present,equipped;
         public final int options, level;
         public Item(boolean present,int options,int level) {
+            this(present,options,level,true);
+        }
+        public Item(boolean present,int options,int level,boolean equipped) {
             this.present=present; this.options=options; this.level=level;
+            this.equipped=equipped;
         }
     }
     private final Port port;
@@ -45,16 +49,17 @@ public final class AutoPetEngine {
             AutoPetConfig c=config[item]; Item s=items[item];
             if(!c.enabled) {++item; used=0; continue;}
             if(!s.present) {
-                if(!c.receive) {finish("Dừng auto: hành trang chưa có "+AutoPetConfig.NAMES[item]);return;}
-                send(RECEIVE,now); return;
+                finish("Dừng auto: hãy tự nhận "+AutoPetConfig.NAMES[item]+" và đặt ở ô "+(item+1)+" hành trang");return;
             }
             boolean matches=(s.options & c.selected)==c.selected;
             if((c.train || c.upgrade) && !matches) {
+                if(s.equipped) {finish("Dừng auto: vật phẩm đã sử dụng nhưng chưa đủ chỉ số; không luyện khi đang trang bị");return;}
                 if(!c.train || used>=c.attempts) {
                     finish("Dừng auto: "+AutoPetConfig.NAMES[item]+" chưa đủ chỉ số sau "+used+" lượt luyện. Không nâng cấp.");return;
                 }
                 ++used; send(TRAIN,now); return;
             }
+            if((c.train || c.upgrade) && !s.equipped) {send(USE,now);return;}
             if(c.upgrade && s.level<c.target) {beforeLevel=s.level;send(UPGRADE,now);return;}
             port.notice(AutoPetConfig.NAMES[item]+(c.upgrade ? " đã đủ cấp "+c.target : " đã hoàn tất"));
             ++item; used=0;
@@ -74,6 +79,7 @@ public final class AutoPetEngine {
         if(action==UPGRADE && updated.level<=beforeLevel) {
             finish("Dừng auto: nâng cấp không tăng cấp vật phẩm");return;
         }
+        if(action==USE && !updated.equipped) {finish("Dừng auto: chưa xác nhận sử dụng vật phẩm thành công");return;}
         items[item]=updated; advance(now);
     }
     public void tick(long now) {

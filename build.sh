@@ -39,3 +39,14 @@ if ! rg -q 'RUNTIME_SMOKE_PASS' build/runtime-test.log || rg -q 'RUNTIME_SMOKE_F
     exit 1
 fi
 rg 'RUNTIME_SMOKE_PASS' build/runtime-test.log
+java -cp tools/asm.jar tests/MockTransport.java dist/251-AutoPetLC-Tashino-test.jar build/wire-fixture.jar wire
+java -jar tools/ecj.jar -1.8 -encoding UTF-8 \
+  -classpath tools/microemulator.jar:build/wire-fixture.jar \
+  -d build/ui-test tests/TestTransport.java tests/RuntimeSmokeMidlet.java
+java -Djava.awt.headless=true -cp tools/microemulator.jar org.microemu.app.Headless \
+  --rms memory --quit --appclasspath build/wire-fixture.jar:build/ui-test RuntimeSmokeMidlet > build/wire-test.log 2>&1
+if ! rg -q 'RUNTIME_SMOKE_PASS' build/wire-test.log || rg -q 'RUNTIME_SMOKE_FAIL' build/wire-test.log; then
+    cat build/wire-test.log
+    exit 1
+fi
+rg 'RUNTIME_SMOKE_PASS' build/wire-test.log
