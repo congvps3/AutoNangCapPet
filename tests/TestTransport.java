@@ -5,7 +5,7 @@ public class TestTransport implements qHSDVwkeNovng {
     public static ArrayList<String> log=new ArrayList<String>();
     public static void record(String name,int x,int y,int z) {
         last=name;a=x;b=y;c=z;log.add(name+":"+x+":"+y+":"+z);
-        if(name.equals("buy"))++buys;if(name.equals("confirm"))++confirms;
+        if(name.equals("buy") || name.equals("box"))++buys;if(name.equals("confirm"))++confirms;
         if(name.equals("list"))++lists;
     }
     public static void notice(String text) {notice=text;}
@@ -15,6 +15,7 @@ public class TestTransport implements qHSDVwkeNovng {
             java.io.DataInputStream in=new java.io.DataInputStream(new java.io.ByteArrayInputStream(bytes));
             int command=message.GAuWiEMckbFHeh;
             if(command==13) {int source=in.readUnsignedByte(),index=in.readUnsignedByte();record("buy",source,index,in.available()==0?1:in.readUnsignedShort());}
+            else if(command==16) {if(bytes.length!=1)throw new RuntimeException("box frame must have one slot byte");record("box",in.readUnsignedByte(),0,0);}
             else if(command==42) record("info",in.readUnsignedByte(),in.readUnsignedByte(),0);
             else if(command==11) record("equip",in.readUnsignedByte(),0,0);
             else if(command==107) record("confirm",in.readUnsignedByte(),0,0);

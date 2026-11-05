@@ -1,7 +1,8 @@
-# AutoPet/LC r6 — luyện trong hành trang trước, dùng và nâng sau
+# AutoPet/LC r7 — luyện trong hành trang trước, dùng và nâng sau
 
-Bản r6 sửa nhật ký chẩn đoán; chưa xác định được nguyên nhân Auto chờ trên máy chủ thật.
-Luồng luyện/dùng/nâng của r5 được giữ nguyên.
+Nhật ký máy thật xác nhận Tashino mở cửa sổ loại 4. Bản r7 dùng thao tác gốc
+111101 → hsFScEwVUfcV(index) → gói 16, thay cho lệnh mua 13 sai loại cửa sổ.
+Luồng luyện/dùng/nâng của r5 được giữ nguyên; kết quả sau bản sửa chưa xác minh trên server thật.
 
 Bản thử cho 251.jar (Java ME MIDP 2.1 / CLDC 1.1), theo luồng người dùng đã sửa:
 **tự nhận → luyện trong hành trang → đủ chỉ số mới dùng → xác nhận trang bị → nâng cấp**.
@@ -12,7 +13,7 @@ Chưa xác minh trực tiếp trên máy chủ thật.
 1. Tự nhận vật phẩm tại Tashino. Để **Pet Long ID 1305 ở ô 1** và
    **Long Châu Mika2 ID 1282 ở ô 2** hành trang; chưa sử dụng.
 2. Đứng gần Tashino ở Làng Tone (map 22).
-3. Menu → MenuAuto → AutoPet/LC. Màn hình phải ghi **AutoPet/LC r6**.
+3. Menu → MenuAuto → AutoPet/LC. Màn hình phải ghi **AutoPet/LC r7**.
 4. Bật Enable từng vật phẩm cần chạy, chọn chỉ số, Luyện/Nâng cấp, giới hạn lượt và cấp đích.
 5. Bấm Lưu, rồi Auto dưới minimap. Bấm Auto lần nữa để dừng (`đã dừng auto`).
 
@@ -37,6 +38,8 @@ Cấu hình cũ chỉ bật nhận sẽ được tắt Enable khi tải, để n
 
 ID Tashino và vị trí menu lấy từ dữ liệu NPC đang tải. Đối chiếu nhãn Luyện Trang Bị /
 Nâng cấp vật phẩm và tiêu đề cửa sổ. Nguồn danh sách của cửa sổ 52 là 32, giống hàm làm mới gốc.
+Cửa sổ 4 nhận danh sách qua gói 31; chỉ thực hiện khi tiêu đề khớp Luyện/Nâng cấp,
+ID và nguồn vật phẩm khớp. Không gửi lệnh mua 13 cho nguồn 4.
 Có thể dùng catalog đang hiển thị mà client đã tải sẵn, sau khoảng chờ ngắn. Chỉ số xem trước
 trong catalog không được dùng làm kết quả luyện. Chỉ số ô giao diện và indexUI gửi server giữ riêng.
 
@@ -59,7 +62,7 @@ python tools/bootstrap.py
 bash build.sh input/251.jar
 ```
 
-Đầu ra: `dist/251-AutoPetLC-Tashino-test.jar`, cấu hình hiển thị r6.
+Đầu ra: `dist/251-AutoPetLC-Tashino-test.jar`, cấu hình hiển thị r7.
 Công cụ tải qua TLS, kiểm tra SHA-256. Biên dịch Java 1.3 với API CLDC 1.1, tạo StackMap Java ME.
 
 Các kiểm tra gồm cấu hình/động cơ, Canvas/RMS, nạp 319 lớp, kịch bản lớp game thật với bộ gửi

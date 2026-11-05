@@ -46,7 +46,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             r.active=true;r.notices="";serverError=null;r.bootIndex=0;r.phase=BOOT;r.deadline=System.currentTimeMillis()+15000;
             auditing=true;trace="";traceStart=System.currentTimeMillis();actionQ="-";actionTX="-";infoQ="-";infoTX="-";lastReply="-";
             for(int i=0;i<subCounts.length;i++)subCounts[i]=0;
-            lastRunState=r.waitingFor();record("START r6");
+            lastRunState=r.waitingFor();record("START r7");
             r.boot();
         } catch(Exception e) {r.fail("Không khởi động được: "+e.getMessage());}
     }
@@ -203,6 +203,9 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
                 if(now<shopCacheAt) return;
             }
             String title=AutoPetAccess.shopTitle();
+            if(shopType==4 && (title==null || !AutoPetRules.shop(action,title))) {
+                fail("Cửa sổ 4 không có tiêu đề Luyện/Nâng cấp phù hợp");return;
+            }
             if(title!=null && title.length()>0 && !AutoPetRules.shop(action,title)) {
                 fail("Cửa sổ hiện tại không đúng thao tác đã chọn: "+title);return;
             }
@@ -220,7 +223,16 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             AutoPetAccess.focusShop(chosenIndex);
             confirmBaseline=confirmVersion;phase=CONFIRM;
             nextInfo=now+300;deadline=now+15000;
-            EAVbpdxFGDnFcb.peMayxrZEBA().BMWCZFcnBgzHkh(chosen.tTqVmuHPEhAbg,chosen.AZmTbjgvi,1);return;
+            if(shopType==4) {
+                if(chosen.tTqVmuHPEhAbg!=4) {fail("Nguồn vật phẩm không khớp cửa sổ 4");return;}
+                // The real Tashino screen is a custom box UI. Its native primary
+                // action is 111101 -> hsFScEwVUfcV(index) -> packet 16, not buying.
+                AutoPetAccess.activateBox();
+            } else {
+                if(chosen.tTqVmuHPEhAbg==4) {fail("Không dùng lệnh mua cho vật phẩm cửa sổ 4");return;}
+                EAVbpdxFGDnFcb.peMayxrZEBA().BMWCZFcnBgzHkh(chosen.tTqVmuHPEhAbg,chosen.AZmTbjgvi,1);
+            }
+            return;
         }
         if(phase==CONFIRM && confirmVersion>confirmBaseline) {
             confirmBaseline=confirmVersion;
@@ -262,6 +274,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
     }
     public static synchronized void beforePacket(WZKDTXfSh msg) {
         eventCommand=msg==null?0:msg.GAuWiEMckbFHeh;eventSource=-1;eventIndex=-1;eventSub=-999;
+        if(eventCommand==31) {eventSource=4;return;}
         if(eventCommand!=33 && eventCommand!=42 && eventCommand!=-30) return;
         try {
             DataInputStream in=AutoPetAccess.input(msg);in.mark(3);
@@ -273,12 +286,13 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
     }
     public static synchronized void afterPacket() {
         if(eventCommand==33 && eventSource>=0) {listRevisions[eventSource]=++listVersion;}
+        if(eventCommand==31) {listRevisions[4]=++listVersion;}
         if(eventCommand==42 && eventSource>=0 && eventIndex>=0) {infoEventSource=eventSource;infoEventIndex=eventIndex;++infoVersion;}
         if(eventCommand==-30) {
             if(auditing && eventSub!=-999) ++subCounts[eventSub & 255];
             return;
         }
-        if(eventCommand==13 || eventCommand==11 || eventCommand==30 || eventCommand==33 || eventCommand==42 || eventCommand==107 || eventCommand==-26) {
+        if(eventCommand==13 || eventCommand==11 || eventCommand==30 || eventCommand==31 || eventCommand==33 || eventCommand==42 || eventCommand==107 || eventCommand==-26) {
             String line="RX "+eventCommand+(eventSource>=0?" src="+eventSource:"")+(eventIndex>=0?" pos="+eventIndex:"");
             if(auditing) lastReply=line;
             record(line);
@@ -293,16 +307,16 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
         if(!auditing || msg==null) return;
         int command=msg.GAuWiEMckbFHeh;
         // Never inspect login/chat payloads. These fields are only item source/index or confirmation code.
-        if(command!=13 && command!=42 && command!=107 && command!=11 && command!=-30) return;
+        if(command!=13 && command!=16 && command!=42 && command!=107 && command!=11 && command!=-30) return;
         byte[] bytes=msg.EgoDKTjkxEUMu();
         String line=null;
         if(command==-30) {
             if(bytes.length==2 && bytes[0]==-103) line=stage+" LIST src="+(bytes[1]&255);
         } else if((command==13 || command==42) && bytes.length>=2) line=stage+" "+command+" src="+(bytes[0]&255)+" pos="+(bytes[1]&255);
-        else if(bytes.length>=1) line=stage+" "+command+" code="+(bytes[0]&255);
+        else if(bytes.length>=1) line=stage+" "+command+(command==16?" pos=":" code=")+(bytes[0]&255);
         if(line==null)return;
         if(command==42) {if(stage.equals("Q"))infoQ=line;else infoTX=line;}
-        else if(command==13 || command==11 || command==107) {if(stage.equals("Q"))actionQ=line;else actionTX=line;}
+        else if(command==13 || command==16 || command==11 || command==107) {if(stage.equals("Q"))actionQ=line;else actionTX=line;}
         record(line);
     }
     public static synchronized void queued(WZKDTXfSh msg) {try {wire("Q",msg);}catch(Exception ignored) {}}
@@ -314,7 +328,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             if(best<0)break;seen[best]=true;
             if(subs.length()>0)subs+=", ";subs+=(best>127?best-256:best)+"x"+subCounts[best];
         }
-        return "r6 | "+lastRunState+" | ID "+INSTANCE.templateId(INSTANCE.item)+"\n"
+        return "r7 | "+lastRunState+" | ID "+INSTANCE.templateId(INSTANCE.item)+"\n"
             +actionQ+"\n"+actionTX+"\n"+infoQ+"\n"+infoTX+"\n"+lastReply+"\n"
             +"Nhóm -30: "+(subs.length()==0?"-":subs)+"\n"+trace;
     }

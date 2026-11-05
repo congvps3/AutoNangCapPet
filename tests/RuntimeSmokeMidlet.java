@@ -46,6 +46,15 @@ public class RuntimeSmokeMidlet extends MIDlet {
         out.writeByte(source);out.writeUTF(title);out.writeUTF("");out.flush();
         new yRvgxykm().WRmEtfNMLdMb(new WZKDTXfSh((byte)30,bytes.toByteArray()));
     }
+    static void boxList() throws Exception {
+        java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();java.io.DataOutputStream out=new java.io.DataOutputStream(bytes);
+        out.writeLong(0);out.writeByte(2);
+        for(int i=0;i<2;i++) {
+            QfMjPqGqZaRx.EgoDKTjkxEUMu(item(i==0?1305:1282,4,i).EgoDKTjkxEUMu);
+            out.writeShort(i==0?1305:1282);out.writeBoolean(true);out.writeByte(0);out.writeBoolean(false);out.writeInt(1);
+        }
+        out.flush();new yRvgxykm().WRmEtfNMLdMb(new WZKDTXfSh((byte)31,bytes.toByteArray()));
+    }
     static void rootAndShop() throws Exception {
         kacyVKUNru choices=new kacyVKUNru();TestTransport callback=new TestTransport();
         choices.addElement(new bmxqULQDW("Nhận Vật Phẩm",callback,101,null));
@@ -54,12 +63,14 @@ public class RuntimeSmokeMidlet extends MIDlet {
         AutoPetRuntime.sawMenu(choices);AutoPetRuntime.tick();
         check(TestTransport.last.equals("menu"),"native menu callback not invoked");
         int selectedAction=TestTransport.a;
-        openShop(52,selectedAction==101?"Nhận Vật Phẩm":selectedAction==102?"Luyện":"Nâng cấp vật phẩm");
+        openShop(4,selectedAction==101?"Nhận Vật Phẩm":selectedAction==102?"Luyện":"Nâng cấp vật phẩm");
         int nativeReads=TestTransport.lists;AutoPetRuntime.tick();
         check(TestTransport.lists==nativeReads,"shop-open redundantly requested an arriving list");
-        field(zxnsayePWpajv.class,null,"oXAaoinDuwaN",wpiwfWAXuWze[].class,new wpiwfWAXuWze[]{item(1305,32,0),item(1282,32,1)});
-        event(33,32,0);AutoPetRuntime.tick();
-        check(TestTransport.last.equals("buy") && TestTransport.a==32,"wrong shop source used");
+        boxList();
+        Field instance=AutoPetRuntime.class.getDeclaredField("INSTANCE");instance.setAccessible(true);
+        field(AutoPetRuntime.class,instance.get(null),"shopCacheAt",long.class,Long.valueOf(0));
+        AutoPetRuntime.tick();
+        check(TestTransport.last.equals("box"),"native window 4 must execute action 111101 / packet 16, never buy packet 13");
     }
     static void confirm(boolean upgrade) {
         AutoPetRuntime.sawConfirm(upgrade?"Nâng cấp: Pet Long\nCần: 1.000 lượng.\nTỉ lệ thành công: 100%.\nXác nhận nâng cấp?":"Xác nhận luyện vật phẩm đã chọn?",8890,Integer.valueOf(7),8891);
@@ -106,6 +117,11 @@ public class RuntimeSmokeMidlet extends MIDlet {
         byte[] wire=bytes.toByteArray();
         check(wire.length==5 && wire[0]==13 && wire[1]==0 && wire[2]==2 && wire[3]==32 && wire[4]==0,"original sender produced wrong frame");
         check(AutoPetRuntime.diagnostics().indexOf("TX 13 src=32 pos=0")>=0,"successful flush not observed");
+        bytes.reset();packet=new WZKDTXfSh((byte)16);
+        for(Method m:WZKDTXfSh.class.getMethods())if(m.getName().equals("peMayxrZEBA") && m.getReturnType()==java.io.DataOutputStream.class && m.getParameterTypes().length==0)out=(java.io.DataOutputStream)m.invoke(packet);
+        out.writeByte(1);out.flush();send.invoke(service,packet);wire=bytes.toByteArray();
+        check(wire.length==4 && wire[0]==16 && wire[1]==0 && wire[2]==1 && wire[3]==1,"box action must serialize as command 16 plus one index byte");
+        check(AutoPetRuntime.diagnostics().indexOf("TX 16 pos=1")>=0,"native box send not retained in diagnostics");
     }
     protected void startApp() {
         try {
@@ -137,7 +153,7 @@ public class RuntimeSmokeMidlet extends MIDlet {
             check(TestTransport.notice.indexOf("Không nâng cấp")>=0,"exhaustion notice");
             reset(false,true,2);wpiwfWAXuWze mika=bag[1];AutoPetRuntime.toggle();
             check(TestTransport.last.equals("info") && TestTransport.b==1,"Mika must start at bag slot 2");info(mika);
-            rootAndShop();check(TestTransport.b==1,"Mika used Pet shop index");confirm(false);refreshNow();options(mika,3);info(mika);
+            rootAndShop();check(TestTransport.a==1,"Mika used Pet shop index");confirm(false);refreshNow();options(mika,3);info(mika);
             check(TestTransport.last.equals("equip") && TestTransport.a==1,"Mika must use bag slot 2 after training");
             useReply(1,1);rootAndShop();
             AutoPetRuntime.sawConfirm("Nâng cấp: Long Châu Mika2\nXác nhận nâng cấp?",8890,Integer.valueOf(7),8891);AutoPetRuntime.tick();
@@ -192,7 +208,7 @@ public class RuntimeSmokeMidlet extends MIDlet {
                 AutoPetRuntime.afterPacket();
             }
             String report=AutoPetRuntime.diagnostics();
-            check(report.indexOf("TX 13 src=32 pos=0")>=0,"background packet flood erased actual send");
+            check(report.indexOf("TX 16 pos=1")>=0,"background packet flood erased actual send");
             check(report.indexOf("-124x1200")>=0 && report.indexOf("RX -30")<0,"background subcommand not summarized");
             check(report.indexOf("xác nhận của máy chủ")>=0,"stopping erased the pending step");
             check(report.length()<2048,"diagnostics exceeded text box size");

@@ -20,6 +20,7 @@ class MockTransport implements Opcodes {
                                 if(n.equals("jPtiHTBf") && d.equals("(I)V"))op="equip";
                                 if(n.equals("zmEhqDHwAKvzjM") && d.equals("(I)V"))op="list";
                                 if(n.equals("BMWCZFcnBgzHkh") && d.equals("(III)V"))op="buy";
+                                if(n.equals("hsFScEwVUfcV") && d.equals("(I)V"))op="box";
                                 if(n.equals("hFWcqhZjekJK") && d.equals("(I)V"))op="confirm";
                             }
                             if(e.getName().equals("zxnsayePWpajv.class") && n.equals("oXAaoinDuwaN") && d.equals("(I)V"))op="npc";

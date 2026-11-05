@@ -9,6 +9,7 @@ public final class AutoPetAccess {
     public static wpiwfWAXuWze shopItem(int source,int index) {return null;}
     public static String shopTitle() {return null;}
     public static void focusShop(int index) {}
+    public static void activateBox() {}
     public static void dismiss() {}
     public static java.io.DataInputStream input(WZKDTXfSh message) {return null;}
 }

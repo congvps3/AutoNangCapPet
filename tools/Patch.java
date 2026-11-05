@@ -140,6 +140,11 @@ class Patch implements Opcodes {
         method(w,"focusShop","(I)V",v->{
             v.visitVarInsn(ILOAD,0);v.visitMethodInsn(INVOKESTATIC,"zxnsayePWpajv","autoPetFocusShop","(I)V",false);v.visitInsn(RETURN);
         });
+        method(w,"activateBox","()V",v->{
+            v.visitFieldInsn(GETSTATIC,"zxnsayePWpajv","EgoDKTjkxEUMu","LzxnsayePWpajv;");
+            v.visitLdcInsn(111101);v.visitInsn(ACONST_NULL);
+            v.visitMethodInsn(INVOKEVIRTUAL,"zxnsayePWpajv","rdmjdEJDQ","(ILjava/lang/Object;)V",false);v.visitInsn(RETURN);
+        });
         method(w,"dismiss","()V",v->{menuObject(v);v.visitInsn(ICONST_0);v.visitFieldInsn(PUTFIELD,"ceMGdFNBJnq","xWSfQVLnUHeHB","Z");v.visitMethodInsn(INVOKESTATIC,"NBAFgUXWGCkgPq","HmLENarbmj","()V",false);v.visitInsn(RETURN);});
         method(w,"click","(LkacyVKUNru;I)V",v->{
             menuObject(v);v.visitVarInsn(ILOAD,1);v.visitFieldInsn(PUTFIELD,"ceMGdFNBJnq","PqmRMgzgwbH","I");
