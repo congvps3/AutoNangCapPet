@@ -16,7 +16,7 @@ public final class AutoPetBridge {
         open();return true;
     }
     public static void addMenu(kacyVKUNru menu) {
-        menu.addElement(new bmxqULQDW("AutoPet/LC",MENU_ID));
+        menu.insertElementAt(new bmxqULQDW("AutoPet/LC",MENU_ID),0);
     }
     private static int y() {return (NBAFgUXWGCkgPq.gxpcPAQGYwZ?16:BWWvgXUCGmx.ydijJozSmduyg)+44;}
     public static void paint(rHNGbrXZGUD g) {

@@ -22,6 +22,7 @@ class MockTransport implements Opcodes {
                                 if(n.equals("hFWcqhZjekJK") && d.equals("(I)V"))op="confirm";
                             }
                             if(e.getName().equals("zxnsayePWpajv.class") && n.equals("oXAaoinDuwaN") && d.equals("(I)V"))op="npc";
+                            if(e.getName().equals("AutoPetBridge.class") && n.equals("open") && d.equals("()V"))op="setup";
                             MethodVisitor v=super.visitMethod(a,n,d,sig,ex);
                             if(e.getName().equals("AutoPetBridge.class") && n.equals("notice") && d.equals("(Ljava/lang/String;)V")) {
                                 v.visitCode();v.visitVarInsn(ALOAD,0);v.visitMethodInsn(INVOKESTATIC,"TestTransport","notice","(Ljava/lang/String;)V",false);v.visitInsn(RETURN);v.visitMaxs(0,0);v.visitEnd();return null;

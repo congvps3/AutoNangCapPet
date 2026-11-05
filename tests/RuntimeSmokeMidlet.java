@@ -62,6 +62,18 @@ public class RuntimeSmokeMidlet extends MIDlet {
         field(AutoPetRuntime.class,instance.get(null),"nextInfo",long.class,Long.valueOf(0));AutoPetRuntime.tick();
         check(TestTransport.last.equals("info"),"fresh actual item info not requested");
     }
+    static void checkSetupMenu(String method) throws Exception {
+        Method build=zxnsayePWpajv.class.getDeclaredMethod(method);build.setAccessible(true);build.invoke(null);
+        Field f=AutoPetRuntime.class.getDeclaredField("menu");f.setAccessible(true);
+        kacyVKUNru choices=(kacyVKUNru)f.get(null);
+        bmxqULQDW first=(bmxqULQDW)choices.elementAt(0);
+        check(first.oXAaoinDuwaN.equals("AutoPet/LC"),method+" does not show AutoPet/LC first");
+        int count=0;
+        for(int i=0;i<choices.size();i++)if(((bmxqULQDW)choices.elementAt(i)).oXAaoinDuwaN.equals("AutoPet/LC"))++count;
+        check(count==1,method+" has duplicate AutoPet/LC entries");
+        first.qHSDVwkeNovng();
+        check(TestTransport.last.equals("setup"),method+" entry does not dispatch to settings");
+    }
     protected void startApp() {
         try {
             sVdEtbWKGxAKR.QWSFikNNoKDGiu();
@@ -73,6 +85,8 @@ public class RuntimeSmokeMidlet extends MIDlet {
             field(zxnsayePWpajv.class,null,"HSjEMvafS",kacyVKUNru.class,ns);
             player=currentPlayer();field(oFpffzUyucjDJX.class,player,"peMayxrZEBA",wpiwfWAXuWze[].class,bag);
             field(oFpffzUyucjDJX.class,player,"rdmjdEJDQ",wpiwfWAXuWze[].class,body);
+            checkSetupMenu("GRYYuFfQZGmfH");
+            checkSetupMenu("xbqjzadR");
             config(true,false,2);pet=item(1305,3,0);bag[0]=pet;
             AutoPetRuntime.toggle();check(TestTransport.last.equals("info") && TestTransport.a==3,"boot did not request bag stats");
             info(pet);check(TestTransport.last.equals("equip"),"pet not equipped before training");

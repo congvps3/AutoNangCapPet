@@ -6,7 +6,8 @@
 ## Cách sử dụng
 
 1. Đứng gần **Tashino ở Làng Tone, map 22**.
-2. Mở Menu → AutoPet/LC, bật Enable cho vật phẩm cần chạy.
+2. Mở Menu → MenuAuto → AutoPet/LC, bật Enable cho vật phẩm cần chạy.
+   AutoPet/LC cũng nằm ở đầu menu chính, nên không cần cuộn ngang để tìm.
 3. Chọn chỉ số, thao tác nhận/luyện/nâng, giới hạn lượt luyện và cấp đích.
 4. Bấm Lưu ở góc dưới phải, rồi bấm Auto dưới minimap.
 5. Bấm Auto lần nữa để dừng; thông báo: `đã dừng auto`.

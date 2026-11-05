@@ -29,11 +29,11 @@ class Patch implements Opcodes {
                 }
             }
         }
-        if(menu!=1 || action!=1 || paint!=1 || pointer!=3 || menuObserver!=1 || shopObserver!=1 || confirmObserver!=1 || packetObserver!=1 || noticeObserver!=2) {
+        if(menu!=2 || action!=1 || paint!=1 || pointer!=3 || menuObserver!=1 || shopObserver!=1 || confirmObserver!=1 || packetObserver!=1 || noticeObserver!=2) {
             Files.deleteIfExists(output);
             throw new IllegalStateException("Unexpected hooks: "+menu+","+action+","+paint+","+pointer);
         }
-        System.out.println("Patched menu=1 action=1 paint=1 pointer=3; observers: menu=1 shop=1 confirmation=1 packet=1");
+        System.out.println("Patched main menu=1 MenuAuto=1 action=1 paint=1 pointer=3; observers: menu=1 shop=1 confirmation=1 packet=1");
     }
     static byte[] game(byte[] bytes) {
         ClassWriter w=new ClassWriter(ClassWriter.COMPUTE_MAXS);
@@ -58,7 +58,7 @@ class Patch implements Opcodes {
                         }
                     }
                     public void visitMethodInsn(int op,String owner,String name,String desc,boolean itf) {
-                        if(n.equals("xbqjzadR") && d.equals("()V") && owner.equals("ceMGdFNBJnq") && desc.equals("(LkacyVKUNru;)V")) {
+                        if((n.equals("xbqjzadR") || n.equals("GRYYuFfQZGmfH")) && d.equals("()V") && owner.equals("ceMGdFNBJnq") && desc.equals("(LkacyVKUNru;)V")) {
                             menu++;visitInsn(DUP);
                             super.visitMethodInsn(INVOKESTATIC,"AutoPetBridge","addMenu","(LkacyVKUNru;)V",false);
                         }
