@@ -1,0 +1,7 @@
+/analysis/
+/build/
+/tools/*.jar
+/dist/*
+!/dist/251-AutoPetLC-Tashino-test.jar
+/input/*
+!/input/251.jar

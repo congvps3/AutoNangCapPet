@@ -1,0 +1,30 @@
+{
+  "ecj.jar": {
+    "url": "https://repo.maven.apache.org/maven2/org/eclipse/jdt/ecj/3.26.0/ecj-3.26.0.jar",
+    "sha256": "ac0ba5876eaf7ebb47749a0d1be179c51f194b9dd0b875d1c09e1b530f5a2db5"
+  },
+  "asm.jar": {
+    "url": "https://repo.maven.apache.org/maven2/org/ow2/asm/asm/9.7.1/asm-9.7.1.jar",
+    "sha256": "8cadd43ac5eb6d09de05faecca38b917a040bb9139c7edeb4cc81c740b713281"
+  },
+  "microemu-midp.jar": {
+    "url": "https://repo.maven.apache.org/maven2/org/microemu/microemu-midp/2.0.4/microemu-midp-2.0.4.jar",
+    "sha256": "f6f5bf17e9a8ac406c531dd2b684cadce649733e33546d55d4e6f5f52c1451c3"
+  },
+  "cldc-api.jar": {
+    "url": "https://repo.maven.apache.org/maven2/org/microemu/cldcapi11/2.0.4/cldcapi11-2.0.4.jar",
+    "sha256": "f86f41bfb4097e4bd9cdfeca528960f6977cbda0f5785342adef9909a6a3baef"
+  },
+  "proguard.jar": {
+    "url": "https://repo.maven.apache.org/maven2/net/sf/proguard/proguard-base/6.2.2/proguard-base-6.2.2.jar",
+    "sha256": "7587a3a415d6aea1946f597f4babe710a245f085bac4dc5e7cda653acfc39b03"
+  },
+  "microemu-wma.jar": {
+    "url": "https://repo.maven.apache.org/maven2/org/microemu/microemu-jsr-120/2.0.4/microemu-jsr-120-2.0.4.jar",
+    "sha256": "6d3f599901a297568c763e389c68aa921f4d5c03740e5c167b18159f0dac2c78"
+  },
+  "microemulator.jar": {
+    "url": "https://repo.maven.apache.org/maven2/org/microemu/microemulator/2.0.4/microemulator-2.0.4.jar",
+    "sha256": "dbd5f3eb8365d3e839d6a203149e0e3776fc1a0585e16ac1fc23f76c9fcae1c6"
+  }
+}
