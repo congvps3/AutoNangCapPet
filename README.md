@@ -25,11 +25,15 @@ Cuộn bằng kéo hoặc phím lên/xuống. Dừng Auto trước khi sửa c�
 - Vật phẩm trong hành trang được sử dụng/trang bị bằng thao tác gốc trước khi luyện/nâng.
 - Chọn template trong danh sách mới từ server, gửi thao tác shop gốc, đối chiếu nội dung
   xác nhận rồi dùng mã xác nhận server gửi. Đọc lại dữ liệu vật phẩm sau thao tác.
+- Chấp nhận danh sách mới đến trước hoặc sau lệnh mở cửa sổ. Danh sách cũ hoặc danh sách
+  của nguồn khác không kích hoạt nhận. Chỉ yêu cầu đọc lại một lần nếu thiếu danh sách.
 - Chỉ nâng khi đủ tất cả các dòng đã chọn. Hết lượt mà chưa đủ thì dừng, không nâng.
   Đạt cấp đích thì thông báo. Hai vật phẩm được xử lý tuần tự với cấu hình riêng.
 - Dừng khi rời Tashino/map, gặp thông báo lỗi, nội dung xác nhận không khớp, dữ liệu
   không rõ ràng, hoặc quá 15 giây chờ một bước. Không tự gửi lại thao tác tiêu nguyên liệu.
 - Bấm dừng chặn các bước tiếp theo; thao tác đã gửi trước đó có thể vẫn được server xử lý.
+
+Auto được điều khiển từ vòng cập nhật game; phần vẽ nút Auto không gửi lệnh nhận/luyện/nâng.
 
 Option được nhận diện theo tên template tải từ server. Phân biệt tấn công số/phần trăm;
 hồi HP và MP cần dòng kết hợp hoặc đủ cả hai dòng hồi. Nhãn khác không được tự suy đoán.
@@ -61,6 +65,8 @@ Build kiểm tra:
 - 5 assertion Canvas/RMS trong MicroEmulator.
 - Runtime dùng lớp game/accessor thật với transport giả: trang bị, menu, luyện/nâng,
   hết lượt, dừng khi chờ xác nhận, nhận đúng Mika2 và bảo toàn vị trí đọc packet.
+- Kiểm tra thứ tự danh sách/cửa sổ bằng packet nhị phân qua bộ xử lý gốc, loại danh sách
+  cũ/sai nguồn, và không gửi trùng lệnh nhận khi có nhiều vòng cập nhật.
 - Preverification CLDC và nạp/kiểm tra 319 lớp bằng JVM.
 - Tài nguyên và lớp không vá giống hệt file gốc theo byte.
 

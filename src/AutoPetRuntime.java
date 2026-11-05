@@ -10,10 +10,12 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
     private boolean active;
     private int phase,bootIndex,run,request,item,action,npcId,shopType=-1;
     private int infoSource,infoIndex,infoBaseline,listBaseline,shopBaseline,menuBaseline,confirmBaseline;
-    private long deadline,nextInfo;
+    private long deadline,nextInfo,shopRequestAt;
+    private boolean shopListRequested;
     private String notices="";
     private static int eventCommand,eventSource,eventIndex;
-    private static int infoVersion,infoEventSource,infoEventIndex,listVersion,listSource,shopVersion,openedShop,menuVersion,confirmVersion,confirmCode;
+    private static int infoVersion,infoEventSource,infoEventIndex,listVersion,shopVersion,openedShop,menuVersion,confirmVersion,confirmCode;
+    private static final int[] listRevisions=new int[256];
     private static String confirmText;
     private static String serverError;
     private static kacyVKUNru menu;
@@ -132,7 +134,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
     private void step(long now) {
         if(serverError!=null) {String text=serverError;serverError=null;fail(text);return;}
         if(AutoPetAccess.map()!=AutoPetRules.TONE || findNpc()!=npcId) {fail("Đã rời Tashino ở Làng Tone");return;}
-        if(now>=deadline) {fail("Quá thời gian chờ máy chủ; không gửi lại thao tác");return;}
+        if(now>=deadline) {fail("Quá thời gian chờ "+waitingFor()+"; không gửi lại thao tác");return;}
         if(phase==BOOT || phase==REFRESH) {
             if(infoVersion<=infoBaseline || infoEventSource!=infoSource || infoEventIndex!=infoIndex) return;
             int target=phase==BOOT?bootIndex:item;
@@ -149,16 +151,26 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
                 if(selected>=0) {fail("Menu Tashino có nhiều lựa chọn trùng tên");return;}selected=i;
             }
             if(selected<0) {fail("Không có mục "+(action==1?"Nhận Vật Phẩm":action==2?"Luyện Trang Bị":"Nâng cấp vật phẩm")+" trong menu Tashino");return;}
-            phase=SHOP;shopBaseline=shopVersion;shopType=-1;
+            // Capture before clicking: both list-before-open and open-before-list are valid.
+            phase=SHOP;shopBaseline=shopVersion;shopType=-1;listBaseline=listVersion;
+            shopListRequested=false;deadline=now+15000;
             AutoPetAccess.click(menu,selected);return;
         }
         if(phase==SHOP) {
             if(shopVersion>shopBaseline) {
-                shopBaseline=shopVersion;shopType=openedShop;listBaseline=listVersion;
-                EAVbpdxFGDnFcb.peMayxrZEBA().zmEhqDHwAKvzjM(shopType);return;
+                shopBaseline=shopVersion;shopType=openedShop;shopRequestAt=now+300;
             }
-            if(shopType<0 || listVersion<=listBaseline) return;
-            if(listSource!=shopType && !(shopType==52 && listSource==32)) return;
+            if(shopType<0) return;
+            int listType=shopType==52?32:shopType;
+            if(listType<0 || listType>=listRevisions.length) {fail("Loại danh sách vật phẩm không được hỗ trợ");return;}
+            if(listRevisions[listType]<=listBaseline) {
+                // The native screen may already have requested it. Only one read-only fallback.
+                if(!shopListRequested && now>=shopRequestAt) {
+                    shopListRequested=true;
+                    EAVbpdxFGDnFcb.peMayxrZEBA().zmEhqDHwAKvzjM(shopType);
+                }
+                return;
+            }
             wpiwfWAXuWze chosen=null;
             for(int i=0;i<256;i++) {
                 wpiwfWAXuWze it=AutoPetAccess.shopItem(shopType,i);
@@ -189,6 +201,14 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             phase=REFRESH;askInfo(it);
         }
     }
+    private String waitingFor() {
+        if(phase==ROOT) return "menu Tashino";
+        if(phase==SHOP) return "danh sách "+(action==1?"nhận ":action==2?"luyện ":"nâng ")+AutoPetConfig.NAMES[item];
+        if(phase==CONFIRM) return "xác nhận của máy chủ";
+        if(phase==EQUIP) return "trang bị "+AutoPetConfig.NAMES[item];
+        if(phase==ACK) return "kết quả thao tác trên máy chủ";
+        return "thông tin mới của vật phẩm";
+    }
     public static synchronized void sawMenu(kacyVKUNru choices) {menu=choices;++menuVersion;}
     public static synchronized void sawShop(int source) {openedShop=source;++shopVersion;}
     public static synchronized void sawConfirm(String text,int yes,Object code,int no) {
@@ -210,7 +230,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
         } catch(Exception ignored) {eventSource=-1;}
     }
     public static synchronized void afterPacket() {
-        if(eventCommand==33 && eventSource>=0) {listSource=eventSource;++listVersion;}
+        if(eventCommand==33 && eventSource>=0) {listRevisions[eventSource]=++listVersion;}
         if(eventCommand==42 && eventSource>=0 && eventIndex>=0) {infoEventSource=eventSource;infoEventIndex=eventIndex;++infoVersion;}
     }
 }

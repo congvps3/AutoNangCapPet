@@ -6,7 +6,7 @@ import java.io.*;
 
 /** Changes only three original methods and the Canvas pointer dispatchers. */
 class Patch implements Opcodes {
-    static int menu,action,paint,pointer,menuObserver,shopObserver,confirmObserver,packetObserver,noticeObserver;
+    static int menu,action,paint,pointer,menuObserver,shopObserver,confirmObserver,packetObserver,noticeObserver,update;
     public static void main(String[] args) throws Exception {
         Path original=Path.of(args[0]),classes=Path.of(args[1]),output=Path.of(args[2]);
         Files.createDirectories(output.getParent());
@@ -29,11 +29,11 @@ class Patch implements Opcodes {
                 }
             }
         }
-        if(menu!=2 || action!=1 || paint!=1 || pointer!=3 || menuObserver!=1 || shopObserver!=1 || confirmObserver!=1 || packetObserver!=1 || noticeObserver!=2) {
+        if(menu!=2 || action!=1 || paint!=1 || pointer!=3 || menuObserver!=1 || shopObserver!=1 || confirmObserver!=1 || packetObserver!=1 || noticeObserver!=2 || update!=1) {
             Files.deleteIfExists(output);
             throw new IllegalStateException("Unexpected hooks: "+menu+","+action+","+paint+","+pointer);
         }
-        System.out.println("Patched main menu=1 MenuAuto=1 action=1 paint=1 pointer=3; observers: menu=1 shop=1 confirmation=1 packet=1");
+        System.out.println("Patched main menu=1 MenuAuto=1 action=1 paint=1 pointer=3 update=1; observers: menu=1 shop=1 confirmation=1 packet=1");
     }
     static byte[] game(byte[] bytes) {
         ClassWriter w=new ClassWriter(ClassWriter.COMPUTE_MAXS);
@@ -87,6 +87,14 @@ class Patch implements Opcodes {
             public MethodVisitor visitMethod(int a,String n,String d,String s,String[] es) {
                 MethodVisitor mv=super.visitMethod(a,n,d,s,es);
                 int kind=n.equals("pointerPressed")?0:n.equals("pointerDragged")?1:n.equals("pointerReleased")?2:-1;
+                if(n.equals("run") && d.equals("()V")) return new MethodVisitor(ASM9,mv) {
+                    public void visitMethodInsn(int op,String owner,String name,String desc,boolean itf) {
+                        super.visitMethodInsn(op,owner,name,desc,itf);
+                        if(owner.equals("QQwLYhYdpMaF") && name.equals("peMayxrZEBA") && desc.equals("()V")) {
+                            update++;super.visitMethodInsn(INVOKESTATIC,"AutoPetRuntime","tick","()V",false);
+                        }
+                    }
+                };
                 if(kind<0 || !d.equals("(II)V")) return mv;
                 pointer++;
                 return new MethodVisitor(ASM9,mv) {

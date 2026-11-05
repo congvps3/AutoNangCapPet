@@ -48,7 +48,7 @@ public class RuntimeSmokeMidlet extends MIDlet {
         AutoPetRuntime.sawMenu(choices);AutoPetRuntime.tick();
         check(TestTransport.last.equals("menu"),"native menu callback not invoked");
         AutoPetRuntime.sawShop(52);AutoPetRuntime.tick();
-        check(TestTransport.last.equals("list") && TestTransport.a==52,"fresh shop list not requested");
+        check(TestTransport.last.equals("menu"),"shop-open redundantly requested an arriving list");
         field(zxnsayePWpajv.class,null,"oXAaoinDuwaN",wpiwfWAXuWze[].class,new wpiwfWAXuWze[]{item(1305,32,0),item(1282,32,1)});
         event(33,32,0);AutoPetRuntime.tick();
         check(TestTransport.last.equals("buy") && TestTransport.a==32,"wrong shop source used");
@@ -116,6 +116,37 @@ public class RuntimeSmokeMidlet extends MIDlet {
             int beforeError=TestTransport.buys;
             AutoPetRuntime.sawNotice("Không đủ lượng");AutoPetRuntime.tick();
             check(!AutoPetRuntime.running() && TestTransport.buys==beforeError && TestTransport.notice.indexOf("Không đủ lượng")>=0,"resource error did not stop runtime");
+            // Real servers may send the list before the shop-open packet; it must not be discarded.
+            config(false,true,0);bag[1]=null;AutoPetRuntime.toggle();
+            kacyVKUNru receiveMenu=new kacyVKUNru();
+            receiveMenu.addElement(new bmxqULQDW("Nhận Vật Phẩm",new TestTransport(),101,null));
+            AutoPetRuntime.sawMenu(receiveMenu);AutoPetRuntime.tick();
+            QfMjPqGqZaRx.EgoDKTjkxEUMu(item(1282,32,9).EgoDKTjkxEUMu);
+            // Actual controller and binary list packet, not an event-only fixture.
+            new yRvgxykm().WRmEtfNMLdMb(new WZKDTXfSh((byte)33,new byte[]{32,1,9,5,2}));
+            int earlyBuys=TestTransport.buys;
+            new zxnsayePWpajv().yXFfVgpsUAFd(52);
+            int nativeRequests=TestTransport.lists;
+            AutoPetRuntime.tick();AutoPetRuntime.tick();
+            check(TestTransport.buys==earlyBuys+1 && TestTransport.b==9,"fresh list received before shop-open was lost");
+            check(TestTransport.lists==nativeRequests,"fresh native list caused a duplicate list request");
+            AutoPetRuntime.toggle();
+            // A list from a previous operation or another source must not trigger receiving.
+            config(false,true,0);AutoPetRuntime.toggle();
+            AutoPetRuntime.sawMenu(receiveMenu);AutoPetRuntime.tick();
+            AutoPetRuntime.sawShop(52);int staleBuys=TestTransport.buys;AutoPetRuntime.tick();
+            check(TestTransport.buys==staleBuys,"old cached shop list triggered receiving");
+            Field instance=AutoPetRuntime.class.getDeclaredField("INSTANCE");instance.setAccessible(true);
+            field(AutoPetRuntime.class,instance.get(null),"shopRequestAt",long.class,Long.valueOf(0));
+            int reads=TestTransport.lists;AutoPetRuntime.tick();AutoPetRuntime.tick();
+            check(TestTransport.lists==reads+1 && TestTransport.buys==staleBuys,"fallback must be one read-only request");
+            event(33,2,0);AutoPetRuntime.tick();
+            check(TestTransport.buys==staleBuys,"unrelated shop source advanced receiving");
+            new yRvgxykm().WRmEtfNMLdMb(new WZKDTXfSh((byte)33,new byte[]{32,1,9,5,2}));
+            // An unrelated later packet must not hide the matching fresh list.
+            event(33,2,0);AutoPetRuntime.tick();AutoPetRuntime.tick();
+            check(TestTransport.buys==staleBuys+1 && TestTransport.b==9,"fresh late list was lost or receiving duplicated");
+            AutoPetRuntime.toggle();
             System.out.println("RUNTIME_SMOKE_PASS "+checks+" (actual game classes, mocked transport; no live server)");
         } catch(Throwable t) {System.out.println("RUNTIME_SMOKE_FAIL "+t);t.printStackTrace();}
         notifyDestroyed();

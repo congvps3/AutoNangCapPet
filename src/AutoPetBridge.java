@@ -20,7 +20,6 @@ public final class AutoPetBridge {
     }
     private static int y() {return (NBAFgUXWGCkgPq.gxpcPAQGYwZ?16:BWWvgXUCGmx.ydijJozSmduyg)+44;}
     public static void paint(rHNGbrXZGUD g) {
-        AutoPetRuntime.tick();
         int x=NBAFgUXWGCkgPq.DndwYNCrvBa-60,y=y();
         g.payNGrJwSbhcCy(0,0,NBAFgUXWGCkgPq.DndwYNCrvBa,NBAFgUXWGCkgPq.SXPEzvYGy);
         g.nRvPqUUFvqMR(AutoPetRuntime.running()?0x277d45:0x24586e);g.mENQrCHeUeoRg(x,y,58,22);
