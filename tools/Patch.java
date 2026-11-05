@@ -76,7 +76,11 @@ class Patch implements Opcodes {
                 m.visitVarInsn(ILOAD,1);m.visitFieldInsn(PUTSTATIC,"zxnsayePWpajv","taYdGEeyp","I");
                 m.visitVarInsn(ILOAD,0);m.visitMethodInsn(INVOKESTATIC,"zxnsayePWpajv","LBtrnuKVnvuG","(I)LwpiwfWAXuWze;",false);
                 m.visitVarInsn(ASTORE,3);m.visitVarInsn(ILOAD,2);m.visitFieldInsn(PUTSTATIC,"zxnsayePWpajv","taYdGEeyp","I");
-                m.visitVarInsn(ALOAD,3);m.visitInsn(ARETURN);m.visitMaxs(0,0);m.visitEnd();super.visitEnd();
+                m.visitVarInsn(ALOAD,3);m.visitInsn(ARETURN);m.visitMaxs(0,0);m.visitEnd();
+                m=super.visitMethod(ACC_PUBLIC|ACC_STATIC,"autoPetFocusShop","(I)V",null,null);m.visitCode();
+                m.visitVarInsn(ILOAD,0);m.visitFieldInsn(PUTSTATIC,"zxnsayePWpajv","taYdGEeyp","I");
+                m.visitInsn(ICONST_1);m.visitFieldInsn(PUTSTATIC,"zxnsayePWpajv","LrmZsvFaTiKDi","I");
+                m.visitInsn(RETURN);m.visitMaxs(0,0);m.visitEnd();super.visitEnd();
             }
         },ClassReader.SKIP_DEBUG);
         return w.toByteArray();
@@ -131,6 +135,10 @@ class Patch implements Opcodes {
             v.visitLabel(def);v.visitInsn(ACONST_NULL);v.visitInsn(ARETURN);
         });
         method(w,"shopItem","(II)LwpiwfWAXuWze;",v->{v.visitVarInsn(ILOAD,0);v.visitVarInsn(ILOAD,1);v.visitMethodInsn(INVOKESTATIC,"zxnsayePWpajv","autoPetShopItem","(II)LwpiwfWAXuWze;",false);v.visitInsn(ARETURN);});
+        method(w,"shopTitle","()Ljava/lang/String;",v->{v.visitFieldInsn(GETSTATIC,"zxnsayePWpajv","hFWcqhZjekJK","Ljava/lang/String;");v.visitInsn(ARETURN);});
+        method(w,"focusShop","(I)V",v->{
+            v.visitVarInsn(ILOAD,0);v.visitMethodInsn(INVOKESTATIC,"zxnsayePWpajv","autoPetFocusShop","(I)V",false);v.visitInsn(RETURN);
+        });
         method(w,"dismiss","()V",v->{menuObject(v);v.visitInsn(ICONST_0);v.visitFieldInsn(PUTFIELD,"ceMGdFNBJnq","xWSfQVLnUHeHB","Z");v.visitMethodInsn(INVOKESTATIC,"NBAFgUXWGCkgPq","HmLENarbmj","()V",false);v.visitInsn(RETURN);});
         method(w,"click","(LkacyVKUNru;I)V",v->{
             menuObject(v);v.visitVarInsn(ILOAD,1);v.visitFieldInsn(PUTFIELD,"ceMGdFNBJnq","PqmRMgzgwbH","I");

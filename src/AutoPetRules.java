@@ -35,6 +35,13 @@ public final class AutoPetRules {
         if(s.equals("nang cap vat pham")) return AutoPetEngine.UPGRADE;
         return 0;
     }
+    public static boolean shop(int action,String title) {
+        String s=plain(title);
+        if(action==AutoPetEngine.RECEIVE) return s.equals("nhan vat pham");
+        if(action==AutoPetEngine.TRAIN) return s.equals("luyen") || s.equals("luyen trang bi");
+        if(action==AutoPetEngine.UPGRADE) return s.equals("nang cap vat pham");
+        return false;
+    }
     public static boolean confirmation(int action,String text) {
         String s=plain(text);
         if(action==AutoPetEngine.TRAIN) return s.equals("xac nhan luyen vat pham da chon?");

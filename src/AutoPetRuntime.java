@@ -10,7 +10,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
     private boolean active;
     private int phase,bootIndex,run,request,item,action,npcId,shopType=-1;
     private int infoSource,infoIndex,infoBaseline,listBaseline,shopBaseline,menuBaseline,confirmBaseline;
-    private long deadline,nextInfo,shopRequestAt;
+    private long deadline,nextInfo,shopRequestAt,shopCacheAt;
     private boolean shopListRequested;
     private String notices="";
     private static int eventCommand,eventSource,eventIndex;
@@ -158,27 +158,39 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
         }
         if(phase==SHOP) {
             if(shopVersion>shopBaseline) {
-                shopBaseline=shopVersion;shopType=openedShop;shopRequestAt=now+300;
+                shopBaseline=shopVersion;shopType=openedShop;shopRequestAt=now+300;shopCacheAt=now+1000;
             }
             if(shopType<0) return;
             int listType=shopType==52?32:shopType;
             if(listType<0 || listType>=listRevisions.length) {fail("Loại danh sách vật phẩm không được hỗ trợ");return;}
-            if(listRevisions[listType]<=listBaseline) {
+            boolean freshList=listRevisions[listType]>listBaseline;
+            if(!freshList) {
                 // The native screen may already have requested it. Only one read-only fallback.
                 if(!shopListRequested && now>=shopRequestAt) {
                     shopListRequested=true;
-                    EAVbpdxFGDnFcb.peMayxrZEBA().zmEhqDHwAKvzjM(shopType);
+                    // Native DPftvpqHuSPmve refreshes window 52 using list source 32.
+                    EAVbpdxFGDnFcb.peMayxrZEBA().zmEhqDHwAKvzjM(listType);
                 }
-                return;
+                // Native shops deliberately reuse their loaded catalog. A fresh packet is
+                // not a prerequisite for selecting an item shown in a newly opened shop.
+                if(now<shopCacheAt) return;
             }
-            wpiwfWAXuWze chosen=null;
+            String title=AutoPetAccess.shopTitle();
+            if(title!=null && title.length()>0 && !AutoPetRules.shop(action,title)) {
+                fail("Cửa sổ hiện tại không đúng thao tác đã chọn: "+title);return;
+            }
+            wpiwfWAXuWze chosen=null;int chosenIndex=-1;
             for(int i=0;i<256;i++) {
                 wpiwfWAXuWze it=AutoPetAccess.shopItem(shopType,i);
                 if(it!=null && it.EgoDKTjkxEUMu!=null && it.EgoDKTjkxEUMu.QpKzrQoqbjfLc==templateId(item)) {
-                    if(chosen!=null && chosen!=it) {fail("Danh sách có nhiều vật phẩm cùng ID");return;}chosen=it;
+                    if(chosen!=null && chosen!=it) {fail("Danh sách có nhiều vật phẩm cùng ID");return;}chosen=it;chosenIndex=i;
                 }
             }
-            if(chosen==null) {fail("Không thấy "+AutoPetConfig.NAMES[item]+" trong danh sách Tashino");return;}
+            if(chosen==null) {
+                if(freshList) fail("Không thấy "+AutoPetConfig.NAMES[item]+" trong danh sách Tashino");
+                return;
+            }
+            AutoPetAccess.focusShop(chosenIndex);
             confirmBaseline=confirmVersion;phase=action==AutoPetEngine.RECEIVE?ACK:CONFIRM;
             nextInfo=now+300;deadline=now+15000;
             EAVbpdxFGDnFcb.peMayxrZEBA().BMWCZFcnBgzHkh(chosen.tTqVmuHPEhAbg,chosen.AZmTbjgvi,1);return;

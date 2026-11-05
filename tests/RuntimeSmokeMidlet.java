@@ -40,6 +40,12 @@ public class RuntimeSmokeMidlet extends MIDlet {
         AutoPetRuntime.afterPacket();
     }
     static void info(wpiwfWAXuWze it) throws Exception {it.ffWUPzwfbDA=true;event(42,it.tTqVmuHPEhAbg,it.AZmTbjgvi);AutoPetRuntime.tick();}
+    static void openShop(int source,String title) throws Exception {
+        java.io.ByteArrayOutputStream bytes=new java.io.ByteArrayOutputStream();
+        java.io.DataOutputStream out=new java.io.DataOutputStream(bytes);
+        out.writeByte(source);out.writeUTF(title);out.writeUTF("");out.flush();
+        new yRvgxykm().WRmEtfNMLdMb(new WZKDTXfSh((byte)30,bytes.toByteArray()));
+    }
     static void rootAndShop() throws Exception {
         kacyVKUNru choices=new kacyVKUNru();TestTransport callback=new TestTransport();
         choices.addElement(new bmxqULQDW("Nhận Vật Phẩm",callback,101,null));
@@ -47,8 +53,10 @@ public class RuntimeSmokeMidlet extends MIDlet {
         choices.addElement(new bmxqULQDW("Nâng cấp vật phẩm",callback,103,null));
         AutoPetRuntime.sawMenu(choices);AutoPetRuntime.tick();
         check(TestTransport.last.equals("menu"),"native menu callback not invoked");
-        AutoPetRuntime.sawShop(52);AutoPetRuntime.tick();
-        check(TestTransport.last.equals("menu"),"shop-open redundantly requested an arriving list");
+        int selectedAction=TestTransport.a;
+        openShop(52,selectedAction==101?"Nhận Vật Phẩm":selectedAction==102?"Luyện":"Nâng cấp vật phẩm");
+        int nativeReads=TestTransport.lists;AutoPetRuntime.tick();
+        check(TestTransport.lists==nativeReads,"shop-open redundantly requested an arriving list");
         field(zxnsayePWpajv.class,null,"oXAaoinDuwaN",wpiwfWAXuWze[].class,new wpiwfWAXuWze[]{item(1305,32,0),item(1282,32,1)});
         event(33,32,0);AutoPetRuntime.tick();
         check(TestTransport.last.equals("buy") && TestTransport.a==32,"wrong shop source used");
@@ -125,28 +133,37 @@ public class RuntimeSmokeMidlet extends MIDlet {
             // Actual controller and binary list packet, not an event-only fixture.
             new yRvgxykm().WRmEtfNMLdMb(new WZKDTXfSh((byte)33,new byte[]{32,1,9,5,2}));
             int earlyBuys=TestTransport.buys;
-            new zxnsayePWpajv().yXFfVgpsUAFd(52);
+            openShop(52,"Nhận Vật Phẩm");
             int nativeRequests=TestTransport.lists;
             AutoPetRuntime.tick();AutoPetRuntime.tick();
             check(TestTransport.buys==earlyBuys+1 && TestTransport.b==9,"fresh list received before shop-open was lost");
             check(TestTransport.lists==nativeRequests,"fresh native list caused a duplicate list request");
             AutoPetRuntime.toggle();
-            // A list from a previous operation or another source must not trigger receiving.
+            // The native UI can display a cached catalog without emitting another list packet.
             config(false,true,0);AutoPetRuntime.toggle();
             AutoPetRuntime.sawMenu(receiveMenu);AutoPetRuntime.tick();
-            AutoPetRuntime.sawShop(52);int staleBuys=TestTransport.buys;AutoPetRuntime.tick();
-            check(TestTransport.buys==staleBuys,"old cached shop list triggered receiving");
+            openShop(52,"Nhận Vật Phẩm");int staleBuys=TestTransport.buys;AutoPetRuntime.tick();
+            check(TestTransport.buys==staleBuys,"cached shop catalog used before refresh grace period");
             Field instance=AutoPetRuntime.class.getDeclaredField("INSTANCE");instance.setAccessible(true);
             field(AutoPetRuntime.class,instance.get(null),"shopRequestAt",long.class,Long.valueOf(0));
             int reads=TestTransport.lists;AutoPetRuntime.tick();AutoPetRuntime.tick();
-            check(TestTransport.lists==reads+1 && TestTransport.buys==staleBuys,"fallback must be one read-only request");
+            check(TestTransport.lists==reads+1 && TestTransport.buys==staleBuys && TestTransport.a==32,"window 52 must refresh source 32 once");
             event(33,2,0);AutoPetRuntime.tick();
             check(TestTransport.buys==staleBuys,"unrelated shop source advanced receiving");
+            field(AutoPetRuntime.class,instance.get(null),"shopCacheAt",long.class,Long.valueOf(0));AutoPetRuntime.tick();
+            check(TestTransport.buys==staleBuys+1 && TestTransport.b==9,"visible cached catalog was never selected");
+            Field cursor=zxnsayePWpajv.class.getDeclaredField("taYdGEeyp");cursor.setAccessible(true);
+            Field panel=zxnsayePWpajv.class.getDeclaredField("LrmZsvFaTiKDi");panel.setAccessible(true);
+            check(cursor.getInt(null)==0 && panel.getInt(null)==1,"array cursor confused with server indexUI 9");
             new yRvgxykm().WRmEtfNMLdMb(new WZKDTXfSh((byte)33,new byte[]{32,1,9,5,2}));
-            // An unrelated later packet must not hide the matching fresh list.
             event(33,2,0);AutoPetRuntime.tick();AutoPetRuntime.tick();
-            check(TestTransport.buys==staleBuys+1 && TestTransport.b==9,"fresh late list was lost or receiving duplicated");
+            check(TestTransport.buys==staleBuys+1,"late list duplicated the receive operation");
             AutoPetRuntime.toggle();
+            config(false,true,0);AutoPetRuntime.toggle();AutoPetRuntime.sawMenu(receiveMenu);AutoPetRuntime.tick();
+            openShop(52,"Nâng cấp vật phẩm");AutoPetRuntime.tick();
+            field(AutoPetRuntime.class,instance.get(null),"shopCacheAt",long.class,Long.valueOf(0));
+            int wrongWindowBuys=TestTransport.buys;AutoPetRuntime.tick();
+            check(!AutoPetRuntime.running() && TestTransport.buys==wrongWindowBuys,"wrong native shop accepted a cached catalog");
             System.out.println("RUNTIME_SMOKE_PASS "+checks+" (actual game classes, mocked transport; no live server)");
         } catch(Throwable t) {System.out.println("RUNTIME_SMOKE_FAIL "+t);t.printStackTrace();}
         notifyDestroyed();

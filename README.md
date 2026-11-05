@@ -2,6 +2,7 @@
 
 **Bản thử có xử lý nhận/luyện/nâng, chưa được xác minh trên máy chủ thật.**
 Đầu vào là Java ME MIDP 2.1 / CLDC 1.1. File gốc giữ nguyên trong `input/251.jar`.
+Màn hình cấu hình bản hiện tại hiển thị `AutoPet/LC r4`.
 
 ## Cách sử dụng
 
@@ -23,10 +24,13 @@ Cuộn bằng kéo hoặc phím lên/xuống. Dừng Auto trước khi sửa c�
 - Đọc hành trang/trang bị thật; không lấy chỉ số xem trước trong shop làm kết quả.
   Nếu có nhiều bản cùng vật phẩm, dừng để tránh chọn sai.
 - Vật phẩm trong hành trang được sử dụng/trang bị bằng thao tác gốc trước khi luyện/nâng.
-- Chọn template trong danh sách mới từ server, gửi thao tác shop gốc, đối chiếu nội dung
+- Chọn template trong danh sách của cửa sổ Tashino đang mở, gửi thao tác shop gốc, đối chiếu nội dung
   xác nhận rồi dùng mã xác nhận server gửi. Đọc lại dữ liệu vật phẩm sau thao tác.
-- Chấp nhận danh sách mới đến trước hoặc sau lệnh mở cửa sổ. Danh sách cũ hoặc danh sách
-  của nguồn khác không kích hoạt nhận. Chỉ yêu cầu đọc lại một lần nếu thiếu danh sách.
+- Chấp nhận danh sách mới đến trước hoặc sau lệnh mở cửa sổ. Nếu client dùng catalog
+  đã tải sẵn, sau thời gian chờ ngắn vẫn chọn được vật phẩm đang hiển thị, không bắt buộc
+  server gửi lại danh sách. Đối chiếu tiêu đề cửa sổ và ID trước khi gửi lệnh. Cửa sổ
+  52 dùng nguồn danh sách 32, giống hàm làm mới gốc; chỉ đọc lại tối đa một lần.
+- Đặt con trỏ chọn vào đúng ô; chỉ số ô giao diện và indexUI gửi server được giữ riêng.
 - Chỉ nâng khi đủ tất cả các dòng đã chọn. Hết lượt mà chưa đủ thì dừng, không nâng.
   Đạt cấp đích thì thông báo. Hai vật phẩm được xử lý tuần tự với cấu hình riêng.
 - Dừng khi rời Tashino/map, gặp thông báo lỗi, nội dung xác nhận không khớp, dữ liệu
@@ -66,7 +70,8 @@ Build kiểm tra:
 - Runtime dùng lớp game/accessor thật với transport giả: trang bị, menu, luyện/nâng,
   hết lượt, dừng khi chờ xác nhận, nhận đúng Mika2 và bảo toàn vị trí đọc packet.
 - Kiểm tra thứ tự danh sách/cửa sổ bằng packet nhị phân qua bộ xử lý gốc, loại danh sách
-  cũ/sai nguồn, và không gửi trùng lệnh nhận khi có nhiều vòng cập nhật.
+  sai nguồn, dùng catalog có sẵn khi không có packet mới, từ chối cửa sổ sai thao tác,
+  không gửi trùng lệnh nhận, và làm mới đúng nguồn 32 thay vì mã cửa sổ 52.
 - Preverification CLDC và nạp/kiểm tra 319 lớp bằng JVM.
 - Tài nguyên và lớp không vá giống hệt file gốc theo byte.
 

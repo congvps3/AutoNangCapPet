@@ -7,6 +7,8 @@ public final class AutoPetAccess {
     public static wpiwfWAXuWze[] items(int source) {return null;}
     public static void click(kacyVKUNru menu,int index) {}
     public static wpiwfWAXuWze shopItem(int source,int index) {return null;}
+    public static String shopTitle() {return null;}
+    public static void focusShop(int index) {}
     public static void dismiss() {}
     public static java.io.DataInputStream input(WZKDTXfSh message) {return null;}
 }

@@ -60,7 +60,7 @@ public final class AutoPetUI extends Canvas implements CommandListener {
     protected void paint(Graphics g) {
         int w=getWidth(),h=getHeight(),rh=rowHeight();
         g.setColor(0x12202b);g.fillRect(0,0,w,h);g.setFont(font);
-        g.setColor(0xffffff);g.drawString("AutoPet/LC",w/2,2,Graphics.TOP|Graphics.HCENTER);
+        g.setColor(0xffffff);g.drawString("AutoPet/LC r4",w/2,2,Graphics.TOP|Graphics.HCENTER);
         for(int i=0;i<2;i++) {
             g.setColor(i==tab?0x247c9e:0x30414f);g.fillRect(i*w/2,22,w/2-1,24);
             g.setColor(0xffffff);g.drawString(i==0?"Pet Long":"LC Mika2",i*w/2+w/4,26,Graphics.TOP|Graphics.HCENTER);
