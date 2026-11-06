@@ -20,14 +20,14 @@ public final class MapRulesTest {
         for(int i=0;i<AutoPetMaps.REALM.length;i++) {
             int[] r=AutoPetMaps.REALM[i];int map=r[0],min=r[1],max=r[2];
             check(AutoPetMaps.realmMap(min+1)==map,"stay until min+2");
-            check(AutoPetMaps.realmMap(min+2)==(i+1<AutoPetMaps.REALM.length?map+1:-1),"transition at min+2");
+            check(AutoPetMaps.realmMap(min+2)==(i+1<AutoPetMaps.REALM.length?map+1:148),"transition at min+2 except terminal map");
             check(AutoPetMaps.canContinue(min+1,min,map),"continue in correct realm map");
-            check(!AutoPetMaps.canContinue(min+2,min,map),"old map expires at threshold");
+            check(AutoPetMaps.canContinue(min+2,min,map)==(map==148),"only terminal map stays after threshold");
             check(AutoPetMaps.targetMobLevel(max-10,map)==(max-10<60?-1:min),"gap 10 targets nearest only after unlock");
             check(AutoPetMaps.targetMobLevel(max-9,map)==(max-9<60?-1:0),"gap 9 allows all only after unlock");
             check(AutoPetMaps.targetMobLevel(59,map)==-1,"realm mobs locked below 60");
         }
-        check(AutoPetMaps.realmMap(155)==-1,"do not invent a map after 148");
+        check(AutoPetMaps.realmMap(155)==148 && AutoPetMaps.realmMap(200)==148,"terminal map remains available above threshold");
         check(AutoPetMaps.targetMobLevel(41,19)==0,"outside targeting unchanged");
         System.out.println("PASS: "+checks+" map/realm rule assertions");
     }

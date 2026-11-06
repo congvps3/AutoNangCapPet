@@ -10,6 +10,7 @@ class Patch implements Opcodes {
     static int levelHook;
     static int huntHooks;
     static int mapHooks;
+    static int priorityHooks;
     static int menu,action,paint,pointer,menuObserver,shopObserver,confirmObserver,packetObserver,noticeObserver,update,queued,transmitted;
     public static void main(String[] args) throws Exception {
         Path original=Path.of(args[0]),classes=Path.of(args[1]),output=Path.of(args[2]);
@@ -28,6 +29,7 @@ class Patch implements Opcodes {
                 if(hasLevel && e.getName().equals("SJSCaeScqbiua.class")) data=level(data);
                 if(hasLevel && e.getName().equals("AutoLevelHook.class")) data=hunt(data);
                 if(hasLevel && e.getName().equals("autouplv/MapCatalog.class")) data=catalog(data);
+                if(hasLevel && e.getName().equals("BMWCZFcnBgzHkh.class")) data=priorities(data);
                 out.putNextEntry(new ZipEntry(e.getName()));out.write(data);out.closeEntry();
             }
             try(var paths=Files.list(classes)) {
@@ -38,7 +40,7 @@ class Patch implements Opcodes {
                 }
             }
         }
-        if(menu!=2 || action!=1 || paint!=1 || pointer!=3 || menuObserver!=1 || shopObserver!=1 || confirmObserver!=1 || packetObserver!=1 || noticeObserver!=2 || update!=1 || queued!=1 || transmitted!=1 || (hasLevel && (levelHook!=1 || huntHooks!=3 || mapHooks!=5))) {
+        if(menu!=2 || action!=1 || paint!=1 || pointer!=3 || menuObserver!=1 || shopObserver!=1 || confirmObserver!=1 || packetObserver!=1 || noticeObserver!=2 || update!=1 || queued!=1 || transmitted!=1 || (hasLevel && (levelHook!=1 || huntHooks!=3 || mapHooks!=4 || priorityHooks!=2))) {
             Files.deleteIfExists(output);
             throw new IllegalStateException("Unexpected hooks: "+menu+","+action+","+paint+","+pointer);
         }
@@ -140,11 +142,6 @@ class Patch implements Opcodes {
                         if(op==RETURN)super.visitMethodInsn(INVOKESTATIC,"AutoPetHunt","reset","()V",false);super.visitInsn(op);
                     }};
                 }
-                if(n.equals("notifyStatus") && d.equals("(Ljava/lang/String;)V")) {
-                    ++mapHooks;return new MethodVisitor(ASM9,v) {public void visitCode() {
-                        super.visitCode();visitVarInsn(ALOAD,0);visitMethodInsn(INVOKESTATIC,"AutoPetHunt","mapStatus","(Ljava/lang/String;)Ljava/lang/String;",false);visitVarInsn(ASTORE,0);
-                    }};
-                }
                 if(n.equals("update") && d.equals("(LSJSCaeScqbiua;)Z")) return new MethodVisitor(ASM9,v) {
                     public void visitMethodInsn(int op,String owner,String name,String desc,boolean itf) {
                         if(owner.equals("autouplv/MapSelector")) {
@@ -160,6 +157,26 @@ class Patch implements Opcodes {
                     }
                 };
                 return v;
+            }
+        },ClassReader.SKIP_DEBUG);return w.toByteArray();
+    }
+    static byte[] priorities(byte[] bytes) {
+        ClassWriter w=new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        new ClassReader(bytes).accept(new ClassVisitor(ASM9,w) {
+            public MethodVisitor visitMethod(int a,String n,String d,String s,String[] ex) {
+                boolean selection=n.equals("peMayxrZEBA") && d.equals("(LoFpffzUyucjDJX;IILoFpffzUyucjDJX;Z)LwCmqWHpCSBaGX;");
+                return new MethodVisitor(ASM9,super.visitMethod(a,n,d,s,ex)) {
+                    int kinds;
+                    public void visitFieldInsn(int op,String owner,String name,String desc) {
+                        super.visitFieldInsn(op,owner,name,desc);
+                        if(selection && op==GETFIELD && owner.equals("wCmqWHpCSBaGX") && name.equals("QgPHSngFRpo") && desc.equals("S") && ++kinds==2) {
+                            ++priorityHooks;super.visitMethodInsn(INVOKESTATIC,"AutoPetHunt","scoreType","(I)I",false);
+                        }
+                        if(op==GETSTATIC && owner.equals("oFpffzUyucjDJX") && name.equals("rMGmhwrTHb") && desc.equals("Z")) {
+                            ++priorityHooks;super.visitMethodInsn(INVOKESTATIC,"AutoPetHunt","leaderPreference","(Z)Z",false);
+                        }
+                    }
+                };
             }
         },ClassReader.SKIP_DEBUG);return w.toByteArray();
     }

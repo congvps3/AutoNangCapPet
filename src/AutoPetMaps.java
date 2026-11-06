@@ -18,7 +18,7 @@ public final class AutoPetMaps {
     public static int realmMap(int level) {
         if(level<60) return -1;
         for(int i=0;i<REALM.length;i++) if(level<REALM[i][1]+2) return REALM[i][0];
-        return -1; // need another supplied map after the last transition
+        return 148; // terminal map: keep leveling here without a level cap
     }
     public static boolean canContinue(int level,int monsterLevel,int map) {
         if(level>=60) return realm(map) && map==realmMap(level);

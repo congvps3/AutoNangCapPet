@@ -297,14 +297,27 @@ public class RuntimeSmokeMidlet extends MIDlet {
         field(oFpffzUyucjDJX.class,player,"vMyUkiiUKxerr",int.class,Integer.valueOf(67));
         check(AutoLevelHook.checkZone(auto,1000) && nativeAllowed(low) && !nativeAllowed(highLeader),"gap 10 must prefer correct monster level over higher leader");
         field(oFpffzUyucjDJX.class,player,"vMyUkiiUKxerr",int.class,Integer.valueOf(68));
-        check(AutoLevelHook.checkZone(auto,1100) && nativeAllowed(highLeader) && !nativeAllowed(low),"gap 9 unlocks all levels and normal leader priority");
+        check(AutoLevelHook.checkZone(auto,1100) && nativeAllowed(highLeader) && nativeAllowed(low),"gap 9 unlocks all levels without leader priority in realm");
+        check(AutoPetHunt.scoreType(2)==0 && !AutoPetHunt.leaderPreference(true),"realm must disable native score bonus and elite scan as well as target filtering");
         highLeader.QgPHSngFRpo=0;
         check(AutoLevelHook.checkZone(auto,1200) && nativeAllowed(low) && nativeAllowed(highLeader),"all levels must be targetable when no leader exists in all-level mode");
+        int zones=count("zone:");check(AutoLevelHook.checkZone(auto,12000) && count("zone:")==zones,"realm must not switch zones because no leader appeared in six seconds");
         field(oFpffzUyucjDJX.class,player,"vMyUkiiUKxerr",int.class,Integer.valueOf(59));
         check(!nativeAllowed(low) && !nativeAllowed(highLeader),"native targets must not unlock realm below level 60");
         field(oFpffzUyucjDJX.class,player,"vMyUkiiUKxerr",int.class,Integer.valueOf(155));
-        check(!AutoLevelHook.update(auto),"native AutoLV must pause rather than invent next realm after 148");
+        check(AutoLevelHook.update(auto) && auto.PVQpZEqSNMpYBM==148,"native AutoLV must select terminal map instead of pausing at 155");
+        field(SBnKDsbzS.class,null,"uTxJizAJr",short.class,Short.valueOf((short)148));
+        low.aRzRUEjwca=153;highLeader.aRzRUEjwca=159;highLeader.QgPHSngFRpo=2;
+        check(AutoLevelHook.update(auto) && auto.PVQpZEqSNMpYBM==148 && nativeAllowed(low) && nativeAllowed(highLeader),"terminal map must keep killing all eligible mobs including ordinary mobs");
+        field(oFpffzUyucjDJX.class,player,"vMyUkiiUKxerr",int.class,Integer.valueOf(200));
+        check(AutoLevelHook.update(auto) && auto.PVQpZEqSNMpYBM==148 && AutoPetAccess.currentAuto()==auto,"terminal map must have no client level cap and keep Tan sat enabled");
+        low.ubmVeVhBeAG=highLeader.ubmVeVhBeAG=0;
+        check(!AutoLevelHook.checkZone(auto,System.currentTimeMillis()) && count("zone:")==zones+1,"empty terminal map still changes zone, not map");
+        AutoLevelHook.reset(auto);field(AutoLevelHook.class,null,"trainingMap",int.class,Integer.valueOf(148));mobs.removeAllElements();
+        check(!AutoLevelHook.checkZone(auto,1000),"fresh empty realm zone must allow initial monster loading");
+        check(!AutoLevelHook.checkZone(auto,7000) && count("zone:")==zones+2,"fresh realm zone that stays empty must not wait forever");
         AutoPetAccess.setAuto(null);field(SBnKDsbzS.class,null,"uTxJizAJr",short.class,Short.valueOf((short)22));
+        AutoPetAccess.setAuto(auto);check(AutoPetHunt.scoreType(2)==2 && AutoPetHunt.leaderPreference(true),"outside map restores normal leader preference");AutoPetAccess.setAuto(null);
     }
     static void useReply(int bagSlot,int equipSlot) throws Exception {
         wpiwfWAXuWze it=bag[bagSlot];bag[bagSlot]=null;body[equipSlot]=it;it.tTqVmuHPEhAbg=5;it.AZmTbjgvi=equipSlot;

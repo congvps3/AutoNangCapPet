@@ -26,10 +26,10 @@ java -cp tools/asm.jar tools/Patch.java "$original" build/classes build/patched.
 java -jar tools/proguard.jar -injars build/patched.jar -outjars build/preverified.jar \
   -libraryjars tools/cldc-api.jar -libraryjars tools/microemu-midp.jar \
   -libraryjars tools/microemu-wma.jar -dontshrink -dontoptimize -dontobfuscate -microedition -dontnote
-python tools/assemble.py "$original" build/preverified.jar dist/AutoUpLv-AutoPetLC-r16.jar
-java -Xverify:all -cp tools/microemulator.jar:tools/microemu-wma.jar:dist/AutoUpLv-AutoPetLC-r16.jar \
-  tests/VerifyJar.java dist/AutoUpLv-AutoPetLC-r16.jar
-java -cp tools/asm.jar tests/MockTransport.java dist/AutoUpLv-AutoPetLC-r16.jar build/runtime-fixture.jar
+python tools/assemble.py "$original" build/preverified.jar dist/AutoUpLv-AutoPetLC-r17.jar
+java -Xverify:all -cp tools/microemulator.jar:tools/microemu-wma.jar:dist/AutoUpLv-AutoPetLC-r17.jar \
+  tests/VerifyJar.java dist/AutoUpLv-AutoPetLC-r17.jar
+java -cp tools/asm.jar tests/MockTransport.java dist/AutoUpLv-AutoPetLC-r17.jar build/runtime-fixture.jar
 java -jar tools/ecj.jar -1.8 -encoding UTF-8 \
   -classpath tools/microemulator.jar:build/runtime-fixture.jar \
   -d build/ui-test tests/TestTransport.java tests/RuntimeSmokeMidlet.java
@@ -40,7 +40,7 @@ if ! rg -q 'RUNTIME_SMOKE_PASS' build/runtime-test.log || rg -q 'RUNTIME_SMOKE_F
     exit 1
 fi
 rg 'RUNTIME_SMOKE_PASS' build/runtime-test.log
-java -cp tools/asm.jar tests/MockTransport.java dist/AutoUpLv-AutoPetLC-r16.jar build/wire-fixture.jar wire
+java -cp tools/asm.jar tests/MockTransport.java dist/AutoUpLv-AutoPetLC-r17.jar build/wire-fixture.jar wire
 java -jar tools/ecj.jar -1.8 -encoding UTF-8 \
   -classpath tools/microemulator.jar:build/wire-fixture.jar \
   -d build/ui-test tests/TestTransport.java tests/RuntimeSmokeMidlet.java

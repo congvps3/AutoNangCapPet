@@ -8,11 +8,11 @@ public final class AutoPetHunt {
     public static void reset() {
         map=zone=-1;noLeaderSince=-1;lastAttempt=-1;retryAt=0;seenPopulation=false;pending=false;leader=null;
     }
-    public static String mapStatus(String original) {
-        int level=oFpffzUyucjDJX.rdmjdEJDQ().vMyUkiiUKxerr;
-        return level>=60 && AutoPetMaps.realmMap(level)<0
-            ?"AutoLV tạm dừng: chưa có dữ liệu map Ma Quỷ tiếp theo cho cấp "+level:original;
+    private static boolean realmAuto() {
+        return AutoPetAccess.currentAuto() instanceof SJSCaeScqbiua && AutoPetMaps.realm(AutoPetAccess.map());
     }
+    public static int scoreType(int type) {return realmAuto()?0:type;}
+    public static boolean leaderPreference(boolean enabled) {return enabled && !realmAuto();}
     private static boolean alive(wCmqWHpCSBaGX mob) {
         return mob!=null && mob.ubmVeVhBeAG>0 && mob.XfAmeXqfjJLK!=0 && mob.XfAmeXqfjJLK!=1
             && !(mob.RULfytWrmUzzRn==202 && mob.XfAmeXqfjJLK==8);
@@ -25,6 +25,7 @@ public final class AutoPetHunt {
     public static boolean allowed(wCmqWHpCSBaGX mob) {
         if(!(AutoPetAccess.currentAuto() instanceof SJSCaeScqbiua)) return true;
         if(!eligible(mob)) return false;
+        if(realmAuto()) return true;
         return !alive(leader) || mob.QgPHSngFRpo==2;
     }
     private static boolean change(SJSCaeScqbiua auto,long now,int currentZone) {
@@ -60,6 +61,14 @@ public final class AutoPetHunt {
         }
         if(living) seenPopulation=true;
         if(!living && seenPopulation) return change(auto,now,currentZone);
+        if(AutoPetMaps.realm(currentMap)) {
+            leader=null;
+            if(living) {noLeaderSince=-1;return true;}
+            // An initially empty/unpopulated zone can finish loading. This is
+            // only an empty-zone grace, never a leader search while fighting.
+            if(noLeaderSince<0) noLeaderSince=now;
+            return now-noLeaderSince>=6000?change(auto,now,currentZone):false;
+        }
         if(leader!=null) {noLeaderSince=-1;return true;}
         // The leaderless interval starts anew after the last leader dies.
         // Ordinary mobs remain attackable throughout that interval.
