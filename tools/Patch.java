@@ -6,11 +6,14 @@ import java.io.*;
 
 /** Changes only three original methods and the Canvas pointer dispatchers. */
 class Patch implements Opcodes {
+    static boolean hasLevel;
+    static int levelHook;
     static int menu,action,paint,pointer,menuObserver,shopObserver,confirmObserver,packetObserver,noticeObserver,update,queued,transmitted;
     public static void main(String[] args) throws Exception {
         Path original=Path.of(args[0]),classes=Path.of(args[1]),output=Path.of(args[2]);
         Files.createDirectories(output.getParent());
         try(ZipFile in=new ZipFile(original.toFile());ZipOutputStream out=new ZipOutputStream(Files.newOutputStream(output))) {
+            hasLevel=in.getEntry("AutoLevelHook.class")!=null;
             var entries=in.entries();
             while(entries.hasMoreElements()) {
                 ZipEntry e=entries.nextElement();byte[] data=in.getInputStream(e).readAllBytes();
@@ -20,6 +23,7 @@ class Patch implements Opcodes {
                 if(e.getName().equals("NBAFgUXWGCkgPq.class")) data=observe(data,1);
                 if(e.getName().equals("yRvgxykm.class")) data=packets(data);
                 if(e.getName().equals("LZitKUUsicXFt.class")) data=transport(data);
+                if(hasLevel && e.getName().equals("SJSCaeScqbiua.class")) data=level(data);
                 out.putNextEntry(new ZipEntry(e.getName()));out.write(data);out.closeEntry();
             }
             try(var paths=Files.list(classes)) {
@@ -30,7 +34,7 @@ class Patch implements Opcodes {
                 }
             }
         }
-        if(menu!=2 || action!=1 || paint!=1 || pointer!=3 || menuObserver!=1 || shopObserver!=1 || confirmObserver!=1 || packetObserver!=1 || noticeObserver!=2 || update!=1 || queued!=1 || transmitted!=1) {
+        if(menu!=2 || action!=1 || paint!=1 || pointer!=3 || menuObserver!=1 || shopObserver!=1 || confirmObserver!=1 || packetObserver!=1 || noticeObserver!=2 || update!=1 || queued!=1 || transmitted!=1 || (hasLevel && levelHook!=1)) {
             Files.deleteIfExists(output);
             throw new IllegalStateException("Unexpected hooks: "+menu+","+action+","+paint+","+pointer);
         }
@@ -97,6 +101,7 @@ class Patch implements Opcodes {
                         super.visitMethodInsn(op,owner,name,desc,itf);
                         if(owner.equals("QQwLYhYdpMaF") && name.equals("peMayxrZEBA") && desc.equals("()V")) {
                             update++;super.visitMethodInsn(INVOKESTATIC,"AutoPetRuntime","tick","()V",false);
+                            super.visitMethodInsn(INVOKESTATIC,"AutoPetLevel","watch","()V",false);
                         }
                     }
                 };
@@ -113,6 +118,20 @@ class Patch implements Opcodes {
         },ClassReader.SKIP_DEBUG);
         return w.toByteArray();
     }
+    static byte[] level(byte[] bytes) {
+        ClassWriter w=new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        new ClassReader(bytes).accept(new ClassVisitor(ASM9,w) {
+            public MethodVisitor visitMethod(int a,String n,String d,String s,String[] ex) {
+                MethodVisitor v=super.visitMethod(a,n,d,s,ex);
+                if(!n.equals("LAEAunqbxr") || !d.equals("()V"))return v;
+                ++levelHook;
+                return new MethodVisitor(ASM9,v) {public void visitCode() {
+                    super.visitCode();visitVarInsn(ALOAD,0);visitMethodInsn(INVOKESTATIC,"AutoPetLevel","intercept","(LSJSCaeScqbiua;)Z",false);
+                    Label next=new Label();visitJumpInsn(IFEQ,next);visitInsn(RETURN);visitLabel(next);
+                }};
+            }
+        },ClassReader.SKIP_DEBUG);return w.toByteArray();
+    }
     static byte[] access() {
         ClassWriter w=new ClassWriter(ClassWriter.COMPUTE_MAXS);
         w.visit(V1_1,ACC_PUBLIC|ACC_FINAL,"AutoPetAccess",null,"java/lang/Object",null);
@@ -124,6 +143,18 @@ class Patch implements Opcodes {
         m.visitFieldInsn(GETSTATIC,"zxnsayePWpajv","EgoDKTjkxEUMu","LzxnsayePWpajv;");
         m.visitJumpInsn(IF_ACMPNE,no);m.visitInsn(ICONST_1);m.visitInsn(IRETURN);
         m.visitLabel(no);m.visitInsn(ICONST_0);m.visitInsn(IRETURN);m.visitMaxs(0,0);m.visitEnd();
+        method(w,"currentAuto","()LBMWCZFcnBgzHkh;",v->{v.visitFieldInsn(GETSTATIC,"PPgXAyjrNVHh","rdmjdEJDQ","LBMWCZFcnBgzHkh;");v.visitInsn(ARETURN);});
+        method(w,"setAuto","(LBMWCZFcnBgzHkh;)V",v->{v.visitVarInsn(ALOAD,0);v.visitFieldInsn(PUTSTATIC,"PPgXAyjrNVHh","rdmjdEJDQ","LBMWCZFcnBgzHkh;");v.visitInsn(RETURN);});
+        method(w,"resetLevel","(LSJSCaeScqbiua;)V",v->{if(hasLevel){v.visitVarInsn(ALOAD,0);v.visitMethodInsn(INVOKESTATIC,"AutoLevelHook","reset","(LSJSCaeScqbiua;)V",false);}v.visitInsn(RETURN);});
+        method(w,"clearCombat","()V",v->{v.visitMethodInsn(INVOKESTATIC,"oFpffzUyucjDJX","rdmjdEJDQ","()LoFpffzUyucjDJX;",false);v.visitInsn(ACONST_NULL);v.visitFieldInsn(PUTFIELD,"oFpffzUyucjDJX","peMayxrZEBA","LwCmqWHpCSBaGX;");v.visitInsn(RETURN);});
+        method(w,"nearNpc","(LgsxwWgJt;)Z",v->{
+            Label far=new Label();
+            for(String f:new String[]{"wLHNXXbvUSit","SgQHNwMh"}) {
+                v.visitMethodInsn(INVOKESTATIC,"oFpffzUyucjDJX","rdmjdEJDQ","()LoFpffzUyucjDJX;",false);v.visitFieldInsn(GETFIELD,"oFpffzUyucjDJX",f,"I");
+                v.visitVarInsn(ALOAD,0);v.visitFieldInsn(GETFIELD,"gsxwWgJt",f,"I");v.visitInsn(ISUB);v.visitMethodInsn(INVOKESTATIC,"java/lang/Math","abs","(I)I",false);v.visitIntInsn(BIPUSH,48);v.visitJumpInsn(IF_ICMPGT,far);
+            }
+            v.visitInsn(ICONST_1);v.visitInsn(IRETURN);v.visitLabel(far);v.visitInsn(ICONST_0);v.visitInsn(IRETURN);
+        });
         method(w,"map","()I",v->{v.visitFieldInsn(GETSTATIC,"SBnKDsbzS","uTxJizAJr","S");v.visitInsn(IRETURN);});
         method(w,"npcs","()LkacyVKUNru;",v->{v.visitFieldInsn(GETSTATIC,"zxnsayePWpajv","HSjEMvafS","LkacyVKUNru;");v.visitInsn(ARETURN);});
         method(w,"template","(LgsxwWgJt;)LHAeSnYtYmns;",v->{v.visitVarInsn(ALOAD,0);v.visitFieldInsn(GETFIELD,"gsxwWgJt","peMayxrZEBA","LHAeSnYtYmns;");v.visitInsn(ARETURN);});

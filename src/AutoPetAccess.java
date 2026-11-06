@@ -1,5 +1,10 @@
 /** Replaced by descriptor-exact bytecode in tools/Patch.java. */
 public final class AutoPetAccess {
+    public static BMWCZFcnBgzHkh currentAuto() {return null;}
+    public static void setAuto(BMWCZFcnBgzHkh auto) {}
+    public static void clearCombat() {}
+    public static void resetLevel(SJSCaeScqbiua auto) {}
+    public static boolean nearNpc(gsxwWgJt npc) {return false;}
     public static boolean isGame() {return false;}
     public static int map() {return -1;}
     public static kacyVKUNru npcs() {return null;}

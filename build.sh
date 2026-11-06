@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")"
-original=${1:-input/251.jar}
+original=${1:-input/AutoUpLv.jar}
 if [[ ! -f "$original" ]]; then
     echo "Usage: bash build.sh /path/to/original/251.jar" >&2
     exit 1
@@ -25,10 +25,10 @@ java -cp tools/asm.jar tools/Patch.java "$original" build/classes build/patched.
 java -jar tools/proguard.jar -injars build/patched.jar -outjars build/preverified.jar \
   -libraryjars tools/cldc-api.jar -libraryjars tools/microemu-midp.jar \
   -libraryjars tools/microemu-wma.jar -dontshrink -dontoptimize -dontobfuscate -microedition -dontnote
-python tools/assemble.py "$original" build/preverified.jar dist/251-AutoPetLC-Tashino-test.jar
-java -Xverify:all -cp tools/microemulator.jar:tools/microemu-wma.jar:dist/251-AutoPetLC-Tashino-test.jar \
-  tests/VerifyJar.java dist/251-AutoPetLC-Tashino-test.jar
-java -cp tools/asm.jar tests/MockTransport.java dist/251-AutoPetLC-Tashino-test.jar build/runtime-fixture.jar
+python tools/assemble.py "$original" build/preverified.jar dist/AutoUpLv-AutoPetLC-r11.jar
+java -Xverify:all -cp tools/microemulator.jar:tools/microemu-wma.jar:dist/AutoUpLv-AutoPetLC-r11.jar \
+  tests/VerifyJar.java dist/AutoUpLv-AutoPetLC-r11.jar
+java -cp tools/asm.jar tests/MockTransport.java dist/AutoUpLv-AutoPetLC-r11.jar build/runtime-fixture.jar
 java -jar tools/ecj.jar -1.8 -encoding UTF-8 \
   -classpath tools/microemulator.jar:build/runtime-fixture.jar \
   -d build/ui-test tests/TestTransport.java tests/RuntimeSmokeMidlet.java
@@ -39,7 +39,7 @@ if ! rg -q 'RUNTIME_SMOKE_PASS' build/runtime-test.log || rg -q 'RUNTIME_SMOKE_F
     exit 1
 fi
 rg 'RUNTIME_SMOKE_PASS' build/runtime-test.log
-java -cp tools/asm.jar tests/MockTransport.java dist/251-AutoPetLC-Tashino-test.jar build/wire-fixture.jar wire
+java -cp tools/asm.jar tests/MockTransport.java dist/AutoUpLv-AutoPetLC-r11.jar build/wire-fixture.jar wire
 java -jar tools/ecj.jar -1.8 -encoding UTF-8 \
   -classpath tools/microemulator.jar:build/wire-fixture.jar \
   -d build/ui-test tests/TestTransport.java tests/RuntimeSmokeMidlet.java

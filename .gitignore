@@ -5,3 +5,6 @@
 !/dist/251-AutoPetLC-Tashino-test.jar
 /input/*
 !/input/251.jar
+
+!/input/AutoUpLv.jar
+!/dist/AutoUpLv-AutoPetLC-r11.jar

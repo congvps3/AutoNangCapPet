@@ -8,6 +8,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
     private AutoPetConfig[] config;
     private final AutoPetEngine.Item[] initial=new AutoPetEngine.Item[2];
     private boolean active;
+    private boolean completed;
     private int phase,bootIndex,run,request,item,action,npcId,shopType=-1;
     private int infoSource,infoIndex,infoBaseline,listBaseline,shopBaseline,menuBaseline,confirmBaseline;
     private int infoRetries;
@@ -32,15 +33,19 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
     public static Object packetLock() {return AutoPetRuntime.class;}
 
     public static synchronized boolean running() {return INSTANCE.active;}
+    public static synchronized boolean completed() {return INSTANCE.completed;}
+    public static synchronized void stop() {if(INSTANCE.active) toggle();}
     public static synchronized void toggle() {
         AutoPetRuntime r=INSTANCE;
         if(r.active) {
+            r.completed=false;
             lastRunState=r.waitingFor();
             r.active=false;r.phase=0;r.notices="";AutoPetAccess.dismiss();
             if(r.engine.running()) r.engine.stop();else AutoPetBridge.notice("đã dừng auto");
             return;
         }
         try {
+            r.completed=false;
             r.config=AutoPetUI.settings();boolean any=false;
             for(int i=0;i<2;i++) {r.config[i].receive=false;r.config[i].validate();any|=r.config[i].enabled;}
             if(!any) {AutoPetBridge.notice("Hãy bật Enable trong Menu > AutoPet/LC và lưu cấu hình");return;}
@@ -51,7 +56,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             r.active=true;r.notices="";serverError=null;r.bootIndex=0;r.phase=BOOT;r.deadline=System.currentTimeMillis()+15000;
             auditing=true;trace="";traceStart=System.currentTimeMillis();actionQ="-";actionTX="-";infoQ="-";infoTX="-";lastReply="-";
             for(int i=0;i<subCounts.length;i++)subCounts[i]=0;
-            lastRunState=r.waitingFor();record("START r10");
+            lastRunState=r.waitingFor();record("START r11");
             r.boot();
         } catch(Exception e) {r.fail("Không khởi động được: "+e.getMessage());}
     }
@@ -159,9 +164,10 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
     public void notice(String message) {
         if(notices.length()>0) notices+="\n";
         notices+=message;
-        if(!engine.running()) {active=false;phase=0;AutoPetAccess.dismiss();AutoPetBridge.notice(notices);notices="";}
+        if(!engine.running()) {completed=message.equals("AutoPet/LC đã hoàn tất");active=false;phase=0;AutoPetAccess.dismiss();AutoPetBridge.notice(notices);notices="";}
     }
     private void fail(String message) {
+        completed=false;
         String report=diagnostics();
         active=false;phase=0;AutoPetAccess.dismiss();
         // Invalidate the engine before any queued server event can advance it.
@@ -358,7 +364,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             if(best<0)break;seen[best]=true;
             if(subs.length()>0)subs+=", ";subs+=(best>127?best-256:best)+"x"+subCounts[best];
         }
-        return "r10 | "+lastRunState+" | ID "+INSTANCE.templateId(INSTANCE.item)+"\n"
+        return "r11 | "+lastRunState+" | ID "+INSTANCE.templateId(INSTANCE.item)+"\n"
             +actionQ+"\n"+actionTX+"\n"+infoQ+"\n"+infoTX+"\n"+lastReply+"\n"
             +"Nhóm -30: "+(subs.length()==0?"-":subs)+"\n"+trace;
     }

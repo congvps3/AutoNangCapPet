@@ -1,13 +1,28 @@
-# AutoPet/LC r10 — luyện trong hành trang trước, dùng và nâng sau
+# AutoUpLv + AutoPet/LC r11
 
-Bản r10 thêm chế độ chỉ nâng: bỏ tích Luyện, bật Nâng cấp và Enable cho vật phẩm
-đang đeo. Không yêu cầu chọn chỉ số, không kiểm tra các chỉ số đã lưu, không luyện
-và không yêu cầu vật phẩm ở ô hành trang. Pet Long và Mika2 có cấu hình riêng.
-Nếu chưa đeo, Auto thông báo yêu cầu trang bị và dừng.
-Giữ các sửa lỗi r9: nâng tiếp sau thất bại đến cấp đích; đọc lại thông tin tối đa
-hai lần trong thời hạn 15 giây khi dữ liệu chưa sẵn sàng. Chưa thử trên server thật.
+Tích hợp trên đúng `AutoUpLv.jar` người dùng gửi, giữ AutoLevelHook và quy tắc
+chọn map/quái của bản đó. Bật **Tàn sát** để chạy chuỗi:
 
-Bản thử cho 251.jar (Java ME MIDP 2.1 / CLDC 1.1), theo luồng người dùng đã sửa:
+1. Dưới cấp 21: AutoLV chạy bình thường.
+2. Từ cấp 21: tạm dừng đánh quái, dùng tìm đường gốc về Làng Tone (map 22),
+   tìm Tashino theo tên NPC và đi tới gần.
+3. Bật AutoPet/LC theo cấu hình đã lưu cho từng vật phẩm Enable.
+4. Chỉ khi toàn bộ yêu cầu hoàn tất: hiện thông báo, tắt AutoPet/LC và tiếp tục
+   ngay AutoLV trên cùng bộ điều khiển Tàn sát.
+
+Cần cài đặt và Lưu AutoPet/LC trước khi bật Tàn sát. Nếu bật Luyện thì tự nhận
+Pet Long và Mika2 trước, đặt ở ô 1/2 hành trang; nếu chỉ nâng thì đeo sẵn vật phẩm.
+Không có tự nhận vật phẩm. Có thể cấu hình khác nhau cho từng vật phẩm.
+Nâng thất bại thì nâng tiếp tới cấp đích; hết lượt luyện mà thiếu chỉ số thì dừng.
+Lỗi, thiếu vật phẩm, dừng Pet bằng tay hoặc tắt Tàn sát đều không tự bật lại AutoLV.
+Không tới Tashino trong 3 phút thì dừng và báo lỗi.
+
+Dấu hoàn tất được lưu RMS theo mã và tên nhân vật; cùng nhân vật sẽ không lặp
+chuỗi cấp 21 khi mở lại game. Xóa dữ liệu ứng dụng sẽ xóa cả dấu hoàn tất và cấu hình.
+Bật Tàn sát lần đầu khi đã trên cấp 21 vẫn chạy chuỗi nếu chưa có dấu hoàn tất.
+Chưa thử trên máy chủ thật; kiểm thử dùng lớp game và gói tin gốc, chặn kết nối.
+
+Bản thử cho AutoUpLv.jar (Java ME MIDP 2.1 / CLDC 1.1), theo luồng người dùng đã sửa:
 **tự nhận → luyện trong hành trang → đủ chỉ số mới dùng → xác nhận trang bị → nâng cấp**.
 Chưa xác minh trực tiếp trên máy chủ thật.
 
@@ -16,7 +31,7 @@ Chưa xác minh trực tiếp trên máy chủ thật.
 1. Nếu bật Luyện: để **Pet Long ID 1305 ở ô 1**, **Mika2 ID 1282 ở ô 2** hành trang.
    Nếu chỉ nâng: đeo sẵn vật phẩm, bỏ tích Luyện và bật Nâng cấp; không cần chọn chỉ số.
 2. Đứng gần Tashino ở Làng Tone (map 22).
-3. Menu → MenuAuto → AutoPet/LC. Màn hình phải ghi **AutoPet/LC r10**.
+3. Menu → MenuAuto → AutoPet/LC. Màn hình phải ghi **AutoPet/LC r11**.
 4. Bật Enable từng vật phẩm cần chạy, chọn chỉ số, Luyện/Nâng cấp, giới hạn lượt và cấp đích.
 5. Bấm Lưu, rồi Auto dưới minimap. Bấm Auto lần nữa để dừng (`đã dừng auto`).
 
@@ -63,17 +78,19 @@ Giữ file gốc tại `input/251.jar`. Cần Java 21, Python 3 và rg.
 
 ```sh
 python tools/bootstrap.py
-bash build.sh input/251.jar
+bash build.sh input/AutoUpLv.jar
 ```
 
-Đầu ra: `dist/251-AutoPetLC-Tashino-test.jar`, cấu hình hiển thị r10.
+Đầu ra: `dist/AutoUpLv-AutoPetLC-r11.jar`, cấu hình hiển thị r11.
 Công cụ tải qua TLS, kiểm tra SHA-256. Biên dịch Java 1.3 với API CLDC 1.1, tạo StackMap Java ME.
 
-Các kiểm tra gồm cấu hình/động cơ, Canvas/RMS, nạp 319 lớp, kịch bản lớp game thật với bộ gửi
+Các kiểm tra gồm cấu hình/động cơ, Canvas/RMS, nạp 323 lớp, kịch bản lớp game thật với bộ gửi
 mô phỏng và kịch bản giữ nguyên EAVbpdxFGDnFcb (bộ tạo gói gốc), chỉ chặn tại hàng đợi mạng.
 Kiểm tra cả frame nhị phân được bộ ghi gốc tạo, thứ tự luyện → dùng → nâng, ô 1/2, không tự nhận,
 không dùng khi hết lượt/chưa đủ chỉ số, xác nhận trang bị, hủy phản hồi sau khi dừng và đóng hộp chờ
-khi timeout. Đây là kiểm tra cục bộ, không chứng minh thao tác đã thành công trên máy chủ thật.
+khi timeout. Kiểm tra thêm cấp 20/21, gọi hook Tàn sát thật, lệnh về Tone, tiếp cận NPC,
+chờ đủ hai vật phẩm, tiếp tục AutoLV, lưu dấu hoàn tất và dừng/hủy chuỗi khi lỗi.
+Đây là kiểm tra cục bộ, không chứng minh thao tác đã thành công trên máy chủ thật.
 
 `build/runtime-fixture.jar`, `build/wire-fixture.jar`, TestTransport và các lớp test không được đóng
 vào JAR phát hành. Mọi tài nguyên và lớp không vá phải giống file gốc theo byte.

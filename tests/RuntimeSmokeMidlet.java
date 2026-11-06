@@ -131,6 +131,49 @@ public class RuntimeSmokeMidlet extends MIDlet {
         if(mikaEnabled)bag[1]=item(1282,3,1);
     }
     static int count(String prefix) {int n=0;for(String entry:TestTransport.log)if(entry.startsWith(prefix))++n;return n;}
+    static void levelFlow() throws Exception {
+        reset(true,true,0);upgradeOnly(0,0);upgradeOnly(1,0);
+        pet=body[10]=item(1305,5,10);wpiwfWAXuWze mika=body[11]=item(1282,5,11);bag[0]=null;bag[1]=null;
+        SJSCaeScqbiua auto=new SJSCaeScqbiua();AutoPetAccess.setAuto(auto);
+        field(oFpffzUyucjDJX.class,player,"BfndoYuX",int.class,Integer.valueOf(11001));
+        field(oFpffzUyucjDJX.class,player,"dvKEjoqBk",String.class,"level-test");
+        field(oFpffzUyucjDJX.class,player,"vMyUkiiUKxerr",int.class,Integer.valueOf(20));
+        check(!AutoPetLevel.intercept(auto),"level 20 must keep original AutoLV");
+        field(oFpffzUyucjDJX.class,player,"vMyUkiiUKxerr",int.class,Integer.valueOf(21));
+        field(SBnKDsbzS.class,null,"uTxJizAJr",short.class,Short.valueOf((short)1));
+        auto.LAEAunqbxr();check(TestTransport.last.equals("travel") && TestTransport.a==22,"native Tan sat update must intercept at level 21 and route to Tone");
+        field(SBnKDsbzS.class,null,"uTxJizAJr",short.class,Short.valueOf((short)22));
+        field(oFpffzUyucjDJX.class,player,"wLHNXXbvUSit",int.class,Integer.valueOf(1000));
+        check(AutoPetLevel.intercept(auto) && TestTransport.last.equals("walk"),"must approach Tashino before starting Pet");
+        field(oFpffzUyucjDJX.class,player,"wLHNXXbvUSit",int.class,Integer.valueOf(100));
+        field(oFpffzUyucjDJX.class,player,"SgQHNwMh",int.class,Integer.valueOf(100));
+        check(AutoPetLevel.intercept(auto) && AutoPetRuntime.running(),"Tone arrival starts saved AutoPet settings");
+        check(AutoPetLevel.intercept(auto),"AutoLV must remain paused while Pet runs");
+        info(pet);info(mika);rootAndShop();confirm(true);refreshNow();pet.yKHpKzQyZroJ=1;info(pet);
+        check(AutoPetLevel.intercept(auto),"Pet-only completion must not resume before Mika");
+        rootAndShop();AutoPetRuntime.sawConfirm("Nâng cấp: Long Châu Mika2\nXác nhận nâng cấp?",8890,Integer.valueOf(7),8891);AutoPetRuntime.tick();
+        refreshNow();mika.yKHpKzQyZroJ=1;info(mika);
+        check(AutoPetRuntime.completed() && !AutoPetRuntime.running(),"whole Pet workflow must report explicit success");
+        check(!AutoPetLevel.intercept(auto) && AutoPetAccess.currentAuto()==auto,"success must immediately release same AutoLV worker");
+        SJSCaeScqbiua next=new SJSCaeScqbiua();AutoPetAccess.setAuto(next);AutoPetLevel.watch();
+        int cmds=TestTransport.log.size();check(!AutoPetLevel.intercept(next) && TestTransport.log.size()==cmds,"persistent completion must prevent repeated level-21 workflow");
+        field(oFpffzUyucjDJX.class,player,"BfndoYuX",int.class,Integer.valueOf(11002));AutoPetLevel.watch();
+        pet.yKHpKzQyZroJ=0;mika.yKHpKzQyZroJ=0;
+        check(AutoPetLevel.intercept(next) && AutoPetRuntime.running(),"another character must have independent level-21 workflow");
+        AutoPetAccess.setAuto(null);AutoPetLevel.watch();
+        check(!AutoPetRuntime.running() && !AutoPetRuntime.completed(),"turning off Tan sat must cancel Pet without success or resuming AutoLV");
+        AutoPetAccess.setAuto(next);AutoPetLevel.intercept(next);AutoPetRuntime.stop();
+        check(AutoPetLevel.intercept(next) && AutoPetAccess.currentAuto()==null,"manual Pet stop must leave AutoLV stopped");
+        field(oFpffzUyucjDJX.class,player,"BfndoYuX",int.class,Integer.valueOf(11003));AutoPetAccess.setAuto(next);
+        body[10]=null;
+        check(AutoPetLevel.intercept(next) && !AutoPetRuntime.running() && AutoPetAccess.currentAuto()==null,"Pet preflight failure must not resume AutoLV");
+        field(oFpffzUyucjDJX.class,player,"BfndoYuX",int.class,Integer.valueOf(11004));AutoPetAccess.setAuto(next);
+        field(SBnKDsbzS.class,null,"uTxJizAJr",short.class,Short.valueOf((short)1));
+        AutoPetLevel.intercept(next);field(AutoPetLevel.class,null,"deadline",long.class,Long.valueOf(0));
+        check(AutoPetLevel.intercept(next) && AutoPetAccess.currentAuto()==null && TestTransport.notice.indexOf("chưa đến")>=0,"unreachable Tone must stop with timeout");
+        check(AutoPetLevel.intercept(next) && !AutoPetRuntime.running(),"stale native worker must not restart canceled workflow");
+        field(SBnKDsbzS.class,null,"uTxJizAJr",short.class,Short.valueOf((short)22));
+    }
     static void upgradeOnly(int target,int mask) throws Exception {
         AutoPetConfig[] settings=AutoPetUI.settings();settings[target].train=false;settings[target].selected=mask;
         field(AutoPetUI.class,null,"saved",AutoPetConfig[].class,settings);
@@ -274,6 +317,7 @@ public class RuntimeSmokeMidlet extends MIDlet {
             check(report.indexOf("-124x1200")>=0 && report.indexOf("RX -30")<0,"background subcommand not summarized");
             check(report.indexOf("xác nhận của máy chủ")>=0,"stopping erased the pending step");
             check(report.length()<2048,"diagnostics exceeded text box size");
+            levelFlow();
             System.out.println("RUNTIME_SMOKE_PASS "+checks+" (actual game classes, transport interception; no live server)");
         } catch(Throwable t) {System.out.println("RUNTIME_SMOKE_FAIL "+t);t.printStackTrace();}
         notifyDestroyed();
