@@ -1,4 +1,4 @@
-# AutoUpLv + AutoPet/LC r18
+# AutoUpLv + AutoPet/LC r19
 
 Bổ sung map ngoài: 19 (71), 36 (74/77), 54 (80), 37 (84/88), 55 (92), 58 (96/100).
 Dưới cấp 60 giữ cách chọn map ngoài hiện có. Từ cấp 60 ưu tiên tuyến Ma Quỷ;
@@ -27,8 +27,9 @@ và bỏ lượt quét ưu tiên gốc. TL bật: ưu tiên Thủ lĩnh, đánh 
 Khi TL tắt, không đổi khu vì thiếu Thủ lĩnh sau 6 giây; hết quái vẫn đổi khu.
 Ví dụ: cấp 66 ở map 140 chỉ đánh quái 74; từ cấp 68 đánh 74/77; tới cấp 76 chuyển 141.
 Map ngoài giữ quy tắc Thủ lĩnh/chờ 6 giây hiện có, không phụ thuộc nút TL.
-Hai nút HUD bo góc, nền nâu khi tắt/xanh khi bật, viền vàng, chấm trạng thái
-và hiệu ứng khi nhấn. Auto vẫn điều khiển AutoPet/LC; TL không bật/tắt AutoPet/LC.
+Hai nút Auto/TL dùng đúng hình tròn viền vàng và ảnh khi nhấn của nút Treo gốc
+(`/hd/button.png`, `/hd/button2.png`), cùng phông chữ nhỏ có bóng. Chữ trắng khi
+tắt và vàng khi bật; bỏ nền nâu/xanh và chấm trạng thái của bản trước. Auto vẫn điều khiển AutoPet/LC; TL không bật/tắt AutoPet/LC.
 
 Kiểm tra trang bị trước khi đọc cấu hình AutoPet/LC: nếu đã đeo đủ
 Pet Long (1305) và Mika2 (1282), bật Tàn sát sẽ chạy thẳng AutoLV, kể cả sau
@@ -81,7 +82,7 @@ Chưa xác minh trực tiếp trên máy chủ thật.
 1. Nếu bật Luyện: để **Pet Long ID 1305 ở ô 1**, **Mika2 ID 1282 ở ô 2** hành trang.
    Nếu chỉ nâng: đeo sẵn vật phẩm, bỏ tích Luyện và bật Nâng cấp; không cần chọn chỉ số.
 2. Đứng gần Tashino ở Làng Tone (map 22).
-3. Menu → MenuAuto → AutoPet/LC. Màn hình phải ghi **AutoPet/LC r18**.
+3. Menu → MenuAuto → AutoPet/LC. Màn hình phải ghi **AutoPet/LC r19**.
 4. Bật Enable từng vật phẩm cần chạy, chọn chỉ số, Luyện/Nâng cấp, giới hạn lượt và cấp đích.
 5. Bấm Lưu, rồi Auto dưới minimap. Bấm Auto lần nữa để dừng (`đã dừng auto`).
 
@@ -131,7 +132,7 @@ python tools/bootstrap.py
 bash build.sh input/AutoUpLv.jar
 ```
 
-Đầu ra: `dist/AutoUpLv-AutoPetLC-r18.jar`, cấu hình hiển thị r18.
+Đầu ra: `dist/AutoUpLv-AutoPetLC-r19.jar`, cấu hình hiển thị r19.
 Công cụ tải qua TLS, kiểm tra SHA-256. Biên dịch Java 1.3 với API CLDC 1.1, tạo StackMap Java ME.
 
 Các kiểm tra gồm cấu hình/động cơ, Canvas/RMS, nạp 325 lớp, kịch bản lớp game thật với bộ gửi

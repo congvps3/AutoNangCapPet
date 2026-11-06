@@ -1,5 +1,6 @@
 /** Replaced by descriptor-exact bytecode in tools/Patch.java. */
 public final class AutoPetAccess {
+    public static javax.microedition.lcdui.Image treoButton(boolean pressed) {return null;}
     public static BMWCZFcnBgzHkh currentAuto() {return null;}
     public static void setAuto(BMWCZFcnBgzHkh auto) {}
     public static void clearCombat() {}

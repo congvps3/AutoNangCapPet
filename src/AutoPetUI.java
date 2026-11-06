@@ -61,7 +61,7 @@ public final class AutoPetUI extends Canvas implements CommandListener {
     protected void paint(Graphics g) {
         int w=getWidth(),h=getHeight(),rh=rowHeight();
         g.setColor(0x12202b);g.fillRect(0,0,w,h);g.setFont(font);
-        g.setColor(0xffffff);g.drawString("AutoPet/LC r18",w/2,2,Graphics.TOP|Graphics.HCENTER);
+        g.setColor(0xffffff);g.drawString("AutoPet/LC r19",w/2,2,Graphics.TOP|Graphics.HCENTER);
         g.drawString("?",w-8,2,Graphics.TOP|Graphics.RIGHT);
         for(int i=0;i<2;i++) {
             g.setColor(i==tab?0x247c9e:0x30414f);g.fillRect(i*w/2,22,w/2-1,24);
@@ -123,7 +123,7 @@ public final class AutoPetUI extends Canvas implements CommandListener {
     private void tap(int x,int y) {
         if(y<22 && x>=getWidth()-28) {
             String log=AutoPetRuntime.diagnostics();
-            TextBox box=new TextBox("Nhật ký Auto r18",log,2048,TextField.ANY|TextField.UNEDITABLE);
+            TextBox box=new TextBox("Nhật ký Auto r19",log,2048,TextField.ANY|TextField.UNEDITABLE);
             box.addCommand(traceBack);box.setCommandListener(this);display.setCurrent(box);return;
         }
         if(y>=22 && y<46) {tab=x<getWidth()/2?0:1;top=0;focus=0;repaint();return;}

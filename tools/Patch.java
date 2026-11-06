@@ -91,7 +91,18 @@ class Patch implements Opcodes {
                 m=super.visitMethod(ACC_PUBLIC|ACC_STATIC,"autoPetFocusShop","(I)V",null,null);m.visitCode();
                 m.visitVarInsn(ILOAD,0);m.visitFieldInsn(PUTSTATIC,"zxnsayePWpajv","taYdGEeyp","I");
                 m.visitInsn(ICONST_1);m.visitFieldInsn(PUTSTATIC,"zxnsayePWpajv","LrmZsvFaTiKDi","I");
-                m.visitInsn(RETURN);m.visitMaxs(0,0);m.visitEnd();super.visitEnd();
+                m.visitInsn(RETURN);m.visitMaxs(0,0);m.visitEnd();
+                m=super.visitMethod(ACC_PUBLIC|ACC_STATIC,"autoPetHudImage","(Z)Ljavax/microedition/lcdui/Image;",null,null);m.visitCode();
+                Label pressedImage=new Label();m.visitVarInsn(ILOAD,0);m.visitJumpInsn(IFNE,pressedImage);
+                String[] images={"zmEhqDHwAKvzjM","RCUzoRPAvpKuBG"};String[] paths={"/hd/button.png","/hd/button2.png"};
+                for(int i=0;i<images.length;i++) {
+                    if(i==1)m.visitLabel(pressedImage);
+                    Label ready=new Label();m.visitFieldInsn(GETSTATIC,"zxnsayePWpajv",images[i],"Ljavax/microedition/lcdui/Image;");m.visitInsn(DUP);m.visitJumpInsn(IFNONNULL,ready);
+                    m.visitInsn(POP);m.visitLdcInsn(paths[i]);m.visitMethodInsn(INVOKESTATIC,"NBAFgUXWGCkgPq","EgoDKTjkxEUMu","(Ljava/lang/String;)Ljavax/microedition/lcdui/Image;",false);
+                    m.visitInsn(DUP);m.visitFieldInsn(PUTSTATIC,"zxnsayePWpajv",images[i],"Ljavax/microedition/lcdui/Image;");
+                    m.visitLabel(ready);m.visitInsn(ARETURN);
+                }
+                m.visitMaxs(0,0);m.visitEnd();super.visitEnd();
             }
         },ClassReader.SKIP_DEBUG);
         return w.toByteArray();
@@ -233,6 +244,7 @@ class Patch implements Opcodes {
             v.visitInsn(ICONST_1);v.visitInsn(IRETURN);v.visitLabel(far);v.visitInsn(ICONST_0);v.visitInsn(IRETURN);
         });
         method(w,"map","()I",v->{v.visitFieldInsn(GETSTATIC,"SBnKDsbzS","uTxJizAJr","S");v.visitInsn(IRETURN);});
+        method(w,"treoButton","(Z)Ljavax/microedition/lcdui/Image;",v->{v.visitVarInsn(ILOAD,0);v.visitMethodInsn(INVOKESTATIC,"zxnsayePWpajv","autoPetHudImage","(Z)Ljavax/microedition/lcdui/Image;",false);v.visitInsn(ARETURN);});
         method(w,"npcs","()LkacyVKUNru;",v->{v.visitFieldInsn(GETSTATIC,"zxnsayePWpajv","HSjEMvafS","LkacyVKUNru;");v.visitInsn(ARETURN);});
         method(w,"mobs","()LkacyVKUNru;",v->{v.visitFieldInsn(GETSTATIC,"zxnsayePWpajv","JWQMnAXscj","LkacyVKUNru;");v.visitInsn(ARETURN);});
         method(w,"zoneCount","()I",v->{

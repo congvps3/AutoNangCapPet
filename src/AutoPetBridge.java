@@ -3,7 +3,7 @@ import javax.microedition.lcdui.*;
 /** Native UI hooks and the Tashino runtime controller. */
 public final class AutoPetBridge {
     private static int pressed;
-    private static final int AUTO_W=60,TL_W=44,GAP=5,BUTTON_H=26;
+    private static final int AUTO_W=38,TL_W=38,GAP=5,BUTTON_H=38;
     private static final int MENU_ID=119950;
     private static Display display() {return Display.getDisplay(GameMidlet.peMayxrZEBA);}
     public static void open() {
@@ -22,14 +22,10 @@ public final class AutoPetBridge {
     private static int y() {return (NBAFgUXWGCkgPq.gxpcPAQGYwZ?16:BWWvgXUCGmx.ydijJozSmduyg)+44;}
     private static int x() {return Math.max(2,NBAFgUXWGCkgPq.DndwYNCrvBa-AUTO_W-TL_W-GAP-4);}
     private static void button(rHNGbrXZGUD g,int id,int x,int y,int width,String label,boolean on) {
-        if(pressed==id)y++;
-        g.nRvPqUUFvqMR(0x101614);g.EgoDKTjkxEUMu(x,y+2,width,BUTTON_H,8,8);
-        g.nRvPqUUFvqMR(on?0x244d35:0x342a22);g.EgoDKTjkxEUMu(x,y,width,BUTTON_H,8,8);
-        g.nRvPqUUFvqMR(on?0x326d48:0x58432b);g.EgoDKTjkxEUMu(x+1,y+1,width-2,11,6,6);
-        g.nRvPqUUFvqMR(pressed==id?0xf4d387:(on?0xb6ce8b:0xb08d54));
-        g.peMayxrZEBA(x,y,width-1,BUTTON_H-1,8,8);
-        g.nRvPqUUFvqMR(on?0x9cf09b:0x85827a);g.EgoDKTjkxEUMu(x+7,y+10,5,5,4,4);
-        wBpDHXtSRtR.LBtrnuKVnvuG.EgoDKTjkxEUMu(g,label,x+width/2+4,y+5,2);
+        Image frame=AutoPetAccess.treoButton(pressed==id);
+        if(frame!=null)g.peMayxrZEBA(frame,x+width/2,y+BUTTON_H/2,3);
+        wBpDHXtSRtR font=on?wBpDHXtSRtR.PVQpZEqSNMpYBM:wBpDHXtSRtR.MtiBnBEFYaf;
+        font.peMayxrZEBA(g,label,x+width/2,y+11,2,wBpDHXtSRtR.xNWwdhkGHYvrH);
     }
     public static void paint(rHNGbrXZGUD g) {
         g.payNGrJwSbhcCy(0,0,NBAFgUXWGCkgPq.DndwYNCrvBa,NBAFgUXWGCkgPq.SXPEzvYGy);

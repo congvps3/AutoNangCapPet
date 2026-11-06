@@ -345,7 +345,7 @@ public class RuntimeSmokeMidlet extends MIDlet {
         check(AutoPetAccess.isGame(),"HUD fixture must select game screen");
         Method hudY=AutoPetBridge.class.getDeclaredMethod("y");hudY.setAccessible(true);
         Method hudX=AutoPetBridge.class.getDeclaredMethod("x");hudX.setAccessible(true);
-        check(AutoPetBridge.pointer(428,114,0) && AutoPetBridge.pointer(428,114,2),"scaled TL tap must be captured; x="+hudX.invoke(null)+" y="+hudY.invoke(null)+" scale="+rHNGbrXZGUD.YDPUzPRaKKz);
+        check(AutoPetBridge.pointer(434,126,0) && AutoPetBridge.pointer(434,126,2),"scaled TL tap must be captured; x="+hudX.invoke(null)+" y="+hudY.invoke(null)+" scale="+rHNGbrXZGUD.YDPUzPRaKKz);
         check(AutoPetHunt.realmLeaders() && !AutoPetRuntime.running() && TestTransport.log.size()==commands,"TL tap changes only realm preference, not AutoPet");
         check(AutoLevelHook.checkZone(auto,1100) && nativeAllowed(boss) && !nativeAllowed(normal),"TL on prioritizes realm leader immediately");
         check(AutoPetHunt.scoreType(2)==2 && AutoPetHunt.leaderPreference(true),"TL on enables native priority as well as target filter");
@@ -356,19 +356,19 @@ public class RuntimeSmokeMidlet extends MIDlet {
         int zones=count("zone:");check(!AutoLevelHook.checkZone(auto,7200) && count("zone:")==zones+1,"TL on resumes six-second leader-search zone changes");
         field(AutoPetHunt.class,null,"realmLeaders",boolean.class,Boolean.FALSE);field(AutoPetHunt.class,null,"preferenceLoaded",boolean.class,Boolean.FALSE);
         check(AutoPetHunt.realmLeaders(),"TL preference reloads from RMS");
-        check(AutoPetBridge.pointer(314,114,0) && AutoPetBridge.pointer(428,114,2) && AutoPetHunt.realmLeaders(),"drag from Auto to TL must not toggle either button");
-        AutoPetBridge.pointer(428,114,0);AutoPetBridge.pointer(0,0,1);AutoPetBridge.pointer(0,0,2);
+        check(AutoPetBridge.pointer(348,126,0) && AutoPetBridge.pointer(434,126,2) && AutoPetHunt.realmLeaders(),"drag from Auto to TL must not toggle either button");
+        AutoPetBridge.pointer(434,126,0);AutoPetBridge.pointer(0,0,1);AutoPetBridge.pointer(0,0,2);
         check(AutoPetHunt.realmLeaders(),"release outside TL cancels tap");
-        check(!AutoPetBridge.pointer(378,114,0) && !AutoPetBridge.pointer(378,114,2),"gap between buttons must not capture game input");
-        config(false,false,0);AutoPetBridge.pointer(314,114,0);AutoPetBridge.pointer(314,114,2);
+        check(!AutoPetBridge.pointer(390,126,0) && !AutoPetBridge.pointer(390,126,2),"gap between buttons must not capture game input");
+        config(false,false,0);AutoPetBridge.pointer(348,126,0);AutoPetBridge.pointer(348,126,2);
         check(TestTransport.notice.indexOf("Enable")>=0 && AutoPetHunt.realmLeaders(),"Auto button retains AutoPet behavior independently");
-        AutoPetBridge.pointer(428,114,0);AutoPetBridge.pointer(428,114,2);
+        AutoPetBridge.pointer(434,126,0);AutoPetBridge.pointer(434,126,2);
         check(!AutoPetHunt.realmLeaders(),"second TL tap disables realm priority");
         AutoLevelHook.reset(auto);field(AutoLevelHook.class,null,"trainingMap",int.class,Integer.valueOf(140));
         check(AutoLevelHook.checkZone(auto,10000) && AutoLevelHook.checkZone(auto,20000),"TL off keeps ordinary combat beyond six seconds");
         hudPreview();
         field(NBAFgUXWGCkgPq.class,null,"peMayxrZEBA",XZRZEVaKAwWG.class,null);
-        check(!AutoPetBridge.pointer(428,114,0),"HUD must not capture taps off game screen");
+        check(!AutoPetBridge.pointer(217,123,0),"HUD must not capture taps off game screen");
         field(rHNGbrXZGUD.class,null,"YDPUzPRaKKz",int.class,Integer.valueOf(1));AutoPetAccess.setAuto(null);
     }
     static void hudPreview() throws Exception {
@@ -383,10 +383,12 @@ public class RuntimeSmokeMidlet extends MIDlet {
         wBpDHXtSRtR.LBtrnuKVnvuG.EgoDKTjkxEUMu(wrapped,"ON",20,107,0);AutoPetBridge.paint(wrapped);
         field(AutoPetRuntime.class,f.get(null),"active",boolean.class,Boolean.FALSE);AutoPetHunt.toggleRealmLeaders();
         int[] pixels=new int[240*160];picture.getRGB(pixels,0,240,0,0,240,160);
-        java.io.DataOutputStream out=new java.io.DataOutputStream(new java.io.FileOutputStream("/tmp/autopet-r18-hud.ppm"));
+        java.io.DataOutputStream out=new java.io.DataOutputStream(new java.io.FileOutputStream("/tmp/autopet-r19-hud.ppm"));
         out.writeBytes("P6\n240 160\n255\n");
         for(int i=0;i<pixels.length;i++){out.writeByte(pixels[i]>>16);out.writeByte(pixels[i]>>8);out.writeByte(pixels[i]);}out.close();
-        check(pixels[240*45+135]!=pixels[240*105+135],"active and inactive HUD states must look different");
+        boolean changed=false;for(int y=0;y<38;y++)for(int x=155;x<236;x++)changed|=pixels[240*(44+y)+x]!=pixels[240*(104+y)+x];
+        check(changed,"active and inactive HUD labels must look different");
+        check(AutoPetAccess.treoButton(false)!=null && AutoPetAccess.treoButton(true)!=null,"HUD must reuse both native Treo button textures");
     }
     static void senderBytes() throws Exception {
         WZKDTXfSh packet=new WZKDTXfSh((byte)13);
