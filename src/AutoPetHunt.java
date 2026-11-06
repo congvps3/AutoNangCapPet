@@ -4,6 +4,35 @@ public final class AutoPetHunt {
     private static long noLeaderSince=-1,lastAttempt=-1,retryAt;
     private static boolean seenPopulation,pending;
     private static wCmqWHpCSBaGX leader;
+    private static volatile boolean realmLeaders;
+    private static boolean preferenceLoaded;
+
+    public static synchronized boolean realmLeaders() {
+        if(!preferenceLoaded) {
+            javax.microedition.rms.RecordStore rs=null;
+            try {
+                rs=javax.microedition.rms.RecordStore.openRecordStore("AutoPetLC.TL.v1",true);
+                if(rs.getNumRecords()>0) {
+                    byte[] data=rs.getRecord(1);
+                    realmLeaders=data.length==2 && data[0]==1 && data[1]==1;
+                }
+            } catch(Exception ignored) {realmLeaders=false;}
+            finally {if(rs!=null)try{rs.closeRecordStore();}catch(Exception ignored){}}
+            preferenceLoaded=true;
+        }
+        return realmLeaders;
+    }
+    public static synchronized void toggleRealmLeaders() {
+        boolean next=!realmLeaders();javax.microedition.rms.RecordStore rs=null;
+        try {
+            rs=javax.microedition.rms.RecordStore.openRecordStore("AutoPetLC.TL.v1",true);
+            byte[] data={1,(byte)(next?1:0)};
+            if(rs.getNumRecords()==0)rs.addRecord(data,0,data.length);else rs.setRecord(1,data,0,data.length);
+            realmLeaders=next;
+            if(realmAuto()) {noLeaderSince=-1;leader=null;AutoPetAccess.clearCombat();}
+        } catch(Exception e) {throw new RuntimeException("Không lưu được nút TL");}
+        finally {if(rs!=null)try{rs.closeRecordStore();}catch(Exception ignored){}}
+    }
 
     public static void reset() {
         map=zone=-1;noLeaderSince=-1;lastAttempt=-1;retryAt=0;seenPopulation=false;pending=false;leader=null;
@@ -11,8 +40,8 @@ public final class AutoPetHunt {
     private static boolean realmAuto() {
         return AutoPetAccess.currentAuto() instanceof SJSCaeScqbiua && AutoPetMaps.realm(AutoPetAccess.map());
     }
-    public static int scoreType(int type) {return realmAuto()?0:type;}
-    public static boolean leaderPreference(boolean enabled) {return enabled && !realmAuto();}
+    public static int scoreType(int type) {return realmAuto() && !realmLeaders()?0:type;}
+    public static boolean leaderPreference(boolean enabled) {return enabled && (!realmAuto() || realmLeaders());}
     private static boolean alive(wCmqWHpCSBaGX mob) {
         return mob!=null && mob.ubmVeVhBeAG>0 && mob.XfAmeXqfjJLK!=0 && mob.XfAmeXqfjJLK!=1
             && !(mob.RULfytWrmUzzRn==202 && mob.XfAmeXqfjJLK==8);
@@ -25,7 +54,7 @@ public final class AutoPetHunt {
     public static boolean allowed(wCmqWHpCSBaGX mob) {
         if(!(AutoPetAccess.currentAuto() instanceof SJSCaeScqbiua)) return true;
         if(!eligible(mob)) return false;
-        if(realmAuto()) return true;
+        if(realmAuto() && !realmLeaders()) return true;
         return !alive(leader) || mob.QgPHSngFRpo==2;
     }
     private static boolean change(SJSCaeScqbiua auto,long now,int currentZone) {
@@ -61,7 +90,7 @@ public final class AutoPetHunt {
         }
         if(living) seenPopulation=true;
         if(!living && seenPopulation) return change(auto,now,currentZone);
-        if(AutoPetMaps.realm(currentMap)) {
+        if(AutoPetMaps.realm(currentMap) && !realmLeaders()) {
             leader=null;
             if(living) {noLeaderSince=-1;return true;}
             // An initially empty/unpopulated zone can finish loading. This is
