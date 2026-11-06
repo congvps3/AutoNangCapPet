@@ -1,4 +1,10 @@
-# AutoUpLv + AutoPet/LC r13
+# AutoUpLv + AutoPet/LC r14
+
+Bản r14 kiểm tra trang bị trước khi đọc cấu hình AutoPet/LC: nếu đã đeo đủ
+Pet Long (1305) và Mika2 (1282), bật Tàn sát sẽ chạy thẳng AutoLV, kể cả sau
+khi vào lại game ở cấp 41 và không còn cấu hình/dấu hoàn tất RMS. Chỉ tính
+vật phẩm đang đeo, không tính vật phẩm trong hành trang. Không ghi dấu nâng
+thành công từ kiểm tra này; vẫn có thể dùng AutoPet/LC bằng tay khi cần.
 
 AutoLV ưu tiên **Thủ lĩnh** (loại 2 theo nhãn trong client). Khi có Thủ lĩnh sống,
 đổi mục tiêu từ quái thường/Tinh Anh/Tà Thú sang Thủ lĩnh. Vừa vào khu có quái
@@ -12,7 +18,8 @@ Tích hợp trên đúng `AutoUpLv.jar` người dùng gửi, giữ bộ chọn 
 ưu tiên mục tiêu và thời điểm đổi khu. Bật **Tàn sát** để chạy chuỗi:
 
 1. Dưới cấp 21: AutoLV chạy bình thường.
-2. Từ cấp 21: tạm dừng đánh quái, dùng tìm đường gốc về Làng Tone (map 22),
+2. Từ cấp 21, nếu chưa đeo đủ hai món và chưa có dấu hoàn tất: tạm dừng đánh quái,
+   dùng tìm đường gốc về Làng Tone (map 22),
    tìm Tashino theo tên NPC và đi tới gần.
 3. Bật AutoPet/LC theo cấu hình đã lưu cho từng vật phẩm Enable.
 4. Chỉ khi toàn bộ yêu cầu hoàn tất: hiện thông báo tự đóng sau 2 giây, tắt AutoPet/LC và tiếp tục
@@ -27,7 +34,8 @@ Không tới Tashino trong 3 phút thì dừng và báo lỗi.
 
 Dấu hoàn tất được lưu RMS theo mã và tên nhân vật; cùng nhân vật sẽ không lặp
 chuỗi cấp 21 khi mở lại game. Xóa dữ liệu ứng dụng sẽ xóa cả dấu hoàn tất và cấu hình.
-Bật Tàn sát lần đầu khi đã trên cấp 21 vẫn chạy chuỗi nếu chưa có dấu hoàn tất.
+Bật Tàn sát lần đầu khi đã trên cấp 21 vẫn chạy chuỗi nếu chưa có dấu hoàn tất
+và chưa đeo đủ hai món.
 Chưa thử trên máy chủ thật; kiểm thử dùng lớp game và gói tin gốc, chặn kết nối.
 
 Bản thử cho AutoUpLv.jar (Java ME MIDP 2.1 / CLDC 1.1), theo luồng người dùng đã sửa:
@@ -39,7 +47,7 @@ Chưa xác minh trực tiếp trên máy chủ thật.
 1. Nếu bật Luyện: để **Pet Long ID 1305 ở ô 1**, **Mika2 ID 1282 ở ô 2** hành trang.
    Nếu chỉ nâng: đeo sẵn vật phẩm, bỏ tích Luyện và bật Nâng cấp; không cần chọn chỉ số.
 2. Đứng gần Tashino ở Làng Tone (map 22).
-3. Menu → MenuAuto → AutoPet/LC. Màn hình phải ghi **AutoPet/LC r13**.
+3. Menu → MenuAuto → AutoPet/LC. Màn hình phải ghi **AutoPet/LC r14**.
 4. Bật Enable từng vật phẩm cần chạy, chọn chỉ số, Luyện/Nâng cấp, giới hạn lượt và cấp đích.
 5. Bấm Lưu, rồi Auto dưới minimap. Bấm Auto lần nữa để dừng (`đã dừng auto`).
 
@@ -89,7 +97,7 @@ python tools/bootstrap.py
 bash build.sh input/AutoUpLv.jar
 ```
 
-Đầu ra: `dist/AutoUpLv-AutoPetLC-r13.jar`, cấu hình hiển thị r13.
+Đầu ra: `dist/AutoUpLv-AutoPetLC-r14.jar`, cấu hình hiển thị r14.
 Công cụ tải qua TLS, kiểm tra SHA-256. Biên dịch Java 1.3 với API CLDC 1.1, tạo StackMap Java ME.
 
 Các kiểm tra gồm cấu hình/động cơ, Canvas/RMS, nạp 324 lớp, kịch bản lớp game thật với bộ gửi

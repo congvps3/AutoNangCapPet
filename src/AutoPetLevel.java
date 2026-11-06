@@ -7,6 +7,22 @@ public final class AutoPetLevel {
     private static String character,key;
     private static long deadline;
 
+    private static boolean bothEquipped() {
+        boolean pet=false,mika=false;
+        int[] sources={5,41,51,52,53};
+        for(int s=0;s<sources.length;s++) {
+            wpiwfWAXuWze[] all=AutoPetAccess.items(sources[s]);
+            if(all==null) continue;
+            for(int i=0;i<all.length;i++) {
+                wpiwfWAXuWze it=all[i];
+                if(it==null || it.EgoDKTjkxEUMu==null || it.tTqVmuHPEhAbg!=sources[s]) continue;
+                int id=it.EgoDKTjkxEUMu.QpKzrQoqbjfLc;
+                pet|=id==AutoPetRules.PET;mika|=id==AutoPetRules.MIKA;
+            }
+        }
+        return pet && mika;
+    }
+
     private static String character() {
         oFpffzUyucjDJX p=oFpffzUyucjDJX.rdmjdEJDQ();
         return p==null?"":p.BfndoYuX+":"+p.dvKEjoqBk;
@@ -56,6 +72,10 @@ public final class AutoPetLevel {
                 if(AutoPetRuntime.running()) return true;
                 if(oFpffzUyucjDJX.rdmjdEJDQ().vMyUkiiUKxerr<21) return false;
                 owner=auto;character=current;key="APLC21_"+current.hashCode();
+                // Existing equipment is enough to continue leveling even if
+                // RMS/configuration was lost when re-importing the client.
+                // Do not save a completion marker: this is not an upgrade result.
+                if(bothEquipped()) {stage=3;return false;}
                 if(saved(false)) {stage=3;return false;}
                 AutoPetConfig[] c=AutoPetUI.settings();boolean enabled=false;
                 for(int i=0;i<2;i++) {c[i].validate();enabled|=c[i].enabled;}
