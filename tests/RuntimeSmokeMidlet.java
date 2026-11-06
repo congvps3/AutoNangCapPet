@@ -154,6 +154,7 @@ public class RuntimeSmokeMidlet extends MIDlet {
         rootAndShop();AutoPetRuntime.sawConfirm("Nâng cấp: Long Châu Mika2\nXác nhận nâng cấp?",8890,Integer.valueOf(7),8891);AutoPetRuntime.tick();
         refreshNow();mika.yKHpKzQyZroJ=1;info(mika);
         check(AutoPetRuntime.completed() && !AutoPetRuntime.running(),"whole Pet workflow must report explicit success");
+        check(TestTransport.noticeTimeout==2000,"whole Pet completion must use two-second notification");
         check(!AutoPetLevel.intercept(auto) && AutoPetAccess.currentAuto()==auto,"success must immediately release same AutoLV worker");
         SJSCaeScqbiua next=new SJSCaeScqbiua();AutoPetAccess.setAuto(next);AutoPetLevel.watch();
         int cmds=TestTransport.log.size();check(!AutoPetLevel.intercept(next) && TestTransport.log.size()==cmds,"persistent completion must prevent repeated level-21 workflow");
@@ -162,6 +163,7 @@ public class RuntimeSmokeMidlet extends MIDlet {
         check(AutoPetLevel.intercept(next) && AutoPetRuntime.running(),"another character must have independent level-21 workflow");
         AutoPetAccess.setAuto(null);AutoPetLevel.watch();
         check(!AutoPetRuntime.running() && !AutoPetRuntime.completed(),"turning off Tan sat must cancel Pet without success or resuming AutoLV");
+        check(TestTransport.noticeTimeout==javax.microedition.lcdui.Alert.FOREVER,"stop notification keeps manual acknowledgement");
         AutoPetAccess.setAuto(next);AutoPetLevel.intercept(next);AutoPetRuntime.stop();
         check(AutoPetLevel.intercept(next) && AutoPetAccess.currentAuto()==null,"manual Pet stop must leave AutoLV stopped");
         field(oFpffzUyucjDJX.class,player,"BfndoYuX",int.class,Integer.valueOf(11003));AutoPetAccess.setAuto(next);

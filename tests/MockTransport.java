@@ -38,8 +38,8 @@ class MockTransport implements Opcodes {
                                 v.visitCode();v.visitVarInsn(ALOAD,1);v.visitMethodInsn(INVOKESTATIC,"TestTransport","wire","(LWZKDTXfSh;)V",false);v.visitInsn(RETURN);v.visitMaxs(0,0);v.visitEnd();return null;
                             }
                             if(wire && e.getName().equals("EAVbpdxFGDnFcb.class")) return v;
-                            if(e.getName().equals("AutoPetBridge.class") && n.equals("notice") && d.equals("(Ljava/lang/String;)V")) {
-                                v.visitCode();v.visitVarInsn(ALOAD,0);v.visitMethodInsn(INVOKESTATIC,"TestTransport","notice","(Ljava/lang/String;)V",false);v.visitInsn(RETURN);v.visitMaxs(0,0);v.visitEnd();return null;
+                            if(e.getName().equals("AutoPetBridge.class") && (n.equals("notice") || n.equals("complete")) && d.equals("(Ljava/lang/String;)V")) {
+                                v.visitCode();v.visitVarInsn(ALOAD,0);v.visitIntInsn(SIPUSH,n.equals("complete")?2000:-2);v.visitMethodInsn(INVOKESTATIC,"TestTransport","notice","(Ljava/lang/String;I)V",false);v.visitInsn(RETURN);v.visitMaxs(0,0);v.visitEnd();return null;
                             }
                             if(op==null)return v;
                             v.visitCode();v.visitLdcInsn(op);int start=(a&ACC_STATIC)!=0?0:1;

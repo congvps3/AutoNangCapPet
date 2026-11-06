@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 public class TestTransport implements qHSDVwkeNovng {
     public static String last,notice;
+    public static int noticeTimeout;
     public static int a,b,c,buys,confirms,lists;
     public static ArrayList<String> log=new ArrayList<String>();
     public static Runnable duringPacket;
@@ -13,7 +14,7 @@ public class TestTransport implements qHSDVwkeNovng {
         if(name.equals("buy") || name.equals("box"))++buys;if(name.equals("confirm"))++confirms;
         if(name.equals("list"))++lists;
     }
-    public static void notice(String text) {notice=text;}
+    public static void notice(String text,int timeout) {notice=text;noticeTimeout=timeout;}
     public static void wire(WZKDTXfSh message) {
         try {
             byte[] bytes=message.EgoDKTjkxEUMu();

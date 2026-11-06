@@ -1,4 +1,4 @@
-# AutoUpLv + AutoPet/LC r11
+# AutoUpLv + AutoPet/LC r12
 
 Tích hợp trên đúng `AutoUpLv.jar` người dùng gửi, giữ AutoLevelHook và quy tắc
 chọn map/quái của bản đó. Bật **Tàn sát** để chạy chuỗi:
@@ -7,7 +7,7 @@ chọn map/quái của bản đó. Bật **Tàn sát** để chạy chuỗi:
 2. Từ cấp 21: tạm dừng đánh quái, dùng tìm đường gốc về Làng Tone (map 22),
    tìm Tashino theo tên NPC và đi tới gần.
 3. Bật AutoPet/LC theo cấu hình đã lưu cho từng vật phẩm Enable.
-4. Chỉ khi toàn bộ yêu cầu hoàn tất: hiện thông báo, tắt AutoPet/LC và tiếp tục
+4. Chỉ khi toàn bộ yêu cầu hoàn tất: hiện thông báo tự đóng sau 2 giây, tắt AutoPet/LC và tiếp tục
    ngay AutoLV trên cùng bộ điều khiển Tàn sát.
 
 Cần cài đặt và Lưu AutoPet/LC trước khi bật Tàn sát. Nếu bật Luyện thì tự nhận
@@ -31,7 +31,7 @@ Chưa xác minh trực tiếp trên máy chủ thật.
 1. Nếu bật Luyện: để **Pet Long ID 1305 ở ô 1**, **Mika2 ID 1282 ở ô 2** hành trang.
    Nếu chỉ nâng: đeo sẵn vật phẩm, bỏ tích Luyện và bật Nâng cấp; không cần chọn chỉ số.
 2. Đứng gần Tashino ở Làng Tone (map 22).
-3. Menu → MenuAuto → AutoPet/LC. Màn hình phải ghi **AutoPet/LC r11**.
+3. Menu → MenuAuto → AutoPet/LC. Màn hình phải ghi **AutoPet/LC r12**.
 4. Bật Enable từng vật phẩm cần chạy, chọn chỉ số, Luyện/Nâng cấp, giới hạn lượt và cấp đích.
 5. Bấm Lưu, rồi Auto dưới minimap. Bấm Auto lần nữa để dừng (`đã dừng auto`).
 
@@ -81,7 +81,7 @@ python tools/bootstrap.py
 bash build.sh input/AutoUpLv.jar
 ```
 
-Đầu ra: `dist/AutoUpLv-AutoPetLC-r11.jar`, cấu hình hiển thị r11.
+Đầu ra: `dist/AutoUpLv-AutoPetLC-r12.jar`, cấu hình hiển thị r12.
 Công cụ tải qua TLS, kiểm tra SHA-256. Biên dịch Java 1.3 với API CLDC 1.1, tạo StackMap Java ME.
 
 Các kiểm tra gồm cấu hình/động cơ, Canvas/RMS, nạp 323 lớp, kịch bản lớp game thật với bộ gửi
