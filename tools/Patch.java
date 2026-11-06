@@ -9,6 +9,7 @@ class Patch implements Opcodes {
     static boolean hasLevel;
     static int levelHook;
     static int huntHooks;
+    static int mapHooks;
     static int menu,action,paint,pointer,menuObserver,shopObserver,confirmObserver,packetObserver,noticeObserver,update,queued,transmitted;
     public static void main(String[] args) throws Exception {
         Path original=Path.of(args[0]),classes=Path.of(args[1]),output=Path.of(args[2]);
@@ -26,6 +27,7 @@ class Patch implements Opcodes {
                 if(e.getName().equals("LZitKUUsicXFt.class")) data=transport(data);
                 if(hasLevel && e.getName().equals("SJSCaeScqbiua.class")) data=level(data);
                 if(hasLevel && e.getName().equals("AutoLevelHook.class")) data=hunt(data);
+                if(hasLevel && e.getName().equals("autouplv/MapCatalog.class")) data=catalog(data);
                 out.putNextEntry(new ZipEntry(e.getName()));out.write(data);out.closeEntry();
             }
             try(var paths=Files.list(classes)) {
@@ -36,7 +38,7 @@ class Patch implements Opcodes {
                 }
             }
         }
-        if(menu!=2 || action!=1 || paint!=1 || pointer!=3 || menuObserver!=1 || shopObserver!=1 || confirmObserver!=1 || packetObserver!=1 || noticeObserver!=2 || update!=1 || queued!=1 || transmitted!=1 || (hasLevel && (levelHook!=1 || huntHooks!=3))) {
+        if(menu!=2 || action!=1 || paint!=1 || pointer!=3 || menuObserver!=1 || shopObserver!=1 || confirmObserver!=1 || packetObserver!=1 || noticeObserver!=2 || update!=1 || queued!=1 || transmitted!=1 || (hasLevel && (levelHook!=1 || huntHooks!=3 || mapHooks!=5))) {
             Files.deleteIfExists(output);
             throw new IllegalStateException("Unexpected hooks: "+menu+","+action+","+paint+","+pointer);
         }
@@ -138,7 +140,41 @@ class Patch implements Opcodes {
                         if(op==RETURN)super.visitMethodInsn(INVOKESTATIC,"AutoPetHunt","reset","()V",false);super.visitInsn(op);
                     }};
                 }
+                if(n.equals("notifyStatus") && d.equals("(Ljava/lang/String;)V")) {
+                    ++mapHooks;return new MethodVisitor(ASM9,v) {public void visitCode() {
+                        super.visitCode();visitVarInsn(ALOAD,0);visitMethodInsn(INVOKESTATIC,"AutoPetHunt","mapStatus","(Ljava/lang/String;)Ljava/lang/String;",false);visitVarInsn(ASTORE,0);
+                    }};
+                }
+                if(n.equals("update") && d.equals("(LSJSCaeScqbiua;)Z")) return new MethodVisitor(ASM9,v) {
+                    public void visitMethodInsn(int op,String owner,String name,String desc,boolean itf) {
+                        if(owner.equals("autouplv/MapSelector")) {
+                            if(name.equals("canContinue") && desc.equals("(II)Z")) {
+                                ++mapHooks;super.visitFieldInsn(GETSTATIC,"AutoLevelHook","trainingMap","I");
+                                super.visitMethodInsn(INVOKESTATIC,"AutoPetMaps",name,"(III)Z",false);return;
+                            }
+                            if(name.equals("selectExcluding") || name.equals("targetLevel")) {
+                                ++mapHooks;super.visitMethodInsn(INVOKESTATIC,"AutoPetMaps",name,desc,false);return;
+                            }
+                        }
+                        super.visitMethodInsn(op,owner,name,desc,itf);
+                    }
+                };
                 return v;
+            }
+        },ClassReader.SKIP_DEBUG);return w.toByteArray();
+    }
+    static byte[] catalog(byte[] bytes) {
+        ClassWriter w=new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        new ClassReader(bytes).accept(new ClassVisitor(ASM9,w) {
+            public MethodVisitor visitMethod(int a,String n,String d,String s,String[] ex) {
+                return new MethodVisitor(ASM9,super.visitMethod(a,n,d,s,ex)) {
+                    public void visitFieldInsn(int op,String owner,String name,String desc) {
+                        if(op==PUTSTATIC && owner.equals("autouplv/MapCatalog") && name.equals("MAPS") && desc.equals("[[I")) {
+                            ++mapHooks;super.visitMethodInsn(INVOKESTATIC,"AutoPetMaps","extend","([[I)[[I",false);
+                        }
+                        super.visitFieldInsn(op,owner,name,desc);
+                    }
+                };
             }
         },ClassReader.SKIP_DEBUG);return w.toByteArray();
     }

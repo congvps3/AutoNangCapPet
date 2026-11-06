@@ -10,7 +10,7 @@ class MockTransport implements Opcodes {
             var entries=src.entries();
             while(entries.hasMoreElements()) {
                 var e=entries.nextElement();byte[] b=src.getInputStream(e).readAllBytes();
-                if(e.getName().equals("BMWCZFcnBgzHkh.class") || e.getName().equals("yRvgxykm.class") || e.getName().equals("EAVbpdxFGDnFcb.class") || e.getName().equals("zxnsayePWpajv.class") || e.getName().equals("AutoPetBridge.class") || (wire && e.getName().equals("LZitKUUsicXFt.class"))) {
+                if(e.getName().equals("PPgXAyjrNVHh.class") || e.getName().equals("BMWCZFcnBgzHkh.class") || e.getName().equals("yRvgxykm.class") || e.getName().equals("EAVbpdxFGDnFcb.class") || e.getName().equals("zxnsayePWpajv.class") || e.getName().equals("AutoPetBridge.class") || (wire && e.getName().equals("LZitKUUsicXFt.class"))) {
                     ClassWriter w=new ClassWriter(ClassWriter.COMPUTE_MAXS);
                     new ClassReader(b).accept(new ClassVisitor(ASM9,w) {
                         public MethodVisitor visitMethod(int a,String n,String d,String sig,String[] ex) {
@@ -26,6 +26,9 @@ class MockTransport implements Opcodes {
                             if(e.getName().equals("zxnsayePWpajv.class") && n.equals("oXAaoinDuwaN") && d.equals("(I)V"))op="npc";
                             if(e.getName().equals("AutoPetBridge.class") && n.equals("open") && d.equals("()V"))op="setup";
                             MethodVisitor v=super.visitMethod(a,n,d,sig,ex);
+                            if(e.getName().equals("PPgXAyjrNVHh.class") && n.equals("dvKEjoqBk") && d.equals("(Ljava/lang/String;)V")) {
+                                v.visitCode();v.visitInsn(RETURN);v.visitMaxs(0,0);v.visitEnd();return null;
+                            }
                             if(e.getName().equals("BMWCZFcnBgzHkh.class") && n.equals("EgoDKTjkxEUMu") && d.equals("(I)V")) {
                                 v.visitCode();v.visitVarInsn(ALOAD,0);v.visitVarInsn(ILOAD,1);v.visitMethodInsn(INVOKESTATIC,"TestTransport","zone","(LBMWCZFcnBgzHkh;I)V",false);v.visitInsn(RETURN);v.visitMaxs(0,0);v.visitEnd();return null;
                             }

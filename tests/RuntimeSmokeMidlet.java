@@ -274,6 +274,38 @@ public class RuntimeSmokeMidlet extends MIDlet {
         field(oFpffzUyucjDJX.class,player,"BMWCZFcnBgzHkh",wpiwfWAXuWze[].class,null);
         AutoPetAccess.setAuto(null);AutoPetLevel.watch();
     }
+    static void realmFlow() throws Exception {
+        SJSCaeScqbiua auto=new SJSCaeScqbiua();AutoPetAccess.setAuto(auto);AutoLevelHook.reset(auto);
+        int[][] maps=autouplv.MapCatalog.MAPS;
+        for(int i=0;i<AutoPetMaps.WORLD.length;i++) {
+            int[] row=AutoPetMaps.WORLD[i];boolean found=false;
+            for(int j=0;j<maps.length;j++) found|=maps[j][0]==row[0] && maps[j][1]==row[1];
+            check(found,"native map catalog must contain each supplied outside level");
+        }
+        field(oFpffzUyucjDJX.class,player,"vMyUkiiUKxerr",int.class,Integer.valueOf(60));
+        field(AutoLevelHook.class,null,"trainingMap",int.class,Integer.valueOf(24));
+        field(AutoLevelHook.class,null,"trainingMonsterLevel",int.class,Integer.valueOf(65));auto.PVQpZEqSNMpYBM=24;
+        check(AutoLevelHook.update(auto) && auto.PVQpZEqSNMpYBM==139,"native AutoLV must abandon valid outside map immediately at level 60");
+        field(oFpffzUyucjDJX.class,player,"vMyUkiiUKxerr",int.class,Integer.valueOf(65));
+        check(AutoLevelHook.update(auto) && auto.PVQpZEqSNMpYBM==139,"native AutoLV must remain until low mob level plus two");
+        field(oFpffzUyucjDJX.class,player,"vMyUkiiUKxerr",int.class,Integer.valueOf(66));
+        check(AutoLevelHook.update(auto) && auto.PVQpZEqSNMpYBM==140,"native AutoLV must move from 139 to 140 at level 66");
+        field(SBnKDsbzS.class,null,"uTxJizAJr",short.class,Short.valueOf((short)140));
+        kacyVKUNru mobs=new kacyVKUNru();field(zxnsayePWpajv.class,null,"JWQMnAXscj",kacyVKUNru.class,mobs);
+        wCmqWHpCSBaGX low=mob(0),highLeader=mob(2);low.aRzRUEjwca=74;highLeader.aRzRUEjwca=77;
+        mobs.addElement(low);mobs.addElement(highLeader);
+        field(oFpffzUyucjDJX.class,player,"vMyUkiiUKxerr",int.class,Integer.valueOf(67));
+        check(AutoLevelHook.checkZone(auto,1000) && nativeAllowed(low) && !nativeAllowed(highLeader),"gap 10 must prefer correct monster level over higher leader");
+        field(oFpffzUyucjDJX.class,player,"vMyUkiiUKxerr",int.class,Integer.valueOf(68));
+        check(AutoLevelHook.checkZone(auto,1100) && nativeAllowed(highLeader) && !nativeAllowed(low),"gap 9 unlocks all levels and normal leader priority");
+        highLeader.QgPHSngFRpo=0;
+        check(AutoLevelHook.checkZone(auto,1200) && nativeAllowed(low) && nativeAllowed(highLeader),"all levels must be targetable when no leader exists in all-level mode");
+        field(oFpffzUyucjDJX.class,player,"vMyUkiiUKxerr",int.class,Integer.valueOf(59));
+        check(!nativeAllowed(low) && !nativeAllowed(highLeader),"native targets must not unlock realm below level 60");
+        field(oFpffzUyucjDJX.class,player,"vMyUkiiUKxerr",int.class,Integer.valueOf(155));
+        check(!AutoLevelHook.update(auto),"native AutoLV must pause rather than invent next realm after 148");
+        AutoPetAccess.setAuto(null);field(SBnKDsbzS.class,null,"uTxJizAJr",short.class,Short.valueOf((short)22));
+    }
     static void useReply(int bagSlot,int equipSlot) throws Exception {
         wpiwfWAXuWze it=bag[bagSlot];bag[bagSlot]=null;body[equipSlot]=it;it.tTqVmuHPEhAbg=5;it.AZmTbjgvi=equipSlot;
         AutoPetRuntime.tick();check(TestTransport.last.equals("info") && TestTransport.a==5,"use must await actual equipped item info");info(it);
@@ -416,6 +448,7 @@ public class RuntimeSmokeMidlet extends MIDlet {
             levelFlow();
             equippedRelogFlow();
             huntFlow();
+            realmFlow();
             System.out.println("RUNTIME_SMOKE_PASS "+checks+" (actual game classes, transport interception; no live server)");
         } catch(Throwable t) {System.out.println("RUNTIME_SMOKE_FAIL "+t);t.printStackTrace();}
         notifyDestroyed();

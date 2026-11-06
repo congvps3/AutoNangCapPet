@@ -1,6 +1,30 @@
-# AutoUpLv + AutoPet/LC r15
+# AutoUpLv + AutoPet/LC r16
 
-Bản r15 kiểm tra trang bị trước khi đọc cấu hình AutoPet/LC: nếu đã đeo đủ
+Bổ sung map ngoài: 19 (71), 36 (74/77), 54 (80), 37 (84/88), 55 (92), 58 (96/100).
+Dưới cấp 60 giữ cách chọn map ngoài hiện có. Từ cấp 60 ưu tiên tuyến Ma Quỷ;
+cấp nhân vật được kiểm tra thật, không đổi cấp hay cờ mở khóa của máy chủ.
+Dùng tìm đường gốc của client (cùng hệ thống với gm), không giả lập gõ chat.
+
+| Map Ma Quỷ | Cấp quái | Chuyển sang map kế khi nhân vật đạt |
+|---|---|---|
+| 139 | 64 / 68 | 66 |
+| 140 | 74 / 77 | 76 |
+| 141 | 83 / 88 | 85 |
+| 142 | 92 / 96 | 94 |
+| 143 | 103 / 107 | 105 |
+| 144 | 114 / 117 | 116 |
+| 145 | 123 / 126 | 125 |
+| 146 | 131 / 137 | 133 |
+| 147 | 142 / 148 | 144 |
+| 148 | 153 / 159 | 155: tạm dừng, chưa có dữ liệu map tiếp |
+
+Trong map Ma Quỷ: nếu cấp quái cao nhất trừ cấp nhân vật >=10, chỉ đánh cấp
+quái gần nhất trong danh sách map; khi chênh <=9 thì đánh mọi cấp quái.
+Lọc cấp trước khi ưu tiên Thủ lĩnh, áp dụng cả mục tiêu đang giữ và đòn đánh lan.
+Ví dụ: cấp 66 ở map 140 chỉ đánh quái 74; từ cấp 68 đánh 74/77; tới cấp 76 chuyển 141.
+Các quy tắc Thủ lĩnh/chờ 6 giây của r15 và AutoPet/LC vẫn được giữ.
+
+Kiểm tra trang bị trước khi đọc cấu hình AutoPet/LC: nếu đã đeo đủ
 Pet Long (1305) và Mika2 (1282), bật Tàn sát sẽ chạy thẳng AutoLV, kể cả sau
 khi vào lại game ở cấp 41 và không còn cấu hình/dấu hoàn tất RMS. Chỉ tính
 vật phẩm đang đeo, không tính vật phẩm trong hành trang. Không ghi dấu nâng
@@ -51,7 +75,7 @@ Chưa xác minh trực tiếp trên máy chủ thật.
 1. Nếu bật Luyện: để **Pet Long ID 1305 ở ô 1**, **Mika2 ID 1282 ở ô 2** hành trang.
    Nếu chỉ nâng: đeo sẵn vật phẩm, bỏ tích Luyện và bật Nâng cấp; không cần chọn chỉ số.
 2. Đứng gần Tashino ở Làng Tone (map 22).
-3. Menu → MenuAuto → AutoPet/LC. Màn hình phải ghi **AutoPet/LC r15**.
+3. Menu → MenuAuto → AutoPet/LC. Màn hình phải ghi **AutoPet/LC r16**.
 4. Bật Enable từng vật phẩm cần chạy, chọn chỉ số, Luyện/Nâng cấp, giới hạn lượt và cấp đích.
 5. Bấm Lưu, rồi Auto dưới minimap. Bấm Auto lần nữa để dừng (`đã dừng auto`).
 
@@ -101,10 +125,10 @@ python tools/bootstrap.py
 bash build.sh input/AutoUpLv.jar
 ```
 
-Đầu ra: `dist/AutoUpLv-AutoPetLC-r15.jar`, cấu hình hiển thị r15.
+Đầu ra: `dist/AutoUpLv-AutoPetLC-r16.jar`, cấu hình hiển thị r16.
 Công cụ tải qua TLS, kiểm tra SHA-256. Biên dịch Java 1.3 với API CLDC 1.1, tạo StackMap Java ME.
 
-Các kiểm tra gồm cấu hình/động cơ, Canvas/RMS, nạp 324 lớp, kịch bản lớp game thật với bộ gửi
+Các kiểm tra gồm cấu hình/động cơ, Canvas/RMS, nạp 325 lớp, kịch bản lớp game thật với bộ gửi
 mô phỏng và kịch bản giữ nguyên EAVbpdxFGDnFcb (bộ tạo gói gốc), chỉ chặn tại hàng đợi mạng.
 Kiểm tra cả frame nhị phân được bộ ghi gốc tạo, thứ tự luyện → dùng → nâng, ô 1/2, không tự nhận,
 không dùng khi hết lượt/chưa đủ chỉ số, xác nhận trang bị, hủy phản hồi sau khi dừng và đóng hộp chờ

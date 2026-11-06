@@ -8,13 +8,23 @@ public final class AutoPetHunt {
     public static void reset() {
         map=zone=-1;noLeaderSince=-1;lastAttempt=-1;retryAt=0;seenPopulation=false;pending=false;leader=null;
     }
+    public static String mapStatus(String original) {
+        int level=oFpffzUyucjDJX.rdmjdEJDQ().vMyUkiiUKxerr;
+        return level>=60 && AutoPetMaps.realmMap(level)<0
+            ?"AutoLV tạm dừng: chưa có dữ liệu map Ma Quỷ tiếp theo cho cấp "+level:original;
+    }
     private static boolean alive(wCmqWHpCSBaGX mob) {
         return mob!=null && mob.ubmVeVhBeAG>0 && mob.XfAmeXqfjJLK!=0 && mob.XfAmeXqfjJLK!=1
             && !(mob.RULfytWrmUzzRn==202 && mob.XfAmeXqfjJLK==8);
     }
+    private static boolean eligible(wCmqWHpCSBaGX mob) {
+        if(!alive(mob)) return false;
+        int target=AutoPetMaps.targetMobLevel(oFpffzUyucjDJX.rdmjdEJDQ().vMyUkiiUKxerr,AutoPetAccess.map());
+        return target==0 || (target>0 && mob.aRzRUEjwca==target);
+    }
     public static boolean allowed(wCmqWHpCSBaGX mob) {
         if(!(AutoPetAccess.currentAuto() instanceof SJSCaeScqbiua)) return true;
-        if(!alive(mob)) return false;
+        if(!eligible(mob)) return false;
         return !alive(leader) || mob.QgPHSngFRpo==2;
     }
     private static boolean change(SJSCaeScqbiua auto,long now,int currentZone) {
@@ -44,7 +54,7 @@ public final class AutoPetHunt {
         boolean living=false;leader=null;
         for(int i=0;i<mobs.size();i++) {
             wCmqWHpCSBaGX mob=(wCmqWHpCSBaGX)mobs.elementAt(i);
-            if(!alive(mob)) continue;
+            if(!eligible(mob)) continue;
             living=true;
             if(mob.QgPHSngFRpo==2) leader=mob;
         }
