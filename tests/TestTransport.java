@@ -15,6 +15,7 @@ public class TestTransport implements qHSDVwkeNovng {
         if(name.equals("list"))++lists;
     }
     public static void notice(String text,int timeout) {notice=text;noticeTimeout=timeout;}
+    public static void zone(BMWCZFcnBgzHkh auto,int current) {auto.xNWwdhkGHYvrH=(current+1)%3;record("zone",current,auto.xNWwdhkGHYvrH,0);}
     public static void wire(WZKDTXfSh message) {
         try {
             byte[] bytes=message.EgoDKTjkxEUMu();

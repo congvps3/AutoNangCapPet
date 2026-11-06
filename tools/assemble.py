@@ -7,12 +7,12 @@ original, verified, destination = map(pathlib.Path, sys.argv[1:])
 destination.parent.mkdir(parents=True, exist_ok=True)
 patched = {"zxnsayePWpajv.class", "PyYQMyyC.class", "ceMGdFNBJnq.class", "NBAFgUXWGCkgPq.class", "yRvgxykm.class", "LZitKUUsicXFt.class"}
 with zipfile.ZipFile(original) as src, zipfile.ZipFile(verified) as changed:
-    if "AutoLevelHook.class" in src.namelist(): patched.add("SJSCaeScqbiua.class")
+    if "AutoLevelHook.class" in src.namelist(): patched.update({"SJSCaeScqbiua.class", "AutoLevelHook.class"})
     additions = {n for n in changed.namelist() if n.startswith("AutoPet") and n.endswith(".class")}
     assert additions == {"AutoPetAccess.class", "AutoPetBridge.class", "AutoPetUI.class",
                          "AutoPetConfig.class", "AutoPetEngine.class",
                          "AutoPetEngine$Port.class", "AutoPetEngine$Item.class",
-                         "AutoPetRules.class", "AutoPetRuntime.class", "AutoPetLevel.class"}, additions
+                         "AutoPetRules.class", "AutoPetRuntime.class", "AutoPetLevel.class", "AutoPetHunt.class"}, additions
     with zipfile.ZipFile(destination, "w", zipfile.ZIP_DEFLATED) as out:
         for entry in src.infolist():
             data = changed.read(entry.filename) if entry.filename in patched else src.read(entry.filename)

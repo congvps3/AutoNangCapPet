@@ -131,6 +131,58 @@ public class RuntimeSmokeMidlet extends MIDlet {
         if(mikaEnabled)bag[1]=item(1282,3,1);
     }
     static int count(String prefix) {int n=0;for(String entry:TestTransport.log)if(entry.startsWith(prefix))++n;return n;}
+    static wCmqWHpCSBaGX mob(int kind) {
+        return new wCmqWHpCSBaGX((short)0,false,false,false,false,false,0,1,100L,1,100L,(short)100,(short)100,(byte)2,(byte)kind,false,false);
+    }
+    static boolean nativeAllowed(wCmqWHpCSBaGX mob) throws Exception {
+        Method m=BMWCZFcnBgzHkh.class.getDeclaredMethod("peMayxrZEBA",wCmqWHpCSBaGX.class,int.class);m.setAccessible(true);
+        return ((Boolean)m.invoke(null,mob,Integer.valueOf(-1))).booleanValue();
+    }
+    static void huntFlow() throws Exception {
+        SJSCaeScqbiua auto=new SJSCaeScqbiua();auto.xNWwdhkGHYvrH=-1;AutoPetAccess.setAuto(auto);
+        UepTKcHi def=new UepTKcHi();field(UepTKcHi.class,def,"BMWCZFcnBgzHkh",javax.microedition.lcdui.Image[].class,new javax.microedition.lcdui.Image[0]);
+        field(wCmqWHpCSBaGX.class,null,"peMayxrZEBA",UepTKcHi[].class,new UepTKcHi[]{def});
+        field(SBnKDsbzS.class,null,"uTxJizAJr",short.class,Short.valueOf((short)1));
+        field(SBnKDsbzS.class,null,"GAWjBFnKuf",byte.class,Byte.valueOf((byte)0));
+        AutoLevelHook.reset(auto);field(AutoLevelHook.class,null,"trainingMap",int.class,Integer.valueOf(1));
+        kacyVKUNru mobs=new kacyVKUNru();field(zxnsayePWpajv.class,null,"JWQMnAXscj",kacyVKUNru.class,mobs);
+        wCmqWHpCSBaGX normal=mob(0),elite=mob(1),leader=mob(2),beast=mob(3);
+        mobs.addElement(normal);mobs.addElement(elite);mobs.addElement(leader);mobs.addElement(beast);
+        check(AutoLevelHook.checkZone(auto,1000),"new zone with mobs must attack without three-second idle");
+        check(nativeAllowed(leader) && !nativeAllowed(normal) && !nativeAllowed(elite) && !nativeAllowed(beast),"native target validation must prioritize Thu linh type 2 over normal, elite and Ta thu");
+        check(AutoLevelHook.checkZone(auto,5000),"living leader must keep zone beyond three seconds");
+        int changes=count("zone:");leader.ubmVeVhBeAG=0;
+        check(!nativeAllowed(leader),"dead leader must invalidate native cached target immediately");
+        check(!AutoLevelHook.checkZone(auto,5001) && count("zone:")==changes+1,"no leader after arrival deadline must change even with normal mobs alive");
+        AutoLevelHook.checkZone(auto,5002);check(count("zone:")==changes+1,"pending zone change must not spam requests");
+        field(SBnKDsbzS.class,null,"GAWjBFnKuf",byte.class,Byte.valueOf((byte)1));
+        check(AutoLevelHook.checkZone(auto,5003) && nativeAllowed(normal),"new zone starts fighting immediately without old change cooldown");
+        normal.ubmVeVhBeAG=elite.ubmVeVhBeAG=beast.ubmVeVhBeAG=0;
+        check(!AutoLevelHook.checkZone(auto,5004) && count("zone:")==changes+2,"last mob killed must change next update, no empty delay");
+        field(SBnKDsbzS.class,null,"GAWjBFnKuf",byte.class,Byte.valueOf((byte)2));
+        normal.ubmVeVhBeAG=100;
+        check(AutoLevelHook.checkZone(auto,6000),"normal mobs can be attacked while searching for leader");
+        check(AutoLevelHook.checkZone(auto,8999),"leader search must last until exactly three seconds");
+        check(!AutoLevelHook.checkZone(auto,9000) && count("zone:")==changes+3,"no leader must change at three seconds from arrival");
+        AutoLevelHook.reset(auto);field(AutoLevelHook.class,null,"trainingMap",int.class,Integer.valueOf(1));
+        mobs.removeAllElements();
+        check(!AutoLevelHook.checkZone(auto,10000),"empty newly loaded list must allow initial data to arrive");
+        check(!AutoLevelHook.checkZone(auto,13000) && count("zone:")==changes+4,"initial empty zone must change after three-second leader search");
+        AutoLevelHook.reset(auto);field(AutoLevelHook.class,null,"trainingMap",int.class,Integer.valueOf(1));
+        // A bare instance is enough for the zone catalog. Avoid starting the
+        // native constructor, which loads assets and connects UI services.
+        Class<?> allocator=ClassLoader.getSystemClassLoader().loadClass("sun.misc.Unsafe");Field singleton=allocator.getDeclaredField("theUnsafe");singleton.setAccessible(true);
+        Object game=allocator.getMethod("allocateInstance",Class.class).invoke(singleton.get(null),zxnsayePWpajv.class);
+        field(zxnsayePWpajv.class,null,"EgoDKTjkxEUMu",zxnsayePWpajv.class,game);
+        field(zxnsayePWpajv.class,game,"PgaoLeqNLao",int[].class,new int[]{0});
+        AutoLevelHook.checkZone(auto,14000);changes=count("zone:");
+        check(AutoLevelHook.checkZone(auto,17000) && count("zone:")==changes,"single-zone map must not spam impossible changes");
+        field(zxnsayePWpajv.class,game,"PgaoLeqNLao",int[].class,null);
+        AutoPetAccess.setAuto(null);check(AutoLevelHook.allowed(normal),"other auto modes keep native target behavior");
+        AutoLevelHook.reset(auto);field(AutoLevelHook.class,null,"trainingMap",int.class,Integer.valueOf(2));
+        changes=count("zone:");check(AutoLevelHook.checkZone(auto,14000) && count("zone:")==changes,"travel to training map must not change zones prematurely");
+        field(SBnKDsbzS.class,null,"uTxJizAJr",short.class,Short.valueOf((short)22));
+    }
     static void levelFlow() throws Exception {
         reset(true,true,0);upgradeOnly(0,0);upgradeOnly(1,0);
         pet=body[10]=item(1305,5,10);wpiwfWAXuWze mika=body[11]=item(1282,5,11);bag[0]=null;bag[1]=null;
@@ -320,6 +372,7 @@ public class RuntimeSmokeMidlet extends MIDlet {
             check(report.indexOf("xác nhận của máy chủ")>=0,"stopping erased the pending step");
             check(report.length()<2048,"diagnostics exceeded text box size");
             levelFlow();
+            huntFlow();
             System.out.println("RUNTIME_SMOKE_PASS "+checks+" (actual game classes, transport interception; no live server)");
         } catch(Throwable t) {System.out.println("RUNTIME_SMOKE_FAIL "+t);t.printStackTrace();}
         notifyDestroyed();

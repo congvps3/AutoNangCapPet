@@ -1,7 +1,15 @@
-# AutoUpLv + AutoPet/LC r12
+# AutoUpLv + AutoPet/LC r13
 
-Tích hợp trên đúng `AutoUpLv.jar` người dùng gửi, giữ AutoLevelHook và quy tắc
-chọn map/quái của bản đó. Bật **Tàn sát** để chạy chuỗi:
+AutoLV ưu tiên **Thủ lĩnh** (loại 2 theo nhãn trong client). Khi có Thủ lĩnh sống,
+đổi mục tiêu từ quái thường/Tinh Anh/Tà Thú sang Thủ lĩnh. Vừa vào khu có quái
+là đánh ngay; nếu đã đánh hết quái thì gửi đổi khu ở lần cập nhật tiếp theo.
+Nếu sau 3 giây tính từ lúc vào khu không có Thủ lĩnh, đổi khu kể cả còn quái thường.
+Nếu Thủ lĩnh vẫn sống thì tiếp tục đánh; khi hết Thủ lĩnh sau mốc 3 giây thì đổi khu.
+Chờ máy chủ xác nhận một lệnh chuyển khu trước khi gửi tiếp; khu mới không bị
+cooldown của khu trước. Thời gian tải mạng vẫn phụ thuộc máy chủ.
+
+Tích hợp trên đúng `AutoUpLv.jar` người dùng gửi, giữ bộ chọn map/quái theo cấp của bản đó, cập nhật
+ưu tiên mục tiêu và thời điểm đổi khu. Bật **Tàn sát** để chạy chuỗi:
 
 1. Dưới cấp 21: AutoLV chạy bình thường.
 2. Từ cấp 21: tạm dừng đánh quái, dùng tìm đường gốc về Làng Tone (map 22),
@@ -31,7 +39,7 @@ Chưa xác minh trực tiếp trên máy chủ thật.
 1. Nếu bật Luyện: để **Pet Long ID 1305 ở ô 1**, **Mika2 ID 1282 ở ô 2** hành trang.
    Nếu chỉ nâng: đeo sẵn vật phẩm, bỏ tích Luyện và bật Nâng cấp; không cần chọn chỉ số.
 2. Đứng gần Tashino ở Làng Tone (map 22).
-3. Menu → MenuAuto → AutoPet/LC. Màn hình phải ghi **AutoPet/LC r12**.
+3. Menu → MenuAuto → AutoPet/LC. Màn hình phải ghi **AutoPet/LC r13**.
 4. Bật Enable từng vật phẩm cần chạy, chọn chỉ số, Luyện/Nâng cấp, giới hạn lượt và cấp đích.
 5. Bấm Lưu, rồi Auto dưới minimap. Bấm Auto lần nữa để dừng (`đã dừng auto`).
 
@@ -81,10 +89,10 @@ python tools/bootstrap.py
 bash build.sh input/AutoUpLv.jar
 ```
 
-Đầu ra: `dist/AutoUpLv-AutoPetLC-r12.jar`, cấu hình hiển thị r12.
+Đầu ra: `dist/AutoUpLv-AutoPetLC-r13.jar`, cấu hình hiển thị r13.
 Công cụ tải qua TLS, kiểm tra SHA-256. Biên dịch Java 1.3 với API CLDC 1.1, tạo StackMap Java ME.
 
-Các kiểm tra gồm cấu hình/động cơ, Canvas/RMS, nạp 323 lớp, kịch bản lớp game thật với bộ gửi
+Các kiểm tra gồm cấu hình/động cơ, Canvas/RMS, nạp 324 lớp, kịch bản lớp game thật với bộ gửi
 mô phỏng và kịch bản giữ nguyên EAVbpdxFGDnFcb (bộ tạo gói gốc), chỉ chặn tại hàng đợi mạng.
 Kiểm tra cả frame nhị phân được bộ ghi gốc tạo, thứ tự luyện → dùng → nâng, ô 1/2, không tự nhận,
 không dùng khi hết lượt/chưa đủ chỉ số, xác nhận trang bị, hủy phản hồi sau khi dừng và đóng hộp chờ

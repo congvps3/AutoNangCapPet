@@ -8,6 +8,8 @@ public final class AutoPetAccess {
     public static boolean isGame() {return false;}
     public static int map() {return -1;}
     public static kacyVKUNru npcs() {return null;}
+    public static kacyVKUNru mobs() {return null;}
+    public static int zoneCount() {return -1;}
     public static HAeSnYtYmns template(gsxwWgJt npc) {return null;}
     public static wpiwfWAXuWze[] items(int source) {return null;}
     public static void click(kacyVKUNru menu,int index) {}

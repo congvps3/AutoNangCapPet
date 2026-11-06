@@ -26,6 +26,9 @@ class MockTransport implements Opcodes {
                             if(e.getName().equals("zxnsayePWpajv.class") && n.equals("oXAaoinDuwaN") && d.equals("(I)V"))op="npc";
                             if(e.getName().equals("AutoPetBridge.class") && n.equals("open") && d.equals("()V"))op="setup";
                             MethodVisitor v=super.visitMethod(a,n,d,sig,ex);
+                            if(e.getName().equals("BMWCZFcnBgzHkh.class") && n.equals("EgoDKTjkxEUMu") && d.equals("(I)V")) {
+                                v.visitCode();v.visitVarInsn(ALOAD,0);v.visitVarInsn(ILOAD,1);v.visitMethodInsn(INVOKESTATIC,"TestTransport","zone","(LBMWCZFcnBgzHkh;I)V",false);v.visitInsn(RETURN);v.visitMaxs(0,0);v.visitEnd();return null;
+                            }
                             if(e.getName().equals("BMWCZFcnBgzHkh.class") && n.equals("peMayxrZEBA") && (d.equals("(IIII)V") || d.equals("(LgsxwWgJt;)V"))) {
                                 v.visitCode();v.visitLdcInsn(d.equals("(IIII)V")?"travel":"walk");
                                 if(d.equals("(IIII)V"))v.visitVarInsn(ILOAD,1);else v.visitInsn(ICONST_0);
