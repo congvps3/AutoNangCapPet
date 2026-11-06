@@ -1,16 +1,20 @@
-# AutoUpLv + AutoPet/LC r14
+# AutoUpLv + AutoPet/LC r15
 
-Bản r14 kiểm tra trang bị trước khi đọc cấu hình AutoPet/LC: nếu đã đeo đủ
+Bản r15 kiểm tra trang bị trước khi đọc cấu hình AutoPet/LC: nếu đã đeo đủ
 Pet Long (1305) và Mika2 (1282), bật Tàn sát sẽ chạy thẳng AutoLV, kể cả sau
 khi vào lại game ở cấp 41 và không còn cấu hình/dấu hoàn tất RMS. Chỉ tính
 vật phẩm đang đeo, không tính vật phẩm trong hành trang. Không ghi dấu nâng
 thành công từ kiểm tra này; vẫn có thể dùng AutoPet/LC bằng tay khi cần.
 
-AutoLV ưu tiên **Thủ lĩnh** (loại 2 theo nhãn trong client). Khi có Thủ lĩnh sống,
-đổi mục tiêu từ quái thường/Tinh Anh/Tà Thú sang Thủ lĩnh. Vừa vào khu có quái
-là đánh ngay; nếu đã đánh hết quái thì gửi đổi khu ở lần cập nhật tiếp theo.
-Nếu sau 3 giây tính từ lúc vào khu không có Thủ lĩnh, đổi khu kể cả còn quái thường.
-Nếu Thủ lĩnh vẫn sống thì tiếp tục đánh; khi hết Thủ lĩnh sau mốc 3 giây thì đổi khu.
+AutoLV ưu tiên **Thủ lĩnh** (loại 2 theo nhãn trong client):
+- Vừa vào khu có quái là đánh ngay, không đứng chờ.
+- Không có Thủ lĩnh: đánh quái khác trong 6 giây; hết 6 giây vẫn không có thì đổi khu.
+- Có Thủ lĩnh: ưu tiên đánh Thủ lĩnh. Sau khi Thủ lĩnh cuối cùng chết, đánh quái khác
+  và bắt đầu lại đủ 6 giây chờ Thủ lĩnh, không dùng lại mốc lúc vào khu.
+- Nếu Thủ lĩnh xuất hiện lại trong lúc chờ: đánh Thủ lĩnh và bắt đầu vòng 6 giây mới
+  sau khi nó chết.
+- Hết sạch quái: gửi đổi khu ở lượt cập nhật kế tiếp, không chờ hết 6 giây.
+
 Chờ máy chủ xác nhận một lệnh chuyển khu trước khi gửi tiếp; khu mới không bị
 cooldown của khu trước. Thời gian tải mạng vẫn phụ thuộc máy chủ.
 
@@ -47,7 +51,7 @@ Chưa xác minh trực tiếp trên máy chủ thật.
 1. Nếu bật Luyện: để **Pet Long ID 1305 ở ô 1**, **Mika2 ID 1282 ở ô 2** hành trang.
    Nếu chỉ nâng: đeo sẵn vật phẩm, bỏ tích Luyện và bật Nâng cấp; không cần chọn chỉ số.
 2. Đứng gần Tashino ở Làng Tone (map 22).
-3. Menu → MenuAuto → AutoPet/LC. Màn hình phải ghi **AutoPet/LC r14**.
+3. Menu → MenuAuto → AutoPet/LC. Màn hình phải ghi **AutoPet/LC r15**.
 4. Bật Enable từng vật phẩm cần chạy, chọn chỉ số, Luyện/Nâng cấp, giới hạn lượt và cấp đích.
 5. Bấm Lưu, rồi Auto dưới minimap. Bấm Auto lần nữa để dừng (`đã dừng auto`).
 
@@ -97,7 +101,7 @@ python tools/bootstrap.py
 bash build.sh input/AutoUpLv.jar
 ```
 
-Đầu ra: `dist/AutoUpLv-AutoPetLC-r14.jar`, cấu hình hiển thị r14.
+Đầu ra: `dist/AutoUpLv-AutoPetLC-r15.jar`, cấu hình hiển thị r15.
 Công cụ tải qua TLS, kiểm tra SHA-256. Biên dịch Java 1.3 với API CLDC 1.1, tạo StackMap Java ME.
 
 Các kiểm tra gồm cấu hình/động cơ, Canvas/RMS, nạp 324 lớp, kịch bản lớp game thật với bộ gửi

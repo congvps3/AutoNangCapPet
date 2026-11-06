@@ -148,41 +148,57 @@ public class RuntimeSmokeMidlet extends MIDlet {
         kacyVKUNru mobs=new kacyVKUNru();field(zxnsayePWpajv.class,null,"JWQMnAXscj",kacyVKUNru.class,mobs);
         wCmqWHpCSBaGX normal=mob(0),elite=mob(1),leader=mob(2),beast=mob(3);
         mobs.addElement(normal);mobs.addElement(elite);mobs.addElement(leader);mobs.addElement(beast);
-        check(AutoLevelHook.checkZone(auto,1000),"new zone with mobs must attack without three-second idle");
-        check(nativeAllowed(leader) && !nativeAllowed(normal) && !nativeAllowed(elite) && !nativeAllowed(beast),"native target validation must prioritize Thu linh type 2 over normal, elite and Ta thu");
-        check(AutoLevelHook.checkZone(auto,5000),"living leader must keep zone beyond three seconds");
+        check(AutoLevelHook.checkZone(auto,1000),"new zone with mobs must attack immediately");
+        check(nativeAllowed(leader) && !nativeAllowed(normal) && !nativeAllowed(elite) && !nativeAllowed(beast),"native target validation must prioritize Thu linh type 2");
+        check(AutoLevelHook.checkZone(auto,9000),"living leader must keep zone beyond six seconds");
         int changes=count("zone:");leader.ubmVeVhBeAG=0;
         check(!nativeAllowed(leader),"dead leader must invalidate native cached target immediately");
-        check(!AutoLevelHook.checkZone(auto,5001) && count("zone:")==changes+1,"no leader after arrival deadline must change even with normal mobs alive");
-        AutoLevelHook.checkZone(auto,5002);check(count("zone:")==changes+1,"pending zone change must not spam requests");
+        check(AutoLevelHook.checkZone(auto,9001) && nativeAllowed(normal) && nativeAllowed(elite) && nativeAllowed(beast),"leader death must immediately allow other mobs and start a new six-second interval");
+        check(count("zone:")==changes,"leader death must not immediately leave a zone with other mobs");
+        check(AutoLevelHook.checkZone(auto,15000),"ordinary combat must continue for 5999 ms after leader death");
+        check(!AutoLevelHook.checkZone(auto,15001) && count("zone:")==changes+1,"no leader for six seconds after death must change zones");
+        AutoLevelHook.checkZone(auto,15002);check(count("zone:")==changes+1,"pending zone change must not spam requests");
         field(SBnKDsbzS.class,null,"GAWjBFnKuf",byte.class,Byte.valueOf((byte)1));
-        check(AutoLevelHook.checkZone(auto,5003) && nativeAllowed(normal),"new zone starts fighting immediately without old change cooldown");
+        check(AutoLevelHook.checkZone(auto,15003) && nativeAllowed(normal),"new zone starts fighting immediately without old change cooldown");
         normal.ubmVeVhBeAG=elite.ubmVeVhBeAG=beast.ubmVeVhBeAG=0;
-        check(!AutoLevelHook.checkZone(auto,5004) && count("zone:")==changes+2,"last mob killed must change next update, no empty delay");
+        check(!AutoLevelHook.checkZone(auto,15004) && count("zone:")==changes+2,"last mob killed must change next update without waiting six seconds");
         field(SBnKDsbzS.class,null,"GAWjBFnKuf",byte.class,Byte.valueOf((byte)2));
         normal.ubmVeVhBeAG=100;
-        check(AutoLevelHook.checkZone(auto,6000),"normal mobs can be attacked while searching for leader");
-        check(AutoLevelHook.checkZone(auto,8999),"leader search must last until exactly three seconds");
-        check(!AutoLevelHook.checkZone(auto,9000) && count("zone:")==changes+3,"no leader must change at three seconds from arrival");
+        check(AutoLevelHook.checkZone(auto,16000),"normal mobs must be attacked on first update without leader");
+        check(AutoLevelHook.checkZone(auto,19000),"after three seconds Auto must still attack ordinary mobs");
+        check(AutoLevelHook.checkZone(auto,21999),"initial leader search must last the full six seconds");
+        check(!AutoLevelHook.checkZone(auto,22000) && count("zone:")==changes+3,"no leader must change at six seconds from arrival");
         AutoLevelHook.reset(auto);field(AutoLevelHook.class,null,"trainingMap",int.class,Integer.valueOf(1));
         mobs.removeAllElements();
-        check(!AutoLevelHook.checkZone(auto,10000),"empty newly loaded list must allow initial data to arrive");
-        check(!AutoLevelHook.checkZone(auto,13000) && count("zone:")==changes+4,"initial empty zone must change after three-second leader search");
+        check(!AutoLevelHook.checkZone(auto,23000),"empty newly loaded list must allow initial data to arrive");
+        AutoLevelHook.checkZone(auto,28999);check(count("zone:")==changes+3,"initial data grace must not end before six seconds");
+        check(!AutoLevelHook.checkZone(auto,29000) && count("zone:")==changes+4,"initial empty zone must change after six-second leader search");
         AutoLevelHook.reset(auto);field(AutoLevelHook.class,null,"trainingMap",int.class,Integer.valueOf(1));
-        // A bare instance is enough for the zone catalog. Avoid starting the
-        // native constructor, which loads assets and connects UI services.
+        mobs.addElement(normal);mobs.addElement(leader);leader.ubmVeVhBeAG=100;
+        check(AutoLevelHook.checkZone(auto,30000) && !nativeAllowed(normal),"new leader must immediately take priority");
+        leader.ubmVeVhBeAG=0;check(AutoLevelHook.checkZone(auto,31000),"first leader death starts ordinary combat window");
+        check(AutoLevelHook.checkZone(auto,36999),"first window stays active before deadline");
+        leader.ubmVeVhBeAG=100;
+        check(AutoLevelHook.checkZone(auto,36999) && !nativeAllowed(normal),"leader respawn interrupts ordinary combat window");
+        leader.ubmVeVhBeAG=0;
+        check(AutoLevelHook.checkZone(auto,39000) && nativeAllowed(normal),"second leader death must start another fresh six seconds");
+        check(AutoLevelHook.checkZone(auto,44999),"old window deadline must not cut the new window short");
+        check(!AutoLevelHook.checkZone(auto,45000) && count("zone:")==changes+5,"second leaderless window must expire six seconds after second death");
+        AutoLevelHook.reset(auto);field(AutoLevelHook.class,null,"trainingMap",int.class,Integer.valueOf(1));
+        // Bare game instance only supplies the zone catalog; do not load assets.
         Class<?> allocator=ClassLoader.getSystemClassLoader().loadClass("sun.misc.Unsafe");Field singleton=allocator.getDeclaredField("theUnsafe");singleton.setAccessible(true);
         Object game=allocator.getMethod("allocateInstance",Class.class).invoke(singleton.get(null),zxnsayePWpajv.class);
         field(zxnsayePWpajv.class,null,"EgoDKTjkxEUMu",zxnsayePWpajv.class,game);
         field(zxnsayePWpajv.class,game,"PgaoLeqNLao",int[].class,new int[]{0});
-        AutoLevelHook.checkZone(auto,14000);changes=count("zone:");
-        check(AutoLevelHook.checkZone(auto,17000) && count("zone:")==changes,"single-zone map must not spam impossible changes");
+        AutoLevelHook.checkZone(auto,50000);changes=count("zone:");
+        check(AutoLevelHook.checkZone(auto,56000) && count("zone:")==changes,"single-zone map must not spam impossible changes");
         field(zxnsayePWpajv.class,game,"PgaoLeqNLao",int[].class,null);
         AutoPetAccess.setAuto(null);check(AutoLevelHook.allowed(normal),"other auto modes keep native target behavior");
         AutoLevelHook.reset(auto);field(AutoLevelHook.class,null,"trainingMap",int.class,Integer.valueOf(2));
-        changes=count("zone:");check(AutoLevelHook.checkZone(auto,14000) && count("zone:")==changes,"travel to training map must not change zones prematurely");
+        changes=count("zone:");check(AutoLevelHook.checkZone(auto,57000) && count("zone:")==changes,"travel to training map must not change zones prematurely");
         field(SBnKDsbzS.class,null,"uTxJizAJr",short.class,Short.valueOf((short)22));
     }
+
     static void levelFlow() throws Exception {
         reset(true,true,2);upgradeOnly(1,0);
         pet=bag[0];wpiwfWAXuWze mika=body[11]=item(1282,5,11);bag[1]=null;

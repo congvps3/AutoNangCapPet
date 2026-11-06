@@ -1,12 +1,12 @@
 /** AutoLV zone policy. Keeps native zone transport and map selection. */
 public final class AutoPetHunt {
     private static int map=-1,zone=-1;
-    private static long arrivedAt,lastAttempt=-1,retryAt;
+    private static long noLeaderSince=-1,lastAttempt=-1,retryAt;
     private static boolean seenPopulation,pending;
     private static wCmqWHpCSBaGX leader;
 
     public static void reset() {
-        map=zone=-1;lastAttempt=-1;retryAt=0;seenPopulation=false;pending=false;leader=null;
+        map=zone=-1;noLeaderSince=-1;lastAttempt=-1;retryAt=0;seenPopulation=false;pending=false;leader=null;
     }
     private static boolean alive(wCmqWHpCSBaGX mob) {
         return mob!=null && mob.ubmVeVhBeAG>0 && mob.XfAmeXqfjJLK!=0 && mob.XfAmeXqfjJLK!=1
@@ -30,7 +30,7 @@ public final class AutoPetHunt {
         int currentMap=AutoPetAccess.map(),currentZone=SBnKDsbzS.GAWjBFnKuf;
         if(currentMap!=trainingMap) {reset();return true;}
         if(map!=currentMap || zone!=currentZone) {
-            map=currentMap;zone=currentZone;arrivedAt=now;
+            map=currentMap;zone=currentZone;noLeaderSince=now;
             seenPopulation=false;pending=false;retryAt=0;leader=null;
         }
         // Wait for acknowledgement instead of submitting another zone change
@@ -50,8 +50,11 @@ public final class AutoPetHunt {
         }
         if(living) seenPopulation=true;
         if(!living && seenPopulation) return change(auto,now,currentZone);
-        if(leader!=null) return true;
-        if(now-arrivedAt>=3000) return change(auto,now,currentZone);
-        return living; // attack immediately during the initial leader search
+        if(leader!=null) {noLeaderSince=-1;return true;}
+        // The leaderless interval starts anew after the last leader dies.
+        // Ordinary mobs remain attackable throughout that interval.
+        if(noLeaderSince<0) noLeaderSince=now;
+        if(now-noLeaderSince>=6000) return change(auto,now,currentZone);
+        return living;
     }
 }
