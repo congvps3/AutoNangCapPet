@@ -10,6 +10,8 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
     private boolean active;
     private int phase,bootIndex,run,request,item,action,npcId,shopType=-1;
     private int infoSource,infoIndex,infoBaseline,listBaseline,shopBaseline,menuBaseline,confirmBaseline;
+    private int infoRetries;
+    private long infoRetryAt;
     private long deadline,nextInfo,shopRequestAt,shopCacheAt;
     private boolean shopListRequested;
     private String notices="";
@@ -49,7 +51,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             r.active=true;r.notices="";serverError=null;r.bootIndex=0;r.phase=BOOT;r.deadline=System.currentTimeMillis()+15000;
             auditing=true;trace="";traceStart=System.currentTimeMillis();actionQ="-";actionTX="-";infoQ="-";infoTX="-";lastReply="-";
             for(int i=0;i<subCounts.length;i++)subCounts[i]=0;
-            lastRunState=r.waitingFor();record("START r8");
+            lastRunState=r.waitingFor();record("START r9");
             r.boot();
         } catch(Exception e) {r.fail("Không khởi động được: "+e.getMessage());}
     }
@@ -120,7 +122,14 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
         infoSource=it.tTqVmuHPEhAbg;infoIndex=it.AZmTbjgvi;infoBaseline=infoVersion;
         it.ffWUPzwfbDA=false;
         deadline=System.currentTimeMillis()+15000;
+        infoRetries=0;infoRetryAt=System.currentTimeMillis()+750;
         EAVbpdxFGDnFcb.peMayxrZEBA().uYrMAoZFCm(infoSource,infoIndex);
+    }
+    private wpiwfWAXuWze readItem(int target) {
+        wpiwfWAXuWze[] all=AutoPetAccess.items(infoSource);
+        wpiwfWAXuWze it=all!=null && infoIndex>=0 && infoIndex<all.length?all[infoIndex]:null;
+        return it!=null && it.EgoDKTjkxEUMu!=null && it.EgoDKTjkxEUMu.QpKzrQoqbjfLc==templateId(target)
+            && it.tTqVmuHPEhAbg==infoSource && it.AZmTbjgvi==infoIndex?it:null;
     }
     public void send(int generation,int sequence,int target,int operation) {
         record("TASK id="+templateId(target)+" op="+operation);
@@ -162,12 +171,21 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
         if(AutoPetAccess.map()!=AutoPetRules.TONE || findNpc()!=npcId) {fail("Đã rời Tashino ở Làng Tone");return;}
         if(now>=deadline) {fail("Quá thời gian chờ "+waitingFor()+"; không gửi lại thao tác");return;}
         if(phase==BOOT || phase==REFRESH) {
-            if(infoVersion<=infoBaseline || infoEventSource!=infoSource || infoEventIndex!=infoIndex) return;
             int target=phase==BOOT?bootIndex:item;
-            wpiwfWAXuWze it=locate(target,false);
-            if(it==null || it.tTqVmuHPEhAbg!=infoSource || it.AZmTbjgvi!=infoIndex || !it.ffWUPzwfbDA) {fail("Không đọc được thông tin mới của vật phẩm");return;}
-            if(phase==BOOT) {initial[bootIndex]=snapshot(it);++bootIndex;boot();}
-            else {phase=0;engine.reply(run,request,true,snapshot(it),now);}
+            wpiwfWAXuWze it=readItem(target);
+            if(infoVersion>infoBaseline && infoEventSource==infoSource && infoEventIndex==infoIndex && it!=null && it.ffWUPzwfbDA) {
+                if(phase==BOOT) {initial[bootIndex]=snapshot(it);++bootIndex;boot();}
+                else {phase=0;engine.reply(run,request,true,snapshot(it),now);}
+                return;
+            }
+            // Inventory replacement and delayed detail packets are transient.
+            // Retry only the read, without extending the deadline or spending.
+            if(now>=infoRetryAt && infoRetries<2) {
+                ++infoRetries;infoRetryAt=now+750;infoBaseline=infoVersion;
+                if(it!=null) it.ffWUPzwfbDA=false;
+                record("INFO retry "+infoRetries+" src="+infoSource+" pos="+infoIndex);
+                EAVbpdxFGDnFcb.peMayxrZEBA().uYrMAoZFCm(infoSource,infoIndex);
+            }
             return;
         }
         if(phase==EQUIP) {
@@ -272,6 +290,8 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
     public static synchronized void sawNotice(String text) {
         if(!INSTANCE.active || text==null) return;
         String s=AutoPetRules.plain(text);
+        if(INSTANCE.action==AutoPetEngine.UPGRADE && (INSTANCE.phase==ACK || INSTANCE.phase==REFRESH)
+            && AutoPetRules.upgradeFailure(text)) {record("UPGRADE failed; await fresh item");return;}
         if(s.indexOf("khong du")>=0 || s.indexOf("hay trang bi")>=0 || s.indexOf("hay nhan vat pham")>=0 || s.indexOf("khong the")>=0 || s.indexOf("that bai")>=0 || s.indexOf("chua du")>=0)
             serverError=text;
     }
@@ -331,7 +351,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             if(best<0)break;seen[best]=true;
             if(subs.length()>0)subs+=", ";subs+=(best>127?best-256:best)+"x"+subCounts[best];
         }
-        return "r8 | "+lastRunState+" | ID "+INSTANCE.templateId(INSTANCE.item)+"\n"
+        return "r9 | "+lastRunState+" | ID "+INSTANCE.templateId(INSTANCE.item)+"\n"
             +actionQ+"\n"+actionTX+"\n"+infoQ+"\n"+infoTX+"\n"+lastReply+"\n"
             +"Nhóm -30: "+(subs.length()==0?"-":subs)+"\n"+trace;
     }

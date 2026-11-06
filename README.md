@@ -1,10 +1,11 @@
-# AutoPet/LC r8 — luyện trong hành trang trước, dùng và nâng sau
+# AutoPet/LC r9 — luyện trong hành trang trước, dùng và nâng sau
 
-Người dùng xác nhận r7 đã luyện được chỉ số. Bản r8 sửa khả năng đọc chỉ số
-khi luồng mạng đang xóa và dựng lại danh sách: toàn bộ xử lý gói tin và quyết định
-Auto dùng chung khóa, tránh kết luận “chưa đủ chỉ số” từ dữ liệu cập nhật dở.
-Vẫn kiểm tra đủ các dòng đã chọn trước khi dùng; vẫn chờ trang bị trước khi nâng.
-Kiểm thử cục bộ có gói 42 thật và luồng Auto chạy đồng thời; r8 chưa thử trên server thật.
+Bản r9 tiếp tục nâng sau lượt thất bại hoặc tụt cấp, đến cấp đích đã lưu.
+Mỗi lượt vẫn chờ thông tin mới từ máy chủ trước khi nâng tiếp; thiếu tài nguyên,
+mất kết nối hoặc người dùng bấm dừng thì Auto dừng.
+Khi thông tin vật phẩm chưa sẵn sàng, chỉ yêu cầu đọc lại tối đa hai lần trong
+thời hạn chờ 15 giây; không gửi lại thao tác luyện/nâng vì lỗi đọc.
+Giữ bản sửa đồng bộ cập nhật chỉ số của r8. Đã kiểm thử cục bộ; chưa thử trên server thật.
 
 Bản thử cho 251.jar (Java ME MIDP 2.1 / CLDC 1.1), theo luồng người dùng đã sửa:
 **tự nhận → luyện trong hành trang → đủ chỉ số mới dùng → xác nhận trang bị → nâng cấp**.
@@ -15,7 +16,7 @@ Chưa xác minh trực tiếp trên máy chủ thật.
 1. Tự nhận vật phẩm tại Tashino. Để **Pet Long ID 1305 ở ô 1** và
    **Long Châu Mika2 ID 1282 ở ô 2** hành trang; chưa sử dụng.
 2. Đứng gần Tashino ở Làng Tone (map 22).
-3. Menu → MenuAuto → AutoPet/LC. Màn hình phải ghi **AutoPet/LC r8**.
+3. Menu → MenuAuto → AutoPet/LC. Màn hình phải ghi **AutoPet/LC r9**.
 4. Bật Enable từng vật phẩm cần chạy, chọn chỉ số, Luyện/Nâng cấp, giới hạn lượt và cấp đích.
 5. Bấm Lưu, rồi Auto dưới minimap. Bấm Auto lần nữa để dừng (`đã dừng auto`).
 
@@ -64,7 +65,7 @@ python tools/bootstrap.py
 bash build.sh input/251.jar
 ```
 
-Đầu ra: `dist/251-AutoPetLC-Tashino-test.jar`, cấu hình hiển thị r8.
+Đầu ra: `dist/251-AutoPetLC-Tashino-test.jar`, cấu hình hiển thị r9.
 Công cụ tải qua TLS, kiểm tra SHA-256. Biên dịch Java 1.3 với API CLDC 1.1, tạo StackMap Java ME.
 
 Các kiểm tra gồm cấu hình/động cơ, Canvas/RMS, nạp 319 lớp, kịch bản lớp game thật với bộ gửi

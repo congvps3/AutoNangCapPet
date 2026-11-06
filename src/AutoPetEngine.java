@@ -19,7 +19,7 @@ public final class AutoPetEngine {
     private final Port port;
     private AutoPetConfig[] config;
     private Item[] items;
-    private int run, request, item, used, pending, beforeLevel;
+    private int run, request, item, used, pending;
     private boolean running;
     private long deadline;
     public AutoPetEngine(Port p) { port=p; }
@@ -60,7 +60,7 @@ public final class AutoPetEngine {
                 ++used; send(TRAIN,now); return;
             }
             if((c.train || c.upgrade) && !s.equipped) {send(USE,now);return;}
-            if(c.upgrade && s.level<c.target) {beforeLevel=s.level;send(UPGRADE,now);return;}
+            if(c.upgrade && s.level<c.target) {send(UPGRADE,now);return;}
             port.notice(AutoPetConfig.NAMES[item]+(c.upgrade ? " đã đủ cấp "+c.target : " đã hoàn tất"));
             ++item; used=0;
         }
@@ -76,9 +76,8 @@ public final class AutoPetEngine {
         if(!success || updated==null || !updated.present) {
             finish("Dừng auto: máy chủ từ chối thao tác hoặc thiếu dữ liệu vật phẩm");return;
         }
-        if(action==UPGRADE && updated.level<=beforeLevel) {
-            finish("Dừng auto: nâng cấp không tăng cấp vật phẩm");return;
-        }
+        // A completed upgrade can fail or lower the level. A fresh item result,
+        // rather than level progress, permits the next attempt until the target.
         if(action==USE && !updated.equipped) {finish("Dừng auto: chưa xác nhận sử dụng vật phẩm thành công");return;}
         items[item]=updated; advance(now);
     }

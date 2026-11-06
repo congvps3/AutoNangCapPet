@@ -40,6 +40,10 @@ public class RuntimeSmokeMidlet extends MIDlet {
         AutoPetRuntime.afterPacket();
     }
     static void info(wpiwfWAXuWze it) throws Exception {it.ffWUPzwfbDA=true;event(42,it.tTqVmuHPEhAbg,it.AZmTbjgvi);AutoPetRuntime.tick();}
+    static void retryReadNow() throws Exception {
+        Field f=AutoPetRuntime.class.getDeclaredField("INSTANCE");f.setAccessible(true);
+        field(AutoPetRuntime.class,f.get(null),"infoRetryAt",long.class,Long.valueOf(0));AutoPetRuntime.tick();
+    }
     static void concurrentMatchingInfo(final wpiwfWAXuWze it) throws Exception {
         HcmUnYtL[] defs=new HcmUnYtL[2];
         for(int i=0;i<2;i++) {defs[i]=new HcmUnYtL();defs[i].wLHNXXbvUSit=AutoPetConfig.OPTIONS[i];}
@@ -169,8 +173,23 @@ public class RuntimeSmokeMidlet extends MIDlet {
             info(pet);check(TestTransport.last.equals("npc") && TestTransport.a==9 && count("equip:")==usedBefore,"bag training must precede use");
             rootAndShop();check(count("menu:101")==0,"Auto must never select receiving");
             confirm(false);refreshNow();check(TestTransport.a==3 && TestTransport.b==0,"training must refresh bag item");
+            int spent=TestTransport.buys;
+            // A list refresh can replace or briefly remove the bag object while
+            // a detail reply is in flight. Only repeat the non-consuming read.
+            bag[0]=null;event(42,3,0);AutoPetRuntime.tick();
+            check(AutoPetRuntime.running() && TestTransport.buys==spent,"temporary missing item must not stop or repeat training");
+            retryReadNow();check(TestTransport.last.equals("info") && TestTransport.a==3 && TestTransport.b==0,"retry must read original bag slot only");
+            bag[0]=pet;pet.ffWUPzwfbDA=false;event(42,3,0);AutoPetRuntime.tick();
+            check(AutoPetRuntime.running() && TestTransport.buys==spent,"incomplete item details must wait");
+            retryReadNow();int reads=count("info:");retryReadNow();
+            check(count("info:")==reads,"read recovery must have a bounded retry count");
             concurrentMatchingInfo(pet);check(TestTransport.last.equals("equip") && TestTransport.a==0 && body[0]==null,"use must start only after matching stats");
             useReply(0,0);check(TestTransport.last.equals("npc"),"upgrade did not wait for equipped stats");
+            rootAndShop();confirm(true);spent=TestTransport.buys;
+            AutoPetRuntime.sawNotice("Nâng cấp thất bại");AutoPetRuntime.tick();
+            check(AutoPetRuntime.running() && TestTransport.buys==spent,"upgrade failure must await fresh item before another attempt");
+            refreshNow();info(pet);
+            check(AutoPetRuntime.running() && TestTransport.last.equals("npc"),"unchanged level must start next upgrade cycle");
             rootAndShop();confirm(true);refreshNow();pet.yKHpKzQyZroJ=1;info(pet);
             check(!AutoPetRuntime.running() && TestTransport.notice.indexOf("đủ cấp 1")>=0,"Pet target-level completion");
             reset(true,false,1);pet=bag[0];usedBefore=count("equip:");

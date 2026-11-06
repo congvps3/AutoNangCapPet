@@ -74,7 +74,14 @@ public final class EngineTest {
         check(!e.running() && p.sends==0,"never train an equipped item");
         p=new Port();e=new AutoPetEngine(p);e.start(config(),new AutoPetEngine.Item[]{item(true,3,0),item(false,0,0)},0);
         e.reply(p.run,p.request,true,item(true,3,0),1);
-        check(!e.running() && p.sends==1,"upgrade without level progress stops");
+        check(e.running() && p.sends==2 && p.action==AutoPetEngine.UPGRADE,"failed upgrade continues after fresh result");
+        e.reply(p.run,p.request,true,item(true,3,1),2);
+        e.reply(p.run,p.request,true,item(true,3,0),3);
+        check(e.running() && p.sends==4,"level loss continues toward configured target");
+        e.reply(p.run,p.request,true,item(true,3,2),4);
+        check(!e.running() && p.sends==4,"upgrade retries stop at target");
+        check(AutoPetRules.upgradeFailure("Nâng cấp thất bại"),"ordinary upgrade failure is recoverable");
+        check(!AutoPetRules.upgradeFailure("Nâng cấp thất bại, không đủ lượng"),"insufficient resources still stop");
         p=new Port();e=new AutoPetEngine(p);c=config();c[1]=c[0].copy();
         e.start(c,new AutoPetEngine.Item[]{item(true,3,2),bag(3,1)},0);
         check(p.item==1 && p.action==AutoPetEngine.USE,"two independent item states");

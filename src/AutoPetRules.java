@@ -48,4 +48,9 @@ public final class AutoPetRules {
         if(action==AutoPetEngine.UPGRADE) return s.indexOf("nang cap:")>=0 && s.indexOf("xac nhan nang cap?")>=0;
         return false;
     }
+    public static boolean upgradeFailure(String text) {
+        String s=plain(text);
+        if(s.indexOf("khong du")>=0 || s.indexOf("chua du")>=0 || s.indexOf("khong the")>=0) return false;
+        return s.indexOf("that bai")>=0 && (s.indexOf("nang cap")>=0 || s.equals("that bai") || s.equals("that bai!"));
+    }
 }
