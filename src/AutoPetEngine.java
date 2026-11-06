@@ -48,6 +48,14 @@ public final class AutoPetEngine {
         while(running && item<2) {
             AutoPetConfig c=config[item]; Item s=items[item];
             if(!c.enabled) {++item; used=0; continue;}
+            if(!c.train) {
+                if(!s.present || !s.equipped) {
+                    finish("Dừng auto: hãy trang bị "+AutoPetConfig.NAMES[item]+" trước khi chỉ nâng cấp");return;
+                }
+                if(c.upgrade && s.level<c.target) {send(UPGRADE,now);return;}
+                port.notice(AutoPetConfig.NAMES[item]+" đã đủ cấp "+c.target);
+                ++item;used=0;continue;
+            }
             if(!s.present) {
                 finish("Dừng auto: hãy tự nhận "+AutoPetConfig.NAMES[item]+" và đặt ở ô "+(item+1)+" hành trang");return;
             }

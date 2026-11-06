@@ -47,11 +47,11 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             if(AutoPetAccess.map()!=AutoPetRules.TONE) {AutoPetBridge.notice("Hãy đến Làng Tone (map 22), đứng gần Tashino rồi bấm Auto");return;}
             r.npcId=r.findNpc();
             if(r.npcId<0) {AutoPetBridge.notice("Chưa thấy Tashino trong bản đồ hiện tại");return;}
-            for(int i=0;i<2;i++) if(r.config[i].enabled) r.bagItem(i);
+            for(int i=0;i<2;i++) if(r.config[i].enabled) r.startItem(i);
             r.active=true;r.notices="";serverError=null;r.bootIndex=0;r.phase=BOOT;r.deadline=System.currentTimeMillis()+15000;
             auditing=true;trace="";traceStart=System.currentTimeMillis();actionQ="-";actionTX="-";infoQ="-";infoTX="-";lastReply="-";
             for(int i=0;i<subCounts.length;i++)subCounts[i]=0;
-            lastRunState=r.waitingFor();record("START r9");
+            lastRunState=r.waitingFor();record("START r10");
             r.boot();
         } catch(Exception e) {r.fail("Không khởi động được: "+e.getMessage());}
     }
@@ -69,6 +69,12 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
         return found;
     }
     private int templateId(int target) {return target==0?AutoPetRules.PET:AutoPetRules.MIKA;}
+    private wpiwfWAXuWze startItem(int target) {
+        if(config[target].train) return bagItem(target);
+        wpiwfWAXuWze it=locate(target,true);
+        if(it==null) throw new RuntimeException("Hãy trang bị "+AutoPetConfig.NAMES[target]+" trước khi chỉ nâng cấp");
+        return it;
+    }
     private wpiwfWAXuWze bagItem(int target) {
         wpiwfWAXuWze[] bag=AutoPetAccess.items(3);
         wpiwfWAXuWze it=bag!=null && bag.length>target?bag[target]:null;
@@ -111,7 +117,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
     }
     private void boot() {
         while(bootIndex<2) {
-            wpiwfWAXuWze it=config[bootIndex].enabled?bagItem(bootIndex):null;
+            wpiwfWAXuWze it=config[bootIndex].enabled?startItem(bootIndex):null;
             initial[bootIndex]=snapshot(it);
             if(it!=null) {askInfo(it);return;}
             ++bootIndex;
@@ -138,6 +144,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
         if(operation==AutoPetEngine.RECEIVE) {fail("Bạn cần tự nhận vật phẩm trước khi bật Auto");return;}
         if(operation==AutoPetEngine.TRAIN) {bagItem(item);openNpc();return;}
         if(operation==AutoPetEngine.USE) {
+            if(!config[item].train) {fail("Hãy trang bị vật phẩm trước khi chỉ nâng cấp");return;}
             wpiwfWAXuWze bag=bagItem(item);
             if((snapshot(bag).options & config[item].selected)!=config[item].selected) {fail("Chưa đủ chỉ số, không sử dụng vật phẩm");return;}
             phase=EQUIP;EAVbpdxFGDnFcb.peMayxrZEBA().jPtiHTBf(bag.AZmTbjgvi);return;
@@ -351,7 +358,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             if(best<0)break;seen[best]=true;
             if(subs.length()>0)subs+=", ";subs+=(best>127?best-256:best)+"x"+subCounts[best];
         }
-        return "r9 | "+lastRunState+" | ID "+INSTANCE.templateId(INSTANCE.item)+"\n"
+        return "r10 | "+lastRunState+" | ID "+INSTANCE.templateId(INSTANCE.item)+"\n"
             +actionQ+"\n"+actionTX+"\n"+infoQ+"\n"+infoTX+"\n"+lastReply+"\n"
             +"Nhóm -30: "+(subs.length()==0?"-":subs)+"\n"+trace;
     }

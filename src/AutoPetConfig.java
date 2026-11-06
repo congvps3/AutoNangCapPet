@@ -22,7 +22,7 @@ public final class AutoPetConfig {
         if (attempts < 0 || attempts > 1000000) throw new IllegalArgumentException("Số lần luyện: 0–1000000");
         if (target < 0 || target > 1000) throw new IllegalArgumentException("Cấp nâng: 0–1000");
         if ((selected & ~2047) != 0) throw new IllegalArgumentException("Chỉ số không hợp lệ");
-        if (enabled && (train || upgrade) && selected == 0)
+        if (enabled && train && selected == 0)
             throw new IllegalArgumentException("Hãy chọn ít nhất một chỉ số");
         if (enabled && !train && !upgrade)
             throw new IllegalArgumentException("Hãy chọn thao tác cần chạy");

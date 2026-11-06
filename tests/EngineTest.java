@@ -90,6 +90,31 @@ public final class EngineTest {
         p=new Port();e=new AutoPetEngine(p);c=config();c[0].attempts=0;
         e.start(c,new AutoPetEngine.Item[]{bag(1,0),item(false,0,0)},0);
         check(!e.running() && p.sends==0,"zero budget does not use unmatched item");
+        c=config();c[0].train=false;c[0].selected=0;c[0].attempts=0;
+        c[0].validate();restored=AutoPetConfig.decode(AutoPetConfig.encode(c));
+        check(!restored[0].train && restored[0].selected==0,"upgrade-only settings save without selected stats");
+        p=new Port();e=new AutoPetEngine(p);
+        e.start(c,new AutoPetEngine.Item[]{item(true,0,0),item(false,0,0)},0);
+        check(e.running() && p.action==AutoPetEngine.UPGRADE,"equipped upgrade-only skips missing stats");
+        e.reply(p.run,p.request,true,item(true,0,0),1);
+        check(e.running() && p.sends==2,"upgrade-only retries failure without training");
+        e.reply(p.run,p.request,true,item(true,0,2),2);
+        check(!e.running() && p.sends==2,"upgrade-only stops at target without stat checks");
+        c[0].selected=2047;p=new Port();e=new AutoPetEngine(p);
+        e.start(c,new AutoPetEngine.Item[]{item(true,0,1),item(false,0,0)},0);
+        check(e.running() && p.action==AutoPetEngine.UPGRADE,"saved selections ignored when training disabled");
+        p=new Port();e=new AutoPetEngine(p);
+        e.start(c,new AutoPetEngine.Item[]{bag(2047,0),item(false,0,0)},0);
+        check(!e.running() && p.sends==0,"upgrade-only requires equipped item and never uses bag item");
+        c=config();c[1]=c[0].copy();c[1].train=false;c[1].selected=2047;
+        p=new Port();e=new AutoPetEngine(p);
+        e.start(c,new AutoPetEngine.Item[]{bag(1,0),item(true,0,0)},0);
+        check(p.item==0 && p.action==AutoPetEngine.TRAIN,"mixed mode keeps Pet training enabled");
+        e.reply(p.run,p.request,true,bag(3,0),1);
+        e.reply(p.run,p.request,true,item(true,3,2),2);
+        check(e.running() && p.item==1 && p.action==AutoPetEngine.UPGRADE,"mixed mode skips Mika training and saved stats");
+        e.reply(p.run,p.request,true,item(true,0,2),3);
+        check(!e.running(),"mixed training and upgrade-only both complete");
         System.out.println("PASS: "+checks+" engine/config assertions (simulated server, not live game)");
     }
     static AutoPetEngine.Item bag(int options,int level) {return new AutoPetEngine.Item(true,options,level,false);}

@@ -1,11 +1,11 @@
-# AutoPet/LC r9 — luyện trong hành trang trước, dùng và nâng sau
+# AutoPet/LC r10 — luyện trong hành trang trước, dùng và nâng sau
 
-Bản r9 tiếp tục nâng sau lượt thất bại hoặc tụt cấp, đến cấp đích đã lưu.
-Mỗi lượt vẫn chờ thông tin mới từ máy chủ trước khi nâng tiếp; thiếu tài nguyên,
-mất kết nối hoặc người dùng bấm dừng thì Auto dừng.
-Khi thông tin vật phẩm chưa sẵn sàng, chỉ yêu cầu đọc lại tối đa hai lần trong
-thời hạn chờ 15 giây; không gửi lại thao tác luyện/nâng vì lỗi đọc.
-Giữ bản sửa đồng bộ cập nhật chỉ số của r8. Đã kiểm thử cục bộ; chưa thử trên server thật.
+Bản r10 thêm chế độ chỉ nâng: bỏ tích Luyện, bật Nâng cấp và Enable cho vật phẩm
+đang đeo. Không yêu cầu chọn chỉ số, không kiểm tra các chỉ số đã lưu, không luyện
+và không yêu cầu vật phẩm ở ô hành trang. Pet Long và Mika2 có cấu hình riêng.
+Nếu chưa đeo, Auto thông báo yêu cầu trang bị và dừng.
+Giữ các sửa lỗi r9: nâng tiếp sau thất bại đến cấp đích; đọc lại thông tin tối đa
+hai lần trong thời hạn 15 giây khi dữ liệu chưa sẵn sàng. Chưa thử trên server thật.
 
 Bản thử cho 251.jar (Java ME MIDP 2.1 / CLDC 1.1), theo luồng người dùng đã sửa:
 **tự nhận → luyện trong hành trang → đủ chỉ số mới dùng → xác nhận trang bị → nâng cấp**.
@@ -13,21 +13,22 @@ Chưa xác minh trực tiếp trên máy chủ thật.
 
 ## Cách dùng
 
-1. Tự nhận vật phẩm tại Tashino. Để **Pet Long ID 1305 ở ô 1** và
-   **Long Châu Mika2 ID 1282 ở ô 2** hành trang; chưa sử dụng.
+1. Nếu bật Luyện: để **Pet Long ID 1305 ở ô 1**, **Mika2 ID 1282 ở ô 2** hành trang.
+   Nếu chỉ nâng: đeo sẵn vật phẩm, bỏ tích Luyện và bật Nâng cấp; không cần chọn chỉ số.
 2. Đứng gần Tashino ở Làng Tone (map 22).
-3. Menu → MenuAuto → AutoPet/LC. Màn hình phải ghi **AutoPet/LC r9**.
+3. Menu → MenuAuto → AutoPet/LC. Màn hình phải ghi **AutoPet/LC r10**.
 4. Bật Enable từng vật phẩm cần chạy, chọn chỉ số, Luyện/Nâng cấp, giới hạn lượt và cấp đích.
 5. Bấm Lưu, rồi Auto dưới minimap. Bấm Auto lần nữa để dừng (`đã dừng auto`).
 
 Không có tự nhận vật phẩm. Dòng nhận tự động cũ đã thay bằng hướng dẫn vị trí hành trang.
 Cấu hình từng tab lưu riêng bằng RMS. Chưa Enable thì không sửa được các trường.
-Chỉ kiểm tra các ô của vật phẩm đã Enable; sai hoặc thiếu bất kỳ ô nào thì dừng trước khi gửi lệnh.
+Chỉ kiểm tra vật phẩm đã Enable: bật Luyện thì kiểm tra ô hành trang, chỉ nâng thì kiểm tra trang bị.
 Cấu hình cũ chỉ bật nhận sẽ được tắt Enable khi tải, để người dùng chọn lại Luyện/Nâng cấp.
 
 ## Quy tắc xử lý
 
-- Đọc chỉ số thật của vật phẩm ở ô quy định trước khi bắt đầu.
+- Bật Luyện: đọc chỉ số thật của vật phẩm ở ô hành trang quy định.
+- Bỏ tích Luyện: chỉ đọc cấp của vật phẩm đang đeo, nâng tới cấp đích, bỏ qua chỉ số.
 - Luyện khi vật phẩm vẫn ở hành trang. Chưa đủ tất cả chỉ số đã chọn thì chưa được dùng.
 - Hết lượt mà chưa đủ chỉ số: thông báo dừng, giữ vật phẩm trong hành trang, không nâng.
 - Đủ chỉ số: sử dụng vật phẩm đúng ô. Chờ server cập nhật vào vùng trang bị và đọc lại
@@ -65,7 +66,7 @@ python tools/bootstrap.py
 bash build.sh input/251.jar
 ```
 
-Đầu ra: `dist/251-AutoPetLC-Tashino-test.jar`, cấu hình hiển thị r9.
+Đầu ra: `dist/251-AutoPetLC-Tashino-test.jar`, cấu hình hiển thị r10.
 Công cụ tải qua TLS, kiểm tra SHA-256. Biên dịch Java 1.3 với API CLDC 1.1, tạo StackMap Java ME.
 
 Các kiểm tra gồm cấu hình/động cơ, Canvas/RMS, nạp 319 lớp, kịch bản lớp game thật với bộ gửi

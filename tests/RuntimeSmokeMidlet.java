@@ -131,6 +131,10 @@ public class RuntimeSmokeMidlet extends MIDlet {
         if(mikaEnabled)bag[1]=item(1282,3,1);
     }
     static int count(String prefix) {int n=0;for(String entry:TestTransport.log)if(entry.startsWith(prefix))++n;return n;}
+    static void upgradeOnly(int target,int mask) throws Exception {
+        AutoPetConfig[] settings=AutoPetUI.settings();settings[target].train=false;settings[target].selected=mask;
+        field(AutoPetUI.class,null,"saved",AutoPetConfig[].class,settings);
+    }
     static void useReply(int bagSlot,int equipSlot) throws Exception {
         wpiwfWAXuWze it=bag[bagSlot];bag[bagSlot]=null;body[equipSlot]=it;it.tTqVmuHPEhAbg=5;it.AZmTbjgvi=equipSlot;
         AutoPetRuntime.tick();check(TestTransport.last.equals("info") && TestTransport.a==5,"use must await actual equipped item info");info(it);
@@ -213,6 +217,19 @@ public class RuntimeSmokeMidlet extends MIDlet {
             useReply(1,1);rootAndShop();AutoPetRuntime.sawConfirm("Nâng cấp: Long Châu Mika2\nXác nhận nâng cấp?",8890,Integer.valueOf(7),8891);AutoPetRuntime.tick();
             refreshNow();bothMika.yKHpKzQyZroJ=1;info(bothMika);
             check(!AutoPetRuntime.running(),"both fixed-slot items did not complete");
+            reset(true,true,0);upgradeOnly(0,0);upgradeOnly(1,2047);
+            pet=body[10]=item(1305,5,10);mika=body[11]=item(1282,5,11);bag[0]=null;bag[1]=null;
+            options(pet,0);options(mika,0);
+            int trains=count("menu:102"),equips=count("equip:");
+            AutoPetRuntime.toggle();check(TestTransport.last.equals("info") && TestTransport.a==5 && TestTransport.b==10,"upgrade-only reads equipped Pet, not bag slot 1");
+            info(pet);check(TestTransport.last.equals("info") && TestTransport.b==11,"upgrade-only reads equipped Mika independently");
+            info(mika);rootAndShop();check(TestTransport.a==0,"upgrade-only Pet selected correct box slot");
+            confirm(true);refreshNow();pet.yKHpKzQyZroJ=1;info(pet);
+            rootAndShop();AutoPetRuntime.sawConfirm("Nâng cấp: Long Châu Mika2\nXác nhận nâng cấp?",8890,Integer.valueOf(7),8891);AutoPetRuntime.tick();
+            refreshNow();mika.yKHpKzQyZroJ=1;info(mika);
+            check(!AutoPetRuntime.running() && count("menu:102")==trains && count("equip:")==equips,"both upgrade-only items must finish without training, stat checks or use");
+            reset(true,false,0);upgradeOnly(0,0);int missingCommands=TestTransport.log.size();AutoPetRuntime.toggle();
+            check(!AutoPetRuntime.running() && TestTransport.log.size()==missingCommands && TestTransport.notice.indexOf("trang bị")>=0,"upgrade-only bag item must ask user to equip without spending");
             reset(true,true,2);bag[1]=null;int before=TestTransport.log.size();AutoPetRuntime.toggle();
             check(!AutoPetRuntime.running() && TestTransport.log.size()==before,"preflight must validate both slots before any command");
             reset(true,false,2);bag[1]=bag[0];bag[0]=null;before=TestTransport.log.size();AutoPetRuntime.toggle();
