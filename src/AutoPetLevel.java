@@ -2,9 +2,9 @@ import javax.microedition.rms.RecordStore;
 
 /** Gift codes advance once sent; consuming actions always await native acknowledgement. */
 public final class AutoPetLevel {
-    private static final int TRAVEL_GIFT=1,MENU_GIFT=2,INPUT_GIFT=3,GIFT_ACK=4,SETTLE=5,USE_ACK=6,TRAVEL_PET=7,PET_RUN=8,LEVEL=9;
+    private static final int TRAVEL_GIFT=1,MENU_GIFT=2,INPUT_GIFT=3,GIFT_ACK=4,SETTLE=5,USE_ACK=6,TRAVEL_PET=7,PET_RUN=8,LEVEL=9,TRAVEL_BUY=10,BUY_RUN=11;
     private static final String[] CODES={"200mem","CODETUAN4"};
-    private static final int[] USE_IDS={829,1399,41,44,48},USE_LEVELS={0,0,20,30,50},USE_FLAGS={4,8,64,128,256};
+    private static final int[] USE_IDS={248,829,1399,40,58,42,60,44,62,48,68},USE_LEVELS={0,0,0,10,10,20,20,30,30,50,50},USE_FLAGS={8192,4,8,16384,16384,2048,2048,128,128,256,256};
     private static volatile SJSCaeScqbiua owner;
     private static volatile int stage;
     private static boolean giftCustom,giftSent;
@@ -19,7 +19,7 @@ public final class AutoPetLevel {
         while(history.length()>650){int end=history.indexOf('\n');if(end<0)break;history=history.substring(end+1);}
     }
     // No Level monitor here: native packet callbacks hold the Runtime monitor.
-    public static String diagnostics(){return history.length()==0?"":"Chuỗi mã quà r21:\n"+history;}
+    public static String diagnostics(){return history.length()==0?"":"Chuỗi mã quà r22:\n"+history;}
     private static boolean codeHandled(int index) {return (flags & ((1<<index)|(512<<index)))!=0;}
     private static boolean codesHandled() {return codeHandled(0) && codeHandled(1);}
     private static String character() {
@@ -52,6 +52,7 @@ public final class AutoPetLevel {
         giftCustom=false;
     }
     private static String waitingFor() {
+        if(stage==TRAVEL_BUY || stage==BUY_RUN)return "mua ID 248 tại Goosho";
         if(stage==TRAVEL_GIFT)return "đến Okanechan";
         if(stage==MENU_GIFT)return "menu Mã quà tặng";
         if(stage==INPUT_GIFT)return "mở ô nhập "+CODES[codeIndex];
@@ -61,6 +62,7 @@ public final class AutoPetLevel {
         return "làm "+AutoPetConfig.NAMES[target];
     }
     private static void stop(String message) {
+        if(stage==BUY_RUN)AutoPetPurchase.cancel();
         if(stage==PET_RUN && AutoPetRuntime.running())AutoPetRuntime.stop();
         if(owner!=null && AutoPetAccess.currentAuto()==owner)AutoPetAccess.setAuto(null);
         closeDialogs();owner=null;stage=0;if(message!=null)AutoPetBridge.notice(message+"\n\n"+diagnostics());
@@ -69,7 +71,7 @@ public final class AutoPetLevel {
         kacyVKUNru all=AutoPetAccess.npcs();
         if(all!=null)for(int i=0;i<all.size();i++) {
             gsxwWgJt n=(gsxwWgJt)all.elementAt(i);HAeSnYtYmns t=AutoPetAccess.template(n);
-            if(t!=null && AutoPetRules.plain(t.wLHNXXbvUSit).equals(name))return n;
+            if(t!=null && (AutoPetRules.plain(t.wLHNXXbvUSit).equals(name) || name.equals("goosho") && AutoPetRules.plain(t.wLHNXXbvUSit).equals("gosho")))return n;
         }
         return null;
     }
@@ -79,6 +81,11 @@ public final class AutoPetLevel {
         gsxwWgJt n=npc(name);
         if(n!=null && !AutoPetAccess.nearNpc(n)){BMWCZFcnBgzHkh.peMayxrZEBA(n);return null;}
         return n;
+    }
+    private static void afterCodes() throws Exception {
+        if((flags&4096)==0 && AutoPetInventory.bag(248)==null){route(TRAVEL_BUY);return;}
+        if((flags&4096)==0)mark(4096);
+        stage=LEVEL;
     }
     private static void route(int next) {stage=next;deadline=System.currentTimeMillis()+180000;AutoPetAccess.clearCombat();}
     public static int codeResult(String text) {
@@ -109,6 +116,8 @@ public final class AutoPetLevel {
     }
     private static boolean useNext() {
         synchronized(AutoPetRuntime.packetLock()) {
+            if(stage==USE_ACK)return true;
+            if(stage!=LEVEL || !active())return false;
             int level=oFpffzUyucjDJX.rdmjdEJDQ().vMyUkiiUKxerr;
             for(int i=0;i<USE_IDS.length;i++)if(level>=USE_LEVELS[i] && (flags&USE_FLAGS[i])==0) {
                 wpiwfWAXuWze it=AutoPetInventory.bag(USE_IDS[i]);if(it==null)continue;
@@ -120,6 +129,27 @@ public final class AutoPetLevel {
             return false;
         }
     }
+    private static boolean pollUse() throws Exception {
+        synchronized(AutoPetRuntime.packetLock()) {
+            if(stage!=USE_ACK)return stage==LEVEL;
+            checkActive();
+            if(System.currentTimeMillis()>=deadline)throw new RuntimeException("Quá thời gian chờ sử dụng vật phẩm "+useId+"; không gửi lại thao tác");
+            if(AutoPetInventory.count(useId)<useBefore || AutoPetInventory.worn(useId)!=null){mark(useFlag);stage=LEVEL;}
+            else {
+                if(AutoPetEvents.notices>noticeBase) {
+                    noticeBase=AutoPetEvents.notices;String s=AutoPetRules.plain(AutoPetEvents.notice);
+                    if(s.indexOf("khong the")>=0 || s.indexOf("khong du")>=0 || s.indexOf("chua du")>=0 || s.indexOf("that bai")>=0)throw new RuntimeException(AutoPetEvents.notice);
+                }
+                if(AutoPetEvents.confirms>confirmBase) {
+                    confirmBase=AutoPetEvents.confirms;String s=AutoPetRules.plain(AutoPetEvents.confirmText);
+                    if((s.indexOf("su dung")<0 && s.indexOf("mo ")<0) || (s.indexOf("vat pham")<0 && (useName.length()==0 || s.indexOf(useName)<0)))throw new RuntimeException("Xác nhận sử dụng vật phẩm không khớp");
+                    checkActive();NBAFgUXWGCkgPq.HmLENarbmj();EAVbpdxFGDnFcb.peMayxrZEBA().hFWcqhZjekJK(AutoPetEvents.confirmCode);
+                }
+                return false;
+            }
+            return true;
+        }
+    }
     public static synchronized boolean intercept(SJSCaeScqbiua auto) {
         try {
             if(AutoPetAccess.currentAuto()!=auto)return true;
@@ -127,9 +157,9 @@ public final class AutoPetLevel {
             if(stage==0) {
                 if(AutoPetRuntime.running())return true;
                 owner=auto;character=character();key="APLC20_"+character.hashCode();store(false);history="";
-                if(!codesHandled()){codeIndex=codeHandled(0)?1:0;route(TRAVEL_GIFT);}else stage=LEVEL;
+                if(!codesHandled()){codeIndex=codeHandled(0)?1:0;route(TRAVEL_GIFT);}else afterCodes();
             }
-            if(stage!=TRAVEL_GIFT && stage!=TRAVEL_PET && stage!=LEVEL && stage!=PET_RUN && stage!=SETTLE && System.currentTimeMillis()>=deadline)
+            if(stage!=TRAVEL_GIFT && stage!=TRAVEL_PET && stage!=TRAVEL_BUY && stage!=BUY_RUN && stage!=LEVEL && stage!=PET_RUN && stage!=SETTLE && System.currentTimeMillis()>=deadline)
                 throw new RuntimeException("Quá thời gian chờ máy chủ; không gửi lại thao tác đang chờ");
             if(stage==TRAVEL_GIFT) {
                 gsxwWgJt n=travel(auto,"okanechan");if(n==null)return true;
@@ -183,22 +213,16 @@ public final class AutoPetLevel {
                 }
                 return true;
             }
-            if(stage==SETTLE){if(System.currentTimeMillis()<settleUntil)return true;stage=LEVEL;}
-            if(stage==USE_ACK) {
-                if(AutoPetInventory.count(useId)<useBefore || AutoPetInventory.worn(useId)!=null){mark(useFlag);stage=LEVEL;}
-                else {
-                    if(AutoPetEvents.notices>noticeBase) {
-                        noticeBase=AutoPetEvents.notices;String s=AutoPetRules.plain(AutoPetEvents.notice);
-                        if(s.indexOf("khong the")>=0 || s.indexOf("khong du")>=0 || s.indexOf("chua du")>=0 || s.indexOf("that bai")>=0)throw new RuntimeException(AutoPetEvents.notice);
-                    }
-                    if(AutoPetEvents.confirms>confirmBase) {
-                        confirmBase=AutoPetEvents.confirms;String s=AutoPetRules.plain(AutoPetEvents.confirmText);
-                        if((s.indexOf("su dung")<0 && s.indexOf("mo ")<0) || (s.indexOf("vat pham")<0 && (useName.length()==0 || s.indexOf(useName)<0)))throw new RuntimeException("Xác nhận sử dụng vật phẩm không khớp");
-                        checkActive();NBAFgUXWGCkgPq.HmLENarbmj();EAVbpdxFGDnFcb.peMayxrZEBA().hFWcqhZjekJK(AutoPetEvents.confirmCode);
-                    }
-                    return true;
-                }
+            if(stage==SETTLE){if(System.currentTimeMillis()<settleUntil)return true;afterCodes();}
+            if(stage==TRAVEL_BUY) {
+                gsxwWgJt vendor=travel(auto,"goosho");if(vendor==null)return true;
+                checkActive();stage=BUY_RUN;AutoPetPurchase.start(auto,AutoPetAccess.template(vendor).mvjvhHcftNANDP);return true;
             }
+            if(stage==BUY_RUN) {
+                AutoPetPurchase.tick();if(!AutoPetPurchase.completed())return true;
+                mark(4096);stage=LEVEL;log("Đã mua ID 248; chờ dùng trong hành trang");
+            }
+            if(stage==USE_ACK && !pollUse())return true;
             if(stage==PET_RUN) {
                 if(AutoPetRuntime.running())return true;
                 if(!AutoPetRuntime.completed()){stop(null);return true;}
@@ -227,7 +251,13 @@ public final class AutoPetLevel {
     public static void watch() {
         SJSCaeScqbiua active=owner;
         if(active!=null && (AutoPetAccess.currentAuto()!=active || !character().equals(character))) {
-            if(stage==PET_RUN)AutoPetRuntime.stop();closeDialogs();owner=null;stage=0;
+            if(stage==BUY_RUN)AutoPetPurchase.cancel();
+            if(stage==PET_RUN)AutoPetRuntime.stop();closeDialogs();owner=null;stage=0;return;
         }
+        if(active!=null)try {
+            // These steps never wait for travel or take the Level monitor.
+            if(stage==USE_ACK)pollUse();
+            if(stage==LEVEL)useNext();
+        }catch(Exception e){stop("Dừng Auto ("+waitingFor()+"): "+e.getMessage());}
     }
 }

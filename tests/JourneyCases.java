@@ -6,13 +6,22 @@ public class JourneyCases extends RuntimeSmokeMidlet {
     static void level(int n) throws Exception {field(oFpffzUyucjDJX.class,player,"vMyUkiiUKxerr",int.class,Integer.valueOf(n));}
     static void map(int n) throws Exception {field(SBnKDsbzS.class,null,"uTxJizAJr",short.class,Short.valueOf((short)n));}
     static void set(String name,long n) throws Exception {field(AutoPetLevel.class,null,name,long.class,Long.valueOf(n));}
-    static SJSCaeScqbiua fresh(int id,int lv,boolean enabled) throws Exception {
+    static SJSCaeScqbiua fresh(int id,int lv,boolean enabled) throws Exception {return fresh(id,lv,enabled,true);}
+    static void progress(int id,int bits) throws Exception {
+        String identity=id+":journey";
+        javax.microedition.rms.RecordStore rs=javax.microedition.rms.RecordStore.openRecordStore("APLC20_"+identity.hashCode(),true);
+        ByteArrayOutputStream bytes=new ByteArrayOutputStream();DataOutputStream out=new DataOutputStream(bytes);out.writeUTF(identity);out.writeInt(bits);out.flush();byte[] data=bytes.toByteArray();
+        if(rs.getNumRecords()==0)rs.addRecord(data,0,data.length);else rs.setRecord(1,data,0,data.length);rs.closeRecordStore();
+    }
+    // Most focused tests start after the Goosho step; the full journey and PurchaseCases run it.
+    static SJSCaeScqbiua fresh(int id,int lv,boolean enabled,boolean shopPrepared) throws Exception {
         AutoPetAccess.setAuto(null);AutoPetLevel.watch();if(AutoPetRuntime.running())AutoPetRuntime.stop();
         reset(enabled,enabled,3);bag[0]=bag[1]=null;
         field(oFpffzUyucjDJX.class,player,"BfndoYuX",int.class,Integer.valueOf(id));
         field(oFpffzUyucjDJX.class,player,"dvKEjoqBk",String.class,"journey");
         field(oFpffzUyucjDJX.class,player,"wLHNXXbvUSit",int.class,Integer.valueOf(100));
         field(oFpffzUyucjDJX.class,player,"SgQHNwMh",int.class,Integer.valueOf(100));level(lv);map(22);
+        if(shopPrepared)progress(id,4096|8192);
         SJSCaeScqbiua auto=new SJSCaeScqbiua();AutoPetAccess.setAuto(auto);return auto;
     }
     static void packet(int command,byte[] payload) {new yRvgxykm().WRmEtfNMLdMb(new WZKDTXfSh((byte)command,payload));}
@@ -53,14 +62,14 @@ public class JourneyCases extends RuntimeSmokeMidlet {
         info(it);return it;
     }
     static void trainUseUpgrade(wpiwfWAXuWze it,int slot,int equipped) throws Exception {
-        int uses=count("equip:");rootAndShop();confirm(false);refreshNow();
+        int uses=count("equip:"),alerts=TestTransport.noticeCalls;rootAndShop();confirm(false);refreshNow();
         check(TestTransport.a==3 && TestTransport.b==slot,"training must refresh actual bag slot");
         options(it,3);info(it);check(TestTransport.last.equals("equip") && TestTransport.a==slot && count("equip:")==uses+1,"matching stats must use correct arbitrary slot");
         useReply(slot,equipped);rootAndShop();
         if(it.EgoDKTjkxEUMu.QpKzrQoqbjfLc==1305)confirm(true);
         else {AutoPetRuntime.sawConfirm("Nâng cấp: Long Châu Mika2\nXác nhận nâng cấp?",8890,Integer.valueOf(7),8891);AutoPetRuntime.tick();}
         refreshNow();it.yKHpKzQyZroJ=1;info(it);
-        check(AutoPetRuntime.completed() && !AutoPetRuntime.running() && TestTransport.noticeTimeout==2000,"target stage must finish with two-second notice");
+        check(AutoPetRuntime.completed() && !AutoPetRuntime.running() && TestTransport.noticeCalls==alerts,"Pet/Mika completion must not show a popup");
     }
     static void run() throws Exception {
         check(AutoPetLevel.codeResult("Nhận mã không thành công")==-1,"negative redemption must never count as success");
@@ -70,20 +79,20 @@ public class JourneyCases extends RuntimeSmokeMidlet {
         WZKDTXfSh truncated=new WZKDTXfSh((byte)-33,badBytes.toByteArray());AutoPetRuntime.beforePacket(truncated);
         check(AutoPetAccess.input(truncated).available()==badBytes.size(),"gift observer must reset incomplete packet stream");AutoPetRuntime.afterPacket();
         check(AutoPetEvents.gifts==giftsBefore,"incomplete gift result must not publish an acknowledgement");
-        SJSCaeScqbiua auto=fresh(22001,10,true);bag[8]=item(829,3,8);bag[14]=item(1399,3,14);
+        SJSCaeScqbiua auto=fresh(22001,10,true,false);bag[8]=item(829,3,8);bag[14]=item(1399,3,14);
         map(1);auto.LAEAunqbxr();check(TestTransport.last.equals("travel") && TestTransport.a==22,"native Tan sat must route to Tone before leveling at level 10");
         map(22);field(oFpffzUyucjDJX.class,player,"wLHNXXbvUSit",int.class,Integer.valueOf(1000));
         check(AutoPetLevel.intercept(auto) && TestTransport.last.equals("walk"),"must approach Okanechan");
         field(oFpffzUyucjDJX.class,player,"wLHNXXbvUSit",int.class,Integer.valueOf(100));AutoPetLevel.intercept(auto);
         redeem(auto,"200mem",false,"Nhận quà thành công");AutoPetLevel.intercept(auto);
-        redeem(auto,"CODETUAN4",true,null);settle(auto);
+        redeem(auto,"CODETUAN4",true,null);settle(auto);PurchaseCases.buy(auto,18);
         check(TestTransport.last.equals("equip") && TestTransport.a==8,"use 829 after both codes, before Pet");
         int uses=count("equip:");AutoPetLevel.intercept(auto);check(count("equip:")==uses,"pending reward use must not repeat");
         used(auto,8);check(TestTransport.last.equals("equip") && TestTransport.a==14,"1399 follows acknowledged 829");
         used(auto,14);pet=claim(1305,7);trainUseUpgrade(pet,7,10);
         check(!AutoPetLevel.intercept(auto) && AutoPetAccess.currentAuto()==auto && body[11]==null,"Pet completion below 21 must immediately resume AutoLV without Mika");
-        level(20);bag[13]=item(41,3,13);bag[13].WKutVuVwuGT=2;
-        check(AutoPetLevel.intercept(auto) && TestTransport.last.equals("equip") && TestTransport.a==13,"level 20 must use ID 41");
+        level(20);bag[13]=item(42,3,13);bag[13].WKutVuVwuGT=2;
+        check(AutoPetLevel.intercept(auto) && TestTransport.last.equals("equip") && TestTransport.a==13,"level 20 must use ID 42");
         uses=count("equip:");bag[13].WKutVuVwuGT=1;
         check(!AutoPetLevel.intercept(auto),"one consumed unit acknowledges milestone use");AutoPetLevel.intercept(auto);
         check(count("equip:")==uses,"milestone must not consume remaining stack again");
@@ -100,7 +109,7 @@ public class JourneyCases extends RuntimeSmokeMidlet {
         auto=fresh(22002,41,false);body[10]=item(1305,5,10);body[11]=item(1282,5,11);AutoPetLevel.intercept(auto);
         redeem(auto,"200mem",false,"Mã đã được sử dụng");AutoPetLevel.intercept(auto);redeem(auto,"CODETUAN4",false,"Bạn đã nhận quà từ mã này");
         settle(auto);check(!AutoPetLevel.intercept(auto) && AutoPetAccess.currentAuto()==auto,"worn Pet/Mika must bypass disabled settings after code prep");
-        bag[23]=item(41,3,23);AutoPetLevel.intercept(auto);check(TestTransport.last.equals("equip") && TestTransport.a==23,"missing milestone item must remain eligible when it arrives later");used(auto,23);
+        bag[23]=item(42,3,23);AutoPetLevel.intercept(auto);check(TestTransport.last.equals("equip") && TestTransport.a==23,"missing milestone item must remain eligible when it arrives later");used(auto,23);
         AutoPetAccess.setAuto(null);AutoPetLevel.watch();AutoPetAccess.setAuto(auto);commands=TestTransport.log.size();
         check(!AutoPetLevel.intercept(auto) && TestTransport.log.size()==commands,"worn relog must not repeat prep");
         body[11]=null;bag[29]=item(1282,3,29);
@@ -132,7 +141,7 @@ public class JourneyCases extends RuntimeSmokeMidlet {
         AutoPetAccess.setAuto(auto);AutoPetLevel.intercept(auto);check(AutoPetRuntime.running(),"incomplete Pet resumes on explicit restart without repeating gift codes");
         AutoPetRuntime.stop();check(AutoPetLevel.intercept(auto) && AutoPetAccess.currentAuto()==null,"manual Pet stop must leave AutoLV stopped");
         // Receive cancellation, stale confirmations, full bag, and Mika level gate.
-        map(22);level(21);reset(true,false,2);bag[0]=null;for(int i=0;i<bag.length;i++)bag[i]=item(41,3,i);
+        map(22);level(21);reset(true,false,2);bag[0]=null;for(int i=0;i<bag.length;i++)bag[i]=item(42,3,i);
         commands=TestTransport.log.size();AutoPetRuntime.toggle();check(!AutoPetRuntime.running() && commands==TestTransport.log.size() && TestTransport.notice.indexOf("đầy")>=0,"full bag must reject claim before spending");
         reset(true,false,2);bag[0]=null;AutoPetRuntime.toggle();rootAndShop();int claims=count("box:");
         AutoPetRuntime.sawConfirm("Xác nhận nhận vật phẩm Pet Long?",8890,Integer.valueOf(5),8891);AutoPetRuntime.tick();check(TestTransport.last.equals("confirm") && TestTransport.a==5,"claim may confirm only fresh matching server prompt");

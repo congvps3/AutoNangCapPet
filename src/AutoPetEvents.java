@@ -12,7 +12,9 @@ public final class AutoPetEvents {
     public static volatile int giftTX,giftTXCommand,giftTXToken;
     public static volatile String giftTXCode;
     public static volatile long giftTXAt;
-    public static volatile int replies;
+    public static volatile int replies,shops,shopSource,catalogs;
+    public static final int[] catalogRevisions=new int[256];
+    public static void shop(int source){shopSource=source;++shops;}
     private static final String[] replyText=new String[12];
     private static final int[] replySerial=new int[12],replyNpc=new int[12],replyStatus=new int[12];
     private static int command,kind,code,npc;
@@ -20,11 +22,13 @@ public final class AutoPetEvents {
     private static boolean ok;
     public static void before(WZKDTXfSh packet) {
         command=packet==null?0:packet.GAuWiEMckbFHeh;kind=-1;npc=-1;title=claimed=message=null;
-        if(command!=92 && command!=-33 && command!=-24 && command!=-25 && command!=38 && command!=53)return;
+        if(command!=92 && command!=-33 && command!=-24 && command!=-25 && command!=38 && command!=53 && command!=33 && command!=31)return;
         try {
             DataInputStream in=AutoPetAccess.input(packet);in.mark(in.available()+1);
             try {
-                if(command==92){title=in.readUTF();code=in.readShort();kind=92;}
+                if(command==31){npc=4;kind=4;}
+                else if(command==33){npc=in.readUnsignedByte();kind=4;}
+                else if(command==92){title=in.readUTF();code=in.readShort();kind=92;}
                 else if(command==-24 || command==-25) {message=in.readUTF();kind=3;}
                 else if(command==38) {npc=in.readShort();message=in.readUTF();kind=3;}
                 else if(command==53) {title=in.readUTF();if(!title.equals("typemoi")){message=in.readUTF();kind=3;}}
@@ -57,6 +61,7 @@ public final class AutoPetEvents {
         if(kind==0)++giftWindows;
         if(kind==1){giftOK=ok;giftCode=claimed;giftText=message;++gifts;}
         if(kind==3)reply(message,npc);
+        if(kind==4)catalogRevisions[npc]=++catalogs;
     }
     public static void menu(kacyVKUNru choices){menu=choices;++menus;}
     // Keep relevant replies even if several unrelated notifications arrive before Auto's next tick.

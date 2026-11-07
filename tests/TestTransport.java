@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 public class TestTransport implements qHSDVwkeNovng {
     public static String last,notice;
-    public static int noticeTimeout;
+    public static int noticeTimeout,noticeCalls;
     public static String giftCode;
     public static boolean giftFlush=true;
     public static void gift(int code,String value) {
@@ -30,7 +30,7 @@ public class TestTransport implements qHSDVwkeNovng {
         if(name.equals("buy") || name.equals("box"))++buys;if(name.equals("confirm"))++confirms;
         if(name.equals("list"))++lists;
     }
-    public static void notice(String text,int timeout) {notice=text;noticeTimeout=timeout;}
+    public static void notice(String text,int timeout) {notice=text;noticeTimeout=timeout;++noticeCalls;}
     public static void zone(BMWCZFcnBgzHkh auto,int current) {auto.xNWwdhkGHYvrH=(current+1)%3;record("zone",current,auto.xNWwdhkGHYvrH,0);}
     public static void wire(WZKDTXfSh message) {
         try {

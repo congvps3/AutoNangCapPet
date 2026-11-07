@@ -60,9 +60,6 @@ public final class AutoPetBridge {
     public static void notice(String text) {
         showNotice(text,Alert.FOREVER);
     }
-    public static void complete(String text) {
-        showNotice(text,2000);
-    }
     private static void showNotice(String text,int timeout) {
         Display d=display();Displayable prev=d.getCurrent();
         Alert a=new Alert("AutoPet/LC",text,null,AlertType.INFO);a.setTimeout(timeout);

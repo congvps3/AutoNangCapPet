@@ -64,7 +64,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             r.active=true;r.notices="";serverError=null;r.bootIndex=0;r.phase=BOOT;r.deadline=System.currentTimeMillis()+15000;
             auditing=true;trace="";traceStart=System.currentTimeMillis();actionQ="-";actionTX="-";infoQ="-";infoTX="-";lastReply="-";
             for(int i=0;i<subCounts.length;i++)subCounts[i]=0;
-            lastRunState=r.waitingFor();record("START r21");
+            lastRunState=r.waitingFor();record("START r22");
             r.boot();
         } catch(Exception e) {r.fail("Không khởi động được: "+e.getMessage());}
     }
@@ -160,7 +160,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
         notices+=message;
         if(!engine.running()) {
             completed=message.equals("AutoPet/LC đã hoàn tất");active=false;phase=0;AutoPetAccess.dismiss();
-            if(completed) AutoPetBridge.complete(notices);else AutoPetBridge.notice(notices);
+            if(!completed) AutoPetBridge.notice(notices);
             notices="";
         }
     }
@@ -304,7 +304,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
         return "thông tin mới của vật phẩm";
     }
     public static synchronized void sawMenu(kacyVKUNru choices) {menu=choices;++menuVersion;AutoPetEvents.menu(choices);}
-    public static synchronized void sawShop(int source) {openedShop=source;++shopVersion;record("SHOP "+source);}
+    public static synchronized void sawShop(int source) {openedShop=source;++shopVersion;AutoPetEvents.shop(source);record("SHOP "+source);}
     public static synchronized void sawConfirm(String text,int yes,Object code,int no) {
         if(yes!=8890 || no!=8891 || !(code instanceof Integer)) return;
         AutoPetEvents.confirm(text,((Integer)code).intValue());
@@ -377,7 +377,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             if(best<0)break;seen[best]=true;
             if(subs.length()>0)subs+=", ";subs+=(best>127?best-256:best)+"x"+subCounts[best];
         }
-        return AutoPetLevel.diagnostics()+"r21 | "+lastRunState+" | ID "+INSTANCE.templateId(INSTANCE.item)+"\n"
+        return AutoPetLevel.diagnostics()+"r22 | "+lastRunState+" | ID "+INSTANCE.templateId(INSTANCE.item)+"\n"
             +actionQ+"\n"+actionTX+"\n"+infoQ+"\n"+infoTX+"\n"+lastReply+"\n"
             +"Nhóm -30: "+(subs.length()==0?"-":subs)+"\n"+trace;
     }

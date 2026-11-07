@@ -373,14 +373,14 @@ public class RuntimeSmokeMidlet extends MIDlet {
             field(SBnKDsbzS.class,null,"uTxJizAJr",short.class,Short.valueOf((short)22));
             field(NBAFgUXWGCkgPq.class,null,"peMayxrZEBA",ceMGdFNBJnq.class,new ceMGdFNBJnq());
             HAeSnYtYmns t=new HAeSnYtYmns();t.mvjvhHcftNANDP=9;t.wLHNXXbvUSit="Tashino";
-            field(gsxwWgJt.class,null,"peMayxrZEBA",HAeSnYtYmns[].class,new HAeSnYtYmns[]{t,JourneyCases.okane()});
-            kacyVKUNru ns=new kacyVKUNru();ns.addElement(new gsxwWgJt(0,0,100,100,0));ns.addElement(new gsxwWgJt(0,0,100,100,1));
+            field(gsxwWgJt.class,null,"peMayxrZEBA",HAeSnYtYmns[].class,new HAeSnYtYmns[]{t,JourneyCases.okane(),PurchaseCases.goosho()});
+            kacyVKUNru ns=new kacyVKUNru();ns.addElement(new gsxwWgJt(0,0,100,100,0));ns.addElement(new gsxwWgJt(0,0,100,100,1));ns.addElement(new gsxwWgJt(0,0,100,100,2));
             field(zxnsayePWpajv.class,null,"HSjEMvafS",kacyVKUNru.class,ns);
             player=currentPlayer();field(oFpffzUyucjDJX.class,player,"peMayxrZEBA",wpiwfWAXuWze[].class,bag);
             field(oFpffzUyucjDJX.class,player,"rdmjdEJDQ",wpiwfWAXuWze[].class,body);
             field(oFpffzUyucjDJX.class,player,"vMyUkiiUKxerr",int.class,Integer.valueOf(21));
             checkSetupMenu("GRYYuFfQZGmfH");checkSetupMenu("xbqjzadR");
-            reset(true,false,2);pet=bag[0];int usedBefore=count("equip:");
+            reset(true,false,2);pet=bag[0];int usedBefore=count("equip:"),alertsBefore=TestTransport.noticeCalls;
             AutoPetRuntime.toggle();check(TestTransport.last.equals("info") && TestTransport.a==3 && TestTransport.b==0,"Pet must start at bag slot 1");
             info(pet);check(TestTransport.last.equals("npc") && TestTransport.a==9 && count("equip:")==usedBefore,"bag training must precede use");
             rootAndShop();check(count("menu:101")==0,"existing items must not be claimed again");
@@ -403,7 +403,7 @@ public class RuntimeSmokeMidlet extends MIDlet {
             refreshNow();info(pet);
             check(AutoPetRuntime.running() && TestTransport.last.equals("npc"),"unchanged level must start next upgrade cycle");
             rootAndShop();confirm(true);refreshNow();pet.yKHpKzQyZroJ=1;info(pet);
-            check(!AutoPetRuntime.running() && TestTransport.notice.indexOf("đủ cấp 1")>=0,"Pet target-level completion");
+            check(!AutoPetRuntime.running() && AutoPetRuntime.completed() && TestTransport.noticeCalls==alertsBefore,"Pet target-level completion must be silent");
             reset(true,false,1);pet=bag[0];usedBefore=count("equip:");
             AutoPetRuntime.toggle();info(pet);rootAndShop();confirm(false);refreshNow();info(pet);
             check(!AutoPetRuntime.running() && count("equip:")==usedBefore && bag[0]==pet && body[0]==null,"exhaustion must leave Pet in bag");
@@ -484,6 +484,8 @@ public class RuntimeSmokeMidlet extends MIDlet {
             check(report.length()<2048,"diagnostics exceeded text box size");
             JourneyCases.run();
             GiftCases.run();
+            MilestoneCases.run();
+            PurchaseCases.run();
             huntFlow();
             realmFlow();
             hudFlow();

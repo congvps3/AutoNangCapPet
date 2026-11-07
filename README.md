@@ -1,9 +1,12 @@
-# AutoUpLv + AutoPet/LC r21
+# AutoUpLv + AutoPet/LC r22
 
-[Bản JAR r21](dist/AutoUpLv-AutoPetLC-r21.jar) giữ chức năng bản r19 và thêm
-chuỗi nhập mã, dùng vật phẩm, tự nhận Pet/Mika2. r21 sửa bước đứng chờ ở mã
-`200mem` khi máy chủ không trả popup, để tiếp tục sang `CODETUAN4`. File r19 người dùng gửi đã được
-đối chiếu SHA-256 với bản r19 trong repository; không sửa file gốc đã gửi.
+[Bản JAR r22](dist/AutoUpLv-AutoPetLC-r22.jar) bỏ popup sau khi hoàn tất Pet Long/Mika2.
+AutoPet/LC tự tắt và AutoLV tiếp tục ngay, không hiện thông báo hoàn tất 2 giây.
+Thông báo lỗi, hết lượt luyện chưa đủ chỉ số và dừng bằng tay vẫn giữ nguyên.
+Sau hai mã quà, tự đến Goosho ở Tone mua một ID 248 và dùng trước 829/1399.
+Nếu đã có 248 trong hành trang thì dùng sẵn. Các mốc cấp dùng một trong hai ID:
+10 → 40/58, 20 → 42/60, 30 → 44/62, 50 → 48/68; mỗi mốc một lần theo nhân vật.
+Các chức năng nhập mã, tự nhận Pet/Mika2 và chọn map của r21 được giữ lại.
 
 ## Chuỗi khi bật Tàn sát
 
@@ -13,7 +16,10 @@ chuỗi nhập mã, dùng vật phẩm, tự nhận Pet/Mika2. r21 sửa bước
    xác nhận gửi thành công, chờ tối đa **2,5 giây** rồi mở ô nhập mới cho mã tiếp.
    Có vật phẩm thưởng mới trong hành trang thì chuyển bước sớm hơn.
    Đã xếp hàng nhưng chưa gửi được thì vẫn dừng sau 15 giây, không tự gửi lại.
-2. Quét hành trang, sử dụng **829**, rồi **1399** nếu có. Chờ hành trang xác nhận
+2. Đến **Goosho ở Làng Tone**, mở cửa hàng, tìm đúng **ID 248**, mua **1** và chờ
+   vật phẩm cập nhật vào hành trang rồi tự dùng. Có sẵn 248 thì dùng sẵn; bước mua/dùng
+   này lưu một lần theo nhân vật. Không gửi lặp lệnh mua khi đang chờ máy chủ.
+   Sau đó quét hành trang, sử dụng **829**, rồi **1399** nếu có. Chờ hành trang xác nhận
    đã dùng một đơn vị trước khi tiếp tục.
 3. Làm **Pet Long (1305)** ngay, kể cả khi nhân vật dưới cấp 21:
    kiểm tra trang bị và toàn bộ hành trang; thiếu thì tự nhận ở Tashino.
@@ -21,17 +27,22 @@ chuỗi nhập mã, dùng vật phẩm, tự nhận Pet/Mika2. r21 sửa bước
 4. Hoàn tất Pet thì tiếp tục AutoLV. **Từ cấp 21**, tạm dừng AutoLV, về Tashino
    làm **Long Châu Mika2 (1282)** theo cùng quy trình. Nếu bắt đầu khi đã từ cấp 21
    thì làm Pet và Mika2 lần lượt.
-5. Hoàn tất từng phần: thông báo tự đóng sau **2 giây**, tắt AutoPet/LC và tiếp tục
-   AutoLV ngay trên cùng bộ điều khiển Tàn sát.
+5. Hoàn tất từng phần: tắt AutoPet/LC và tiếp tục AutoLV ngay trên cùng bộ điều khiển
+   Tàn sát, **không hiện popup hoàn tất**.
 
 Trong khi lên cấp, quét và dùng một lần các vật phẩm sau:
 
 | Cấp nhân vật từ | ID vật phẩm |
 |---|---|
-| 20 | 41 |
-| 30 | 44 |
-| 50 | 48 |
+| 10 | 40 hoặc 58 |
+| 20 | 42 hoặc 60 |
+| 30 | 44 hoặc 62 |
+| 50 | 48 hoặc 68 |
 
+Mỗi mốc chỉ dùng **một món** trong cặp, ưu tiên ID đứng trước nếu cả hai cùng có.
+Hai ID trong một cặp dùng chung dấu đã dùng; vào lại game không dùng ID còn lại.
+Bộ kiểm tra chạy cả ở nhịp cập nhật màn hình và trước lượt Tàn sát, luôn chờ xác nhận
+sử dụng trước khi đánh dấu. Dấu ID 41 cũ không được dùng để bỏ qua nhóm 42/60.
 Không có vật phẩm thì tiếp tục chạy, không ghi dấu đã dùng; khi vật phẩm xuất hiện
 sau đó sẽ được kiểm tra lại. Bắt đầu ở cấp cao hơn mốc vẫn dùng nếu còn vật phẩm
 và chưa ghi nhận đã dùng. Mã đã được nhận trước đó được tính là xong; mã hết hạn,
@@ -42,7 +53,7 @@ Với mã quà, lưu riêng trạng thái **đã gửi nhưng chưa có kết qu
 không coi gửi thành công là đã nhận thưởng thành công. Cả hai trạng thái đều tránh
 nhập lại tự động sau khi vào lại game. Vật phẩm chỉ được dùng nếu thực sự có trong hành trang.
 Các bước dùng/luyện/nâng cấp vẫn phải có xác nhận trước khi chuyển bước.
-Dữ liệu tiến trình/cấu hình r20 được giữ nguyên khi dùng r21.
+Dữ liệu tiến trình/cấu hình r20 được giữ nguyên khi dùng r22.
 Vào lại game không tự lặp các bước đã xác nhận hoàn tất. Xóa dữ liệu ứng dụng sẽ
 xóa tiến trình và cấu hình. Nếu đã đeo một món, chuỗi Tàn sát bỏ qua phần làm món đó;
 đeo đủ hai món thì không cần Enable AutoPet/LC sau phần chuẩn bị mã/vật phẩm.
@@ -50,7 +61,7 @@ Nút Auto vẫn cho phép chạy nâng cấp bằng tay khi cần.
 
 ## Cài đặt AutoPet/LC
 
-1. Mở **Menu → MenuAuto → AutoPet/LC**, kiểm tra tiêu đề **r21**.
+1. Mở **Menu → MenuAuto → AutoPet/LC**, kiểm tra tiêu đề **r22**.
 2. Bật Enable và chọn Luyện/Nâng cấp, chỉ số, giới hạn lượt luyện và cấp nâng
    riêng cho Pet Long và Mika2. Bấm **Lưu**.
 3. Bật **Tàn sát** để chạy toàn bộ chuỗi ở trên. Hoặc đứng gần Tashino ở Tone,
@@ -125,7 +136,7 @@ xem trước trong danh sách làm kết quả luyện. Nhập mã dùng giao th
 
 Nút **?** trên màn hình cài đặt mở nhật ký AutoPet/LC. Nhật ký chỉ giữ mã gói,
 nguồn/ô vật phẩm và bước đang chờ; Q = xếp hàng, TX = gửi, RX = nhận/đã xử lý.
-Gói nền -30 được tổng hợp để không che mất thao tác chính. Nhật ký r21 ghi thêm
+Gói nền -30 được tổng hợp để không che mất thao tác chính. Nhật ký r22 ghi thêm
 bước mở ô nhập/gửi/chờ kết quả và trạng thái gửi của từng mã, phân biệt với nhận thưởng. Không lưu đăng nhập,
 chat hay dữ liệu tài khoản; nhật ký chỉ ở bộ nhớ và không tự gửi ra ngoài.
 
@@ -138,13 +149,13 @@ python tools/bootstrap.py
 bash build.sh input/AutoUpLv.jar
 ```
 
-Đầu ra: `dist/AutoUpLv-AutoPetLC-r21.jar`. Công cụ tải qua TLS và kiểm tra SHA-256;
+Đầu ra: `dist/AutoUpLv-AutoPetLC-r22.jar`. Công cụ tải qua TLS và kiểm tra SHA-256;
 biên dịch Java 1.3 với API CLDC 1.1, tạo StackMap Java ME.
 
-Kiểm tra gồm cấu hình/động cơ, luật map/Thủ lĩnh, Canvas/RMS, nạp 327 lớp,
+Kiểm tra gồm cấu hình/động cơ, luật map/Thủ lĩnh, Canvas/RMS, nạp 328 lớp,
 chuỗi nhập mã → dùng thưởng → nhận/luyện/dùng/nâng Pet → AutoLV → Mika2 ở cấp 21,
-mốc 20/30/50, ô hành trang bất kỳ, vào lại game, hủy và timeout. Kiểm tra thêm máy chủ
-không gửi thông báo sau mã đầu, hai mã dùng token mới riêng, không lặp mã, chỉ xếp hàng
+mốc 10/20/30/50, ô hành trang bất kỳ, vào lại game, hủy và timeout. Kiểm tra thêm máy chủ
+mua/dùng 248 sau mã quà trước các phần thưởng khác, ưu tiên/đổi biến thể ở từng mốc và lưu qua vào lại game, không gửi thông báo sau mã đầu, hai mã dùng token mới riêng, không lặp mã, chỉ xếp hàng
 chưa flush, phản hồi NPC/thông báo bị xen nhiều gói nền và giữ xác nhận bắt buộc khi dùng vật phẩm.
 Chạy cả bộ gửi mô phỏng và bộ tạo gói gốc của game (chỉ chặn ở hàng đợi mạng).
 Các lớp test không được đóng vào JAR phát hành; tài nguyên và lớp không vá giống

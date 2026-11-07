@@ -12,7 +12,7 @@ with zipfile.ZipFile(original) as src, zipfile.ZipFile(verified) as changed:
     assert additions == {"AutoPetAccess.class", "AutoPetBridge.class", "AutoPetUI.class",
                          "AutoPetConfig.class", "AutoPetEngine.class",
                          "AutoPetEngine$Port.class", "AutoPetEngine$Item.class",
-                         "AutoPetRules.class", "AutoPetRuntime.class", "AutoPetLevel.class", "AutoPetHunt.class", "AutoPetMaps.class", "AutoPetEvents.class", "AutoPetInventory.class"}, additions
+                         "AutoPetRules.class", "AutoPetRuntime.class", "AutoPetLevel.class", "AutoPetHunt.class", "AutoPetMaps.class", "AutoPetEvents.class", "AutoPetInventory.class", "AutoPetPurchase.class"}, additions
     with zipfile.ZipFile(destination, "w", zipfile.ZIP_DEFLATED) as out:
         for entry in src.infolist():
             data = changed.read(entry.filename) if entry.filename in patched else src.read(entry.filename)
