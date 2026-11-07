@@ -199,80 +199,9 @@ public class RuntimeSmokeMidlet extends MIDlet {
         field(SBnKDsbzS.class,null,"uTxJizAJr",short.class,Short.valueOf((short)22));
     }
 
-    static void levelFlow() throws Exception {
-        reset(true,true,2);upgradeOnly(1,0);
-        pet=bag[0];wpiwfWAXuWze mika=body[11]=item(1282,5,11);bag[1]=null;
-        SJSCaeScqbiua auto=new SJSCaeScqbiua();AutoPetAccess.setAuto(auto);
-        field(oFpffzUyucjDJX.class,player,"BfndoYuX",int.class,Integer.valueOf(11001));
-        field(oFpffzUyucjDJX.class,player,"dvKEjoqBk",String.class,"level-test");
-        field(oFpffzUyucjDJX.class,player,"vMyUkiiUKxerr",int.class,Integer.valueOf(20));
-        check(!AutoPetLevel.intercept(auto),"level 20 must keep original AutoLV");
-        field(oFpffzUyucjDJX.class,player,"vMyUkiiUKxerr",int.class,Integer.valueOf(21));
-        field(SBnKDsbzS.class,null,"uTxJizAJr",short.class,Short.valueOf((short)1));
-        auto.LAEAunqbxr();check(TestTransport.last.equals("travel") && TestTransport.a==22,"native Tan sat update must intercept at level 21 and route to Tone");
-        field(SBnKDsbzS.class,null,"uTxJizAJr",short.class,Short.valueOf((short)22));
-        field(oFpffzUyucjDJX.class,player,"wLHNXXbvUSit",int.class,Integer.valueOf(1000));
-        check(AutoPetLevel.intercept(auto) && TestTransport.last.equals("walk"),"must approach Tashino before starting Pet");
-        field(oFpffzUyucjDJX.class,player,"wLHNXXbvUSit",int.class,Integer.valueOf(100));
-        field(oFpffzUyucjDJX.class,player,"SgQHNwMh",int.class,Integer.valueOf(100));
-        check(AutoPetLevel.intercept(auto) && AutoPetRuntime.running(),"Tone arrival starts saved AutoPet settings");
-        check(AutoPetLevel.intercept(auto),"AutoLV must remain paused while Pet runs");
-        info(pet);info(mika);rootAndShop();confirm(false);refreshNow();options(pet,3);info(pet);
-        useReply(0,10);rootAndShop();confirm(true);refreshNow();pet.yKHpKzQyZroJ=1;info(pet);
-        check(AutoPetLevel.intercept(auto),"Pet-only completion must not resume before Mika");
-        rootAndShop();AutoPetRuntime.sawConfirm("Nâng cấp: Long Châu Mika2\nXác nhận nâng cấp?",8890,Integer.valueOf(7),8891);AutoPetRuntime.tick();
-        refreshNow();mika.yKHpKzQyZroJ=1;info(mika);
-        check(AutoPetRuntime.completed() && !AutoPetRuntime.running(),"whole Pet workflow must report explicit success");
-        check(TestTransport.noticeTimeout==2000,"whole Pet completion must use two-second notification");
-        check(!AutoPetLevel.intercept(auto) && AutoPetAccess.currentAuto()==auto,"success must immediately release same AutoLV worker");
-        SJSCaeScqbiua next=new SJSCaeScqbiua();AutoPetAccess.setAuto(next);AutoPetLevel.watch();
-        int cmds=TestTransport.log.size();check(!AutoPetLevel.intercept(next) && TestTransport.log.size()==cmds,"persistent completion must prevent repeated level-21 workflow");
-        field(oFpffzUyucjDJX.class,player,"BfndoYuX",int.class,Integer.valueOf(11002));AutoPetLevel.watch();
-        body[10]=null;bag[0]=pet;pet.tTqVmuHPEhAbg=3;pet.AZmTbjgvi=0;options(pet,1);
-        pet.yKHpKzQyZroJ=0;mika.yKHpKzQyZroJ=0;
-        check(AutoPetLevel.intercept(next) && AutoPetRuntime.running(),"another character must have independent level-21 workflow");
-        AutoPetAccess.setAuto(null);AutoPetLevel.watch();
-        check(!AutoPetRuntime.running() && !AutoPetRuntime.completed(),"turning off Tan sat must cancel Pet without success or resuming AutoLV");
-        check(TestTransport.noticeTimeout==javax.microedition.lcdui.Alert.FOREVER,"stop notification keeps manual acknowledgement");
-        AutoPetAccess.setAuto(next);AutoPetLevel.intercept(next);AutoPetRuntime.stop();
-        check(AutoPetLevel.intercept(next) && AutoPetAccess.currentAuto()==null,"manual Pet stop must leave AutoLV stopped");
-        field(oFpffzUyucjDJX.class,player,"BfndoYuX",int.class,Integer.valueOf(11003));AutoPetAccess.setAuto(next);
-        body[10]=null;bag[0]=null;
-        check(AutoPetLevel.intercept(next) && !AutoPetRuntime.running() && AutoPetAccess.currentAuto()==null,"Pet preflight failure must not resume AutoLV");
-        field(oFpffzUyucjDJX.class,player,"BfndoYuX",int.class,Integer.valueOf(11004));AutoPetAccess.setAuto(next);
-        field(SBnKDsbzS.class,null,"uTxJizAJr",short.class,Short.valueOf((short)1));
-        AutoPetLevel.intercept(next);field(AutoPetLevel.class,null,"deadline",long.class,Long.valueOf(0));
-        check(AutoPetLevel.intercept(next) && AutoPetAccess.currentAuto()==null && TestTransport.notice.indexOf("chưa đến")>=0,"unreachable Tone must stop with timeout");
-        check(AutoPetLevel.intercept(next) && !AutoPetRuntime.running(),"stale native worker must not restart canceled workflow");
-        field(SBnKDsbzS.class,null,"uTxJizAJr",short.class,Short.valueOf((short)22));
-    }
     static void upgradeOnly(int target,int mask) throws Exception {
         AutoPetConfig[] settings=AutoPetUI.settings();settings[target].train=false;settings[target].selected=mask;
         field(AutoPetUI.class,null,"saved",AutoPetConfig[].class,settings);
-    }
-    static void equippedRelogFlow() throws Exception {
-        reset(false,false,0);
-        field(oFpffzUyucjDJX.class,player,"BfndoYuX",int.class,Integer.valueOf(12001));
-        field(oFpffzUyucjDJX.class,player,"vMyUkiiUKxerr",int.class,Integer.valueOf(41));
-        body[10]=item(1305,5,10);body[11]=item(1282,5,11);
-        SJSCaeScqbiua auto=new SJSCaeScqbiua();AutoPetAccess.setAuto(auto);
-        int commands=TestTransport.log.size();String notice=TestTransport.notice;
-        check(!AutoPetLevel.intercept(auto) && AutoPetAccess.currentAuto()==auto,"level 41 with both equipped must continue AutoLV without enabled settings or completion marker");
-        check(!AutoPetRuntime.running() && TestTransport.log.size()==commands && TestTransport.notice==notice,"equipped shortcut must not open settings, travel, or start Pet");
-        AutoPetAccess.setAuto(null);AutoPetLevel.watch();auto=new SJSCaeScqbiua();AutoPetAccess.setAuto(auto);
-        check(!AutoPetLevel.intercept(auto),"relogin with both equipped must continue without RMS completion");
-        AutoPetAccess.setAuto(null);AutoPetLevel.watch();body[11]=null;bag[1]=item(1282,3,1);AutoPetAccess.setAuto(auto);
-        check(AutoPetLevel.intercept(auto) && AutoPetAccess.currentAuto()==null,"bag Mika must not count as equipped or be hidden by a saved shortcut marker");
-        body[11]=item(1305,5,11);AutoPetAccess.setAuto(auto);
-        check(AutoPetLevel.intercept(auto) && AutoPetAccess.currentAuto()==null,"two equipped Pet Long must not substitute for Pet plus Mika");
-        body[10].tTqVmuHPEhAbg=3;body[11]=item(1282,5,11);AutoPetAccess.setAuto(auto);
-        check(AutoPetLevel.intercept(auto) && AutoPetAccess.currentAuto()==null,"bag-source alias must not count as equipped");
-        body[10].tTqVmuHPEhAbg=5;body[11]=null;
-        wpiwfWAXuWze[] special=new wpiwfWAXuWze[3];special[2]=item(1282,53,2);
-        field(oFpffzUyucjDJX.class,player,"BMWCZFcnBgzHkh",wpiwfWAXuWze[].class,special);AutoPetAccess.setAuto(auto);
-        check(!AutoPetLevel.intercept(auto) && AutoPetAccess.currentAuto()==auto,"Mika worn in separate equipment array must also bypass settings");
-        field(oFpffzUyucjDJX.class,player,"BMWCZFcnBgzHkh",wpiwfWAXuWze[].class,null);
-        AutoPetAccess.setAuto(null);AutoPetLevel.watch();
     }
     static void realmFlow() throws Exception {
         SJSCaeScqbiua auto=new SJSCaeScqbiua();AutoPetAccess.setAuto(auto);AutoLevelHook.reset(auto);
@@ -411,22 +340,28 @@ public class RuntimeSmokeMidlet extends MIDlet {
     protected void startApp() {
         try {
             sVdEtbWKGxAKR.QWSFikNNoKDGiu();
+            // Supply the screen callback without starting the login/asset constructor.
+            Class<?> unsafeClass=ClassLoader.getSystemClassLoader().loadClass("sun.misc.Unsafe");
+            Field unsafeField=unsafeClass.getDeclaredField("theUnsafe");unsafeField.setAccessible(true);
+            Object screen=unsafeClass.getMethod("allocateInstance",Class.class).invoke(unsafeField.get(null),NBAFgUXWGCkgPq.class);
+            field(NBAFgUXWGCkgPq.class,null,"peMayxrZEBA",NBAFgUXWGCkgPq.class,screen);
             field(NBAFgUXWGCkgPq.class,null,"peMayxrZEBA",XxukxTaDkERtV.class,new XxukxTaDkERtV());
             field(NBAFgUXWGCkgPq.class,null,"peMayxrZEBA",RjDwVJrHk.class,new RjDwVJrHk());
             field(NBAFgUXWGCkgPq.class,null,"peMayxrZEBA",gqQMxdaie.class,new gqQMxdaie());
             field(SBnKDsbzS.class,null,"uTxJizAJr",short.class,Short.valueOf((short)22));
             field(NBAFgUXWGCkgPq.class,null,"peMayxrZEBA",ceMGdFNBJnq.class,new ceMGdFNBJnq());
             HAeSnYtYmns t=new HAeSnYtYmns();t.mvjvhHcftNANDP=9;t.wLHNXXbvUSit="Tashino";
-            field(gsxwWgJt.class,null,"peMayxrZEBA",HAeSnYtYmns[].class,new HAeSnYtYmns[]{t});
-            kacyVKUNru ns=new kacyVKUNru();ns.addElement(new gsxwWgJt(0,0,100,100,0));
+            field(gsxwWgJt.class,null,"peMayxrZEBA",HAeSnYtYmns[].class,new HAeSnYtYmns[]{t,JourneyCases.okane()});
+            kacyVKUNru ns=new kacyVKUNru();ns.addElement(new gsxwWgJt(0,0,100,100,0));ns.addElement(new gsxwWgJt(0,0,100,100,1));
             field(zxnsayePWpajv.class,null,"HSjEMvafS",kacyVKUNru.class,ns);
             player=currentPlayer();field(oFpffzUyucjDJX.class,player,"peMayxrZEBA",wpiwfWAXuWze[].class,bag);
             field(oFpffzUyucjDJX.class,player,"rdmjdEJDQ",wpiwfWAXuWze[].class,body);
+            field(oFpffzUyucjDJX.class,player,"vMyUkiiUKxerr",int.class,Integer.valueOf(21));
             checkSetupMenu("GRYYuFfQZGmfH");checkSetupMenu("xbqjzadR");
             reset(true,false,2);pet=bag[0];int usedBefore=count("equip:");
             AutoPetRuntime.toggle();check(TestTransport.last.equals("info") && TestTransport.a==3 && TestTransport.b==0,"Pet must start at bag slot 1");
             info(pet);check(TestTransport.last.equals("npc") && TestTransport.a==9 && count("equip:")==usedBefore,"bag training must precede use");
-            rootAndShop();check(count("menu:101")==0,"Auto must never select receiving");
+            rootAndShop();check(count("menu:101")==0,"existing items must not be claimed again");
             confirm(false);refreshNow();check(TestTransport.a==3 && TestTransport.b==0,"training must refresh bag item");
             int spent=TestTransport.buys;
             // A list refresh can replace or briefly remove the bag object while
@@ -467,7 +402,7 @@ public class RuntimeSmokeMidlet extends MIDlet {
             check(TestTransport.last.equals("equip") && TestTransport.a==1,"second bag slot must stay available after first item completes");
             useReply(1,1);rootAndShop();AutoPetRuntime.sawConfirm("Nâng cấp: Long Châu Mika2\nXác nhận nâng cấp?",8890,Integer.valueOf(7),8891);AutoPetRuntime.tick();
             refreshNow();bothMika.yKHpKzQyZroJ=1;info(bothMika);
-            check(!AutoPetRuntime.running(),"both fixed-slot items did not complete");
+            check(!AutoPetRuntime.running(),"both existing bag items did not complete");
             reset(true,true,0);upgradeOnly(0,0);upgradeOnly(1,2047);
             pet=body[10]=item(1305,5,10);mika=body[11]=item(1282,5,11);bag[0]=null;bag[1]=null;
             options(pet,0);options(mika,0);
@@ -479,12 +414,12 @@ public class RuntimeSmokeMidlet extends MIDlet {
             rootAndShop();AutoPetRuntime.sawConfirm("Nâng cấp: Long Châu Mika2\nXác nhận nâng cấp?",8890,Integer.valueOf(7),8891);AutoPetRuntime.tick();
             refreshNow();mika.yKHpKzQyZroJ=1;info(mika);
             check(!AutoPetRuntime.running() && count("menu:102")==trains && count("equip:")==equips,"both upgrade-only items must finish without training, stat checks or use");
-            reset(true,false,0);upgradeOnly(0,0);int missingCommands=TestTransport.log.size();AutoPetRuntime.toggle();
-            check(!AutoPetRuntime.running() && TestTransport.log.size()==missingCommands && TestTransport.notice.indexOf("trang bị")>=0,"upgrade-only bag item must ask user to equip without spending");
-            reset(true,true,2);bag[1]=null;int before=TestTransport.log.size();AutoPetRuntime.toggle();
-            check(!AutoPetRuntime.running() && TestTransport.log.size()==before,"preflight must validate both slots before any command");
-            reset(true,false,2);bag[1]=bag[0];bag[0]=null;before=TestTransport.log.size();AutoPetRuntime.toggle();
-            check(!AutoPetRuntime.running() && TestTransport.log.size()==before,"wrong Pet slot must not be searched or received automatically");
+            reset(true,false,0);upgradeOnly(0,0);pet=bag[0];AutoPetRuntime.toggle();
+            info(pet);check(AutoPetRuntime.running() && TestTransport.last.equals("equip") && TestTransport.a==0,"upgrade-only bag item must use without training or stat checks");
+            AutoPetRuntime.toggle();
+            reset(true,false,2);pet=bag[7]=bag[0];pet.AZmTbjgvi=7;bag[0]=null;AutoPetRuntime.toggle();
+            check(AutoPetRuntime.running() && TestTransport.last.equals("info") && TestTransport.b==7,"Pet must be found in any bag slot");
+            info(pet);check(TestTransport.last.equals("npc"),"moved Pet must train before use");AutoPetRuntime.toggle();
             reset(true,false,2);pet=bag[0];AutoPetRuntime.toggle();info(pet);rootAndShop();
             int confirmed=TestTransport.confirms;AutoPetRuntime.toggle();
             AutoPetRuntime.sawConfirm("Xác nhận luyện vật phẩm đã chọn?",8890,Integer.valueOf(8),8891);AutoPetRuntime.tick();
@@ -511,7 +446,7 @@ public class RuntimeSmokeMidlet extends MIDlet {
             check(!AutoPetRuntime.running() && TestTransport.notice.indexOf("Quá thời gian")>=0,"waiting request must time out");
             Field dialog=null;for(Field f:NBAFgUXWGCkgPq.class.getDeclaredFields())if(f.getName().equals("peMayxrZEBA") && f.getType()==NbLzSVpmyzydCP.class)dialog=f;
             dialog.setAccessible(true);check(dialog.get(null)==null,"timeout must close native Xin cho dialog");
-            check(count("menu:101")==0,"manual receiving mode must never enter receive menu");
+            check(count("menu:101")==0,"existing-item workflows must not enter receive menu");
             senderBytes();
             // Background packets must not erase the last real send or the step we stopped on.
             for(int i=0;i<1200;i++) {
@@ -525,8 +460,7 @@ public class RuntimeSmokeMidlet extends MIDlet {
             check(report.indexOf("-124x1200")>=0 && report.indexOf("RX -30")<0,"background subcommand not summarized");
             check(report.indexOf("xác nhận của máy chủ")>=0,"stopping erased the pending step");
             check(report.length()<2048,"diagnostics exceeded text box size");
-            levelFlow();
-            equippedRelogFlow();
+            JourneyCases.run();
             huntFlow();
             realmFlow();
             hudFlow();

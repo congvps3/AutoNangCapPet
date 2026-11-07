@@ -20,12 +20,17 @@ class MockTransport implements Opcodes {
                                 if(n.equals("jPtiHTBf") && d.equals("(I)V"))op="equip";
                                 if(n.equals("zmEhqDHwAKvzjM") && d.equals("(I)V"))op="list";
                                 if(n.equals("BMWCZFcnBgzHkh") && d.equals("(III)V"))op="buy";
+                                if(n.equals("baFJBcRGEb") && d.equals("()V"))op="giftlist";
                                 if(n.equals("hsFScEwVUfcV") && d.equals("(I)V"))op="box";
                                 if(n.equals("hFWcqhZjekJK") && d.equals("(I)V"))op="confirm";
                             }
                             if(e.getName().equals("zxnsayePWpajv.class") && n.equals("oXAaoinDuwaN") && d.equals("(I)V"))op="npc";
                             if(e.getName().equals("AutoPetBridge.class") && n.equals("open") && d.equals("()V"))op="setup";
                             MethodVisitor v=super.visitMethod(a,n,d,sig,ex);
+                            if(!wire && e.getName().equals("EAVbpdxFGDnFcb.class") && ((n.equals("EgoDKTjkxEUMu") && d.equals("(SLjava/lang/String;)V")) || (n.equals("FdGQnmAerVxMi") && d.equals("(Ljava/lang/String;)V")))) {
+                                v.visitCode();if(d.startsWith("(S")){v.visitVarInsn(ILOAD,1);v.visitVarInsn(ALOAD,2);}else{v.visitInsn(ICONST_M1);v.visitVarInsn(ALOAD,1);}
+                                v.visitMethodInsn(INVOKESTATIC,"TestTransport","gift","(ILjava/lang/String;)V",false);v.visitInsn(RETURN);v.visitMaxs(0,0);v.visitEnd();return null;
+                            }
                             if(e.getName().equals("PPgXAyjrNVHh.class") && n.equals("dvKEjoqBk") && d.equals("(Ljava/lang/String;)V")) {
                                 v.visitCode();v.visitInsn(RETURN);v.visitMaxs(0,0);v.visitEnd();return null;
                             }

@@ -36,7 +36,7 @@ public final class EngineTest {
         c[0].selected=0;try {c[0].validate();throw new AssertionError("empty selection accepted");} catch(IllegalArgumentException expected) {++checks;}
         Port p=new Port();AutoPetEngine e=new AutoPetEngine(p);
         e.start(config(),new AutoPetEngine.Item[]{item(false,0,0),item(false,0,0)},0);
-        check(!e.running() && p.sends==0,"manual receiving required even with legacy receive=true");
+        check(!e.running() && p.sends==0,"runtime must acknowledge claim before starting engine");
         p=new Port();e=new AutoPetEngine(p);
         e.start(config(),new AutoPetEngine.Item[]{bag(1,0),item(false,0,0)},0);
         check(p.action==AutoPetEngine.TRAIN && p.sends==1,"train before use");
@@ -105,7 +105,7 @@ public final class EngineTest {
         check(e.running() && p.action==AutoPetEngine.UPGRADE,"saved selections ignored when training disabled");
         p=new Port();e=new AutoPetEngine(p);
         e.start(c,new AutoPetEngine.Item[]{bag(2047,0),item(false,0,0)},0);
-        check(!e.running() && p.sends==0,"upgrade-only requires equipped item and never uses bag item");
+        check(e.running() && p.sends==1 && p.action==AutoPetEngine.USE,"upgrade-only automatically equips a claimed bag item without stat checks");
         c=config();c[1]=c[0].copy();c[1].train=false;c[1].selected=2047;
         p=new Port();e=new AutoPetEngine(p);
         e.start(c,new AutoPetEngine.Item[]{bag(1,0),item(true,0,0)},0);

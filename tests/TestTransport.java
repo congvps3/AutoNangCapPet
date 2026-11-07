@@ -2,6 +2,8 @@ import java.util.ArrayList;
 public class TestTransport implements qHSDVwkeNovng {
     public static String last,notice;
     public static int noticeTimeout;
+    public static String giftCode;
+    public static void gift(int code,String value){giftCode=value;record("gift",code,0,0);}
     public static int a,b,c,buys,confirms,lists;
     public static ArrayList<String> log=new ArrayList<String>();
     public static Runnable duringPacket;
@@ -26,6 +28,8 @@ public class TestTransport implements qHSDVwkeNovng {
             else if(command==42) record("info",in.readUnsignedByte(),in.readUnsignedByte(),0);
             else if(command==11) record("equip",in.readUnsignedByte(),0,0);
             else if(command==107) record("confirm",in.readUnsignedByte(),0,0);
+            else if(command==92) gift(in.readShort(),in.readUTF());
+            else if(command==-33){int sub=in.readUnsignedByte();if(sub==1)gift(-1,in.readUTF());else record("giftlist",sub,0,0);}
             else if(command==-30 && in.readByte()==-103) record("list",in.readUnsignedByte(),0,0);
             else throw new RuntimeException("Unexpected wire command "+command);
         } catch(java.io.IOException e) {throw new RuntimeException(e);}

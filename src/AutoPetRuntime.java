@@ -3,7 +3,7 @@ import java.io.DataInputStream;
 /** Uses the existing NPC/shop protocol and actual inventory, never shop previews as results. */
 public final class AutoPetRuntime implements AutoPetEngine.Port {
     private static final AutoPetRuntime INSTANCE=new AutoPetRuntime();
-    private static final int BOOT=1,EQUIP=2,ROOT=3,SHOP=4,CONFIRM=5,ACK=6,REFRESH=7;
+    private static final int BOOT=1,EQUIP=2,ROOT=3,SHOP=4,CONFIRM=5,ACK=6,REFRESH=7,CLAIM=8;
     private final AutoPetEngine engine=new AutoPetEngine(this);
     private AutoPetConfig[] config;
     private final AutoPetEngine.Item[] initial=new AutoPetEngine.Item[2];
@@ -36,6 +36,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
     public static synchronized boolean completed() {return INSTANCE.completed;}
     public static synchronized void stop() {if(INSTANCE.active) toggle();}
     public static synchronized void toggle() {
+        if(!INSTANCE.active){try{begin(AutoPetUI.settings());}catch(Exception e){INSTANCE.fail(e.getMessage());}return;}
         AutoPetRuntime r=INSTANCE;
         if(r.active) {
             r.completed=false;
@@ -44,19 +45,26 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             if(r.engine.running()) r.engine.stop();else AutoPetBridge.notice("đã dừng auto");
             return;
         }
+    }
+    public static synchronized void startTarget(int target) {
+        if(INSTANCE.active)throw new RuntimeException("AutoPet/LC đang chạy");
+        AutoPetConfig[] settings=AutoPetUI.settings();settings[1-target].enabled=false;
+        begin(settings);
+    }
+    private static void begin(AutoPetConfig[] settings) {
+        AutoPetRuntime r=INSTANCE;
         try {
             r.completed=false;
-            r.config=AutoPetUI.settings();boolean any=false;
+            r.config=settings;boolean any=false;
             for(int i=0;i<2;i++) {r.config[i].receive=false;r.config[i].validate();any|=r.config[i].enabled;}
             if(!any) {AutoPetBridge.notice("Hãy bật Enable trong Menu > AutoPet/LC và lưu cấu hình");return;}
             if(AutoPetAccess.map()!=AutoPetRules.TONE) {AutoPetBridge.notice("Hãy đến Làng Tone (map 22), đứng gần Tashino rồi bấm Auto");return;}
             r.npcId=r.findNpc();
             if(r.npcId<0) {AutoPetBridge.notice("Chưa thấy Tashino trong bản đồ hiện tại");return;}
-            for(int i=0;i<2;i++) if(r.config[i].enabled) r.startItem(i);
             r.active=true;r.notices="";serverError=null;r.bootIndex=0;r.phase=BOOT;r.deadline=System.currentTimeMillis()+15000;
             auditing=true;trace="";traceStart=System.currentTimeMillis();actionQ="-";actionTX="-";infoQ="-";infoTX="-";lastReply="-";
             for(int i=0;i<subCounts.length;i++)subCounts[i]=0;
-            lastRunState=r.waitingFor();record("START r19");
+            lastRunState=r.waitingFor();record("START r20");
             r.boot();
         } catch(Exception e) {r.fail("Không khởi động được: "+e.getMessage());}
     }
@@ -75,32 +83,15 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
     }
     private int templateId(int target) {return target==0?AutoPetRules.PET:AutoPetRules.MIKA;}
     private wpiwfWAXuWze startItem(int target) {
-        if(config[target].train) return bagItem(target);
-        wpiwfWAXuWze it=locate(target,true);
-        if(it==null) throw new RuntimeException("Hãy trang bị "+AutoPetConfig.NAMES[target]+" trước khi chỉ nâng cấp");
-        return it;
+        return locate(target,false);
     }
     private wpiwfWAXuWze bagItem(int target) {
-        wpiwfWAXuWze[] bag=AutoPetAccess.items(3);
-        wpiwfWAXuWze it=bag!=null && bag.length>target?bag[target]:null;
-        if(it==null || it.EgoDKTjkxEUMu==null || it.EgoDKTjkxEUMu.QpKzrQoqbjfLc!=templateId(target) || it.tTqVmuHPEhAbg!=3 || it.AZmTbjgvi!=target)
-            throw new RuntimeException("Hãy tự nhận "+AutoPetConfig.NAMES[target]+" và đặt đúng ô "+(target+1)+" hành trang, chưa sử dụng");
+        wpiwfWAXuWze it=AutoPetInventory.bag(templateId(target));
+        if(it==null)throw new RuntimeException("Không thấy "+AutoPetConfig.NAMES[target]+" trong hành trang");
         return it;
     }
     private wpiwfWAXuWze locate(int target,boolean equippedOnly) {
-        int[] sources=equippedOnly?new int[]{5,41,51,52,53}:new int[]{3,5,41,51,52,53};
-        wpiwfWAXuWze result=null;
-        for(int a=0;a<sources.length;a++) {
-            wpiwfWAXuWze[] all=AutoPetAccess.items(sources[a]);
-            if(all==null) continue;
-            for(int i=0;i<all.length;i++) {
-                wpiwfWAXuWze it=all[i];
-                if(it==null || it.EgoDKTjkxEUMu==null || it.EgoDKTjkxEUMu.QpKzrQoqbjfLc!=templateId(target)) continue;
-                if(result!=null && result!=it) throw new RuntimeException("Có nhiều "+AutoPetConfig.NAMES[target]+", hãy chỉ giữ một vật phẩm để Auto chọn đúng");
-                result=it;
-            }
-        }
-        return result;
+        return equippedOnly?AutoPetInventory.worn(templateId(target)):AutoPetInventory.find(templateId(target));
     }
     private AutoPetEngine.Item snapshot(wpiwfWAXuWze it) {
         if(it==null) return new AutoPetEngine.Item(false,0,0);
@@ -125,6 +116,10 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             wpiwfWAXuWze it=config[bootIndex].enabled?startItem(bootIndex):null;
             initial[bootIndex]=snapshot(it);
             if(it!=null) {askInfo(it);return;}
+            if(config[bootIndex].enabled) {
+                if(!AutoPetInventory.room())throw new RuntimeException("Hành trang đầy, không nhận thêm vật phẩm");
+                item=bootIndex;action=AutoPetEngine.RECEIVE;openNpc();return;
+            }
             ++bootIndex;
         }
         phase=0;engine.start(config,initial,System.currentTimeMillis());
@@ -146,12 +141,11 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
         record("TASK id="+templateId(target)+" op="+operation);
         run=generation;request=sequence;item=target;action=operation;
         deadline=System.currentTimeMillis()+15000;
-        if(operation==AutoPetEngine.RECEIVE) {fail("Bạn cần tự nhận vật phẩm trước khi bật Auto");return;}
+        if(operation==AutoPetEngine.RECEIVE) {fail("Thiếu vật phẩm sau bước tự nhận");return;}
         if(operation==AutoPetEngine.TRAIN) {bagItem(item);openNpc();return;}
         if(operation==AutoPetEngine.USE) {
-            if(!config[item].train) {fail("Hãy trang bị vật phẩm trước khi chỉ nâng cấp");return;}
             wpiwfWAXuWze bag=bagItem(item);
-            if((snapshot(bag).options & config[item].selected)!=config[item].selected) {fail("Chưa đủ chỉ số, không sử dụng vật phẩm");return;}
+            if(config[item].train && (snapshot(bag).options & config[item].selected)!=config[item].selected) {fail("Chưa đủ chỉ số, không sử dụng vật phẩm");return;}
             phase=EQUIP;EAVbpdxFGDnFcb.peMayxrZEBA().jPtiHTBf(bag.AZmTbjgvi);return;
         }
         if(locate(item,true)==null) {fail("Chưa xác nhận vật phẩm được sử dụng, không nâng cấp");return;}
@@ -187,6 +181,15 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
         if(serverError!=null) {String text=serverError;serverError=null;fail(text);return;}
         if(AutoPetAccess.map()!=AutoPetRules.TONE || findNpc()!=npcId) {fail("Đã rời Tashino ở Làng Tone");return;}
         if(now>=deadline) {fail("Quá thời gian chờ "+waitingFor()+"; không gửi lại thao tác");return;}
+        if(phase==CLAIM) {
+            if(locate(item,false)!=null){phase=BOOT;boot();return;}
+            if(confirmVersion>confirmBaseline) {
+                confirmBaseline=confirmVersion;String s=AutoPetRules.plain(confirmText);
+                if(s.indexOf("nhan")<0 || (s.indexOf("vat pham")<0 && s.indexOf(item==0?"pet long":"long chau mika2")<0)) {fail("Xác nhận nhận vật phẩm không khớp");return;}
+                NBAFgUXWGCkgPq.HmLENarbmj();EAVbpdxFGDnFcb.peMayxrZEBA().hFWcqhZjekJK(confirmCode);
+            }
+            return;
+        }
         if(phase==BOOT || phase==REFRESH) {
             int target=phase==BOOT?bootIndex:item;
             wpiwfWAXuWze it=readItem(target);
@@ -242,7 +245,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             }
             String title=AutoPetAccess.shopTitle();
             if(shopType==4 && (title==null || !AutoPetRules.shop(action,title))) {
-                fail("Cửa sổ 4 không có tiêu đề Luyện/Nâng cấp phù hợp");return;
+                fail("Cửa sổ 4 không có tiêu đề phù hợp thao tác");return;
             }
             if(title!=null && title.length()>0 && !AutoPetRules.shop(action,title)) {
                 fail("Cửa sổ hiện tại không đúng thao tác đã chọn: "+title);return;
@@ -260,6 +263,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             }
             AutoPetAccess.focusShop(chosenIndex);
             confirmBaseline=confirmVersion;phase=CONFIRM;
+            if(action==AutoPetEngine.RECEIVE)phase=CLAIM;
             nextInfo=now+300;deadline=now+15000;
             if(shopType==4) {
                 if(chosen.tTqVmuHPEhAbg!=4) {fail("Nguồn vật phẩm không khớp cửa sổ 4");return;}
@@ -294,17 +298,20 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
         if(phase==ROOT) return "menu Tashino";
         if(phase==SHOP) return "danh sách "+(action==1?"nhận ":action==2?"luyện ":"nâng ")+AutoPetConfig.NAMES[item];
         if(phase==CONFIRM) return "xác nhận của máy chủ";
+        if(phase==CLAIM) return "nhận "+AutoPetConfig.NAMES[item]+" vào hành trang";
         if(phase==EQUIP) return "trang bị "+AutoPetConfig.NAMES[item];
         if(phase==ACK) return "kết quả thao tác trên máy chủ";
         return "thông tin mới của vật phẩm";
     }
-    public static synchronized void sawMenu(kacyVKUNru choices) {menu=choices;++menuVersion;}
+    public static synchronized void sawMenu(kacyVKUNru choices) {menu=choices;++menuVersion;AutoPetEvents.menu(choices);}
     public static synchronized void sawShop(int source) {openedShop=source;++shopVersion;record("SHOP "+source);}
     public static synchronized void sawConfirm(String text,int yes,Object code,int no) {
         if(yes!=8890 || no!=8891 || !(code instanceof Integer)) return;
+        AutoPetEvents.confirm(text,((Integer)code).intValue());
         confirmText=text;confirmCode=((Integer)code).intValue();++confirmVersion;
     }
     public static synchronized void sawNotice(String text) {
+        AutoPetEvents.notice(text);
         if(!INSTANCE.active || text==null) return;
         String s=AutoPetRules.plain(text);
         if(INSTANCE.action==AutoPetEngine.UPGRADE && (INSTANCE.phase==ACK || INSTANCE.phase==REFRESH)
@@ -313,6 +320,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             serverError=text;
     }
     public static synchronized void beforePacket(WZKDTXfSh msg) {
+        AutoPetEvents.before(msg);
         eventCommand=msg==null?0:msg.GAuWiEMckbFHeh;eventSource=-1;eventIndex=-1;eventSub=-999;
         if(eventCommand==31) {eventSource=4;return;}
         if(eventCommand!=33 && eventCommand!=42 && eventCommand!=-30) return;
@@ -325,6 +333,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
         } catch(Exception ignored) {eventSource=-1;}
     }
     public static synchronized void afterPacket() {
+        AutoPetEvents.after();
         if(eventCommand==33 && eventSource>=0) {listRevisions[eventSource]=++listVersion;}
         if(eventCommand==31) {listRevisions[4]=++listVersion;}
         if(eventCommand==42 && eventSource>=0 && eventIndex>=0) {infoEventSource=eventSource;infoEventIndex=eventIndex;++infoVersion;}
@@ -368,7 +377,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             if(best<0)break;seen[best]=true;
             if(subs.length()>0)subs+=", ";subs+=(best>127?best-256:best)+"x"+subCounts[best];
         }
-        return "r19 | "+lastRunState+" | ID "+INSTANCE.templateId(INSTANCE.item)+"\n"
+        return "r20 | "+lastRunState+" | ID "+INSTANCE.templateId(INSTANCE.item)+"\n"
             +actionQ+"\n"+actionTX+"\n"+infoQ+"\n"+infoTX+"\n"+lastReply+"\n"
             +"Nhóm -30: "+(subs.length()==0?"-":subs)+"\n"+trace;
     }
