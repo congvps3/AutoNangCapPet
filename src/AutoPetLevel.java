@@ -1,16 +1,27 @@
 import javax.microedition.rms.RecordStore;
 
-/** One acknowledged action at a time on the original Tan sat worker. */
+/** Gift codes advance once sent; consuming actions always await native acknowledgement. */
 public final class AutoPetLevel {
     private static final int TRAVEL_GIFT=1,MENU_GIFT=2,INPUT_GIFT=3,GIFT_ACK=4,SETTLE=5,USE_ACK=6,TRAVEL_PET=7,PET_RUN=8,LEVEL=9;
     private static final String[] CODES={"200mem","CODETUAN4"};
     private static final int[] USE_IDS={829,1399,41,44,48},USE_LEVELS={0,0,20,30,50},USE_FLAGS={4,8,64,128,256};
     private static volatile SJSCaeScqbiua owner;
     private static volatile int stage;
-    private static boolean giftCustom;
+    private static boolean giftCustom,giftSent;
+    private static int giftTXBase,giftReplyBase,giftNpc,giftToken;
+    private static long giftAdvanceAt,giftPetCount,giftMikaCount;
+    private static volatile String history="";
     private static String character,key,useName;
     private static int flags,target,codeIndex,menuBase,inputBase,windowBase,giftBase,noticeBase,confirmBase,useId,useFlag;
     private static long deadline,settleUntil,useBefore;
+    private static void log(String text) {
+        history+=text+"\n";
+        while(history.length()>650){int end=history.indexOf('\n');if(end<0)break;history=history.substring(end+1);}
+    }
+    // No Level monitor here: native packet callbacks hold the Runtime monitor.
+    public static String diagnostics(){return history.length()==0?"":"Chuỗi mã quà r21:\n"+history;}
+    private static boolean codeHandled(int index) {return (flags & ((1<<index)|(512<<index)))!=0;}
+    private static boolean codesHandled() {return codeHandled(0) && codeHandled(1);}
     private static String character() {
         oFpffzUyucjDJX p=oFpffzUyucjDJX.rdmjdEJDQ();return p==null?"":p.BfndoYuX+":"+p.dvKEjoqBk;
     }
@@ -42,7 +53,9 @@ public final class AutoPetLevel {
     }
     private static String waitingFor() {
         if(stage==TRAVEL_GIFT)return "đến Okanechan";
-        if(stage==MENU_GIFT || stage==INPUT_GIFT || stage==GIFT_ACK)return "mã "+CODES[codeIndex];
+        if(stage==MENU_GIFT)return "menu Mã quà tặng";
+        if(stage==INPUT_GIFT)return "mở ô nhập "+CODES[codeIndex];
+        if(stage==GIFT_ACK)return (giftSent?"phản hồi ":"gửi mã ")+CODES[codeIndex];
         if(stage==SETTLE)return "cập nhật quà";
         if(stage==USE_ACK)return "sử dụng vật phẩm "+useId;
         return "làm "+AutoPetConfig.NAMES[target];
@@ -50,7 +63,7 @@ public final class AutoPetLevel {
     private static void stop(String message) {
         if(stage==PET_RUN && AutoPetRuntime.running())AutoPetRuntime.stop();
         if(owner!=null && AutoPetAccess.currentAuto()==owner)AutoPetAccess.setAuto(null);
-        closeDialogs();owner=null;stage=0;if(message!=null)AutoPetBridge.notice(message);
+        closeDialogs();owner=null;stage=0;if(message!=null)AutoPetBridge.notice(message+"\n\n"+diagnostics());
     }
     private static gsxwWgJt npc(String name) {
         kacyVKUNru all=AutoPetAccess.npcs();
@@ -71,20 +84,28 @@ public final class AutoPetLevel {
     public static int codeResult(String text) {
         String s=AutoPetRules.plain(text);
         if(s.indexOf("khong hop le")>=0 || s.indexOf("khong ton tai")>=0 || s.indexOf("het han")>=0 || s.indexOf("that bai")>=0 || s.indexOf("khong du")>=0 || s.indexOf("khong thanh cong")>=0)return -1;
+        boolean context=s.indexOf("ma ")>=0 || s.indexOf("code")>=0 || s.indexOf("qua")>=0;
+        if(context && (s.indexOf("da nhap")>=0 || s.indexOf("da dung")>=0))return 1;
+        if((s.indexOf("ban nhan duoc")>=0 || s.indexOf("ban da nhan duoc")>=0) && s.indexOf("khong")<0 && s.indexOf("chua")<0)return 1;
         if(s.indexOf("da su dung")>=0 || s.indexOf("da duoc su dung")>=0 || (s.indexOf("da nhan")>=0 && (s.indexOf("ma")>=0 || s.indexOf("code")>=0 || s.indexOf("qua")>=0)))return 1;
         if(s.indexOf("thanh cong")>=0 && (s.indexOf("nhan")>=0 || s.indexOf("ma")>=0 || s.indexOf("code")>=0 || s.indexOf("qua")>=0))return 1;
         return 0;
     }
-    private static void codeDone() throws Exception {
-        mark(1<<codeIndex);closeDialogs();
-        if((flags&3)!=3){codeIndex=(flags&1)==0?0:1;route(TRAVEL_GIFT);}
+    private static void codeDone() throws Exception {codeDone(true);}
+    private static void codeDone(boolean acknowledged) throws Exception {
+        mark(acknowledged?1<<codeIndex:512<<codeIndex);closeDialogs();
+        log(CODES[codeIndex]+(acknowledged?": có phản hồi":": đã gửi, chưa xác nhận nhận quà"));
+        if(!codesHandled()){codeIndex=codeHandled(0)?1:0;route(TRAVEL_GIFT);}
         else {stage=SETTLE;settleUntil=System.currentTimeMillis()+1500;}
     }
     private static void sendCode(boolean custom) {
-        checkActive();giftBase=AutoPetEvents.gifts;noticeBase=AutoPetEvents.notices;
-        giftCustom=custom;stage=GIFT_ACK;deadline=System.currentTimeMillis()+15000;NBAFgUXWGCkgPq.HmLENarbmj();
+        checkActive();giftBase=AutoPetEvents.gifts;giftReplyBase=AutoPetEvents.replies;giftTXBase=AutoPetEvents.giftTX;
+        giftCustom=custom;giftToken=custom?-1:AutoPetEvents.inputCode;giftSent=false;giftAdvanceAt=Long.MAX_VALUE;
+        giftPetCount=AutoPetInventory.count(829);giftMikaCount=AutoPetInventory.count(1399);
+        stage=GIFT_ACK;deadline=System.currentTimeMillis()+15000;NBAFgUXWGCkgPq.HmLENarbmj();
+        log("Q "+(custom?-33:92)+" "+CODES[codeIndex]);
         if(custom)EAVbpdxFGDnFcb.peMayxrZEBA().FdGQnmAerVxMi(CODES[codeIndex]);
-        else EAVbpdxFGDnFcb.peMayxrZEBA().EgoDKTjkxEUMu((short)AutoPetEvents.inputCode,CODES[codeIndex]);
+        else EAVbpdxFGDnFcb.peMayxrZEBA().EgoDKTjkxEUMu((short)giftToken,CODES[codeIndex]);
     }
     private static boolean useNext() {
         synchronized(AutoPetRuntime.packetLock()) {
@@ -105,15 +126,16 @@ public final class AutoPetLevel {
             if(stage!=0 && !active()){stop(null);return true;}
             if(stage==0) {
                 if(AutoPetRuntime.running())return true;
-                owner=auto;character=character();key="APLC20_"+character.hashCode();store(false);
-                if((flags&3)!=3){codeIndex=(flags&1)==0?0:1;route(TRAVEL_GIFT);}else stage=LEVEL;
+                owner=auto;character=character();key="APLC20_"+character.hashCode();store(false);history="";
+                if(!codesHandled()){codeIndex=codeHandled(0)?1:0;route(TRAVEL_GIFT);}else stage=LEVEL;
             }
             if(stage!=TRAVEL_GIFT && stage!=TRAVEL_PET && stage!=LEVEL && stage!=PET_RUN && stage!=SETTLE && System.currentTimeMillis()>=deadline)
                 throw new RuntimeException("Quá thời gian chờ máy chủ; không gửi lại thao tác đang chờ");
             if(stage==TRAVEL_GIFT) {
                 gsxwWgJt n=travel(auto,"okanechan");if(n==null)return true;
                 checkActive();menuBase=AutoPetEvents.menus;stage=MENU_GIFT;deadline=System.currentTimeMillis()+15000;
-                zxnsayePWpajv.oXAaoinDuwaN(AutoPetAccess.template(n).mvjvhHcftNANDP);return true;
+                giftNpc=AutoPetAccess.template(n).mvjvhHcftNANDP;
+                log("Mở Okanechan: "+CODES[codeIndex]);zxnsayePWpajv.oXAaoinDuwaN(giftNpc);return true;
             }
             if(stage==MENU_GIFT && AutoPetEvents.menus>menuBase) {
                 kacyVKUNru choices=AutoPetEvents.menu;int selected=-1;
@@ -134,14 +156,30 @@ public final class AutoPetLevel {
                 return true;
             }
             if(stage==GIFT_ACK) {
-                if(AutoPetEvents.gifts>giftBase) {
-                    giftBase=AutoPetEvents.gifts;
-                    if(AutoPetEvents.giftOK && CODES[codeIndex].equalsIgnoreCase(AutoPetEvents.giftCode)){codeDone();return true;}
-                    if(!AutoPetEvents.giftOK){if(codeResult(AutoPetEvents.giftText)==1)codeDone();else throw new RuntimeException(AutoPetEvents.giftText);return true;}
-                }
-                if(AutoPetEvents.notices>noticeBase) {
-                    noticeBase=AutoPetEvents.notices;int result=codeResult(AutoPetEvents.notice);
-                    if(result==1)codeDone();if(result<0)throw new RuntimeException(AutoPetEvents.notice);
+                synchronized(AutoPetRuntime.packetLock()) {
+                    if(!giftSent && AutoPetEvents.giftTX>giftTXBase && CODES[codeIndex].equals(AutoPetEvents.giftTXCode)
+                        && AutoPetEvents.giftTXCommand==(giftCustom?-33:92) && AutoPetEvents.giftTXToken==giftToken) {
+                        giftSent=true;giftAdvanceAt=AutoPetEvents.giftTXAt+2500;log("TX "+CODES[codeIndex]);
+                    }
+                    if(AutoPetEvents.gifts>giftBase) {
+                        giftBase=AutoPetEvents.gifts;
+                        if(AutoPetEvents.giftOK && CODES[codeIndex].equalsIgnoreCase(AutoPetEvents.giftCode)){codeDone();return true;}
+                        if(!AutoPetEvents.giftOK){if(codeResult(AutoPetEvents.giftText)==1)codeDone();else throw new RuntimeException(AutoPetEvents.giftText);return true;}
+                    }
+                    int latest=AutoPetEvents.replies;
+                    for(int serial=Math.max(giftReplyBase+1,latest-11);serial<=latest;serial++) {
+                        String text=AutoPetEvents.codeReply(serial,giftNpc);if(text==null)continue;
+                        String plain=AutoPetRules.plain(text);
+                        if(plain.indexOf(CODES[1-codeIndex].toLowerCase())>=0 && plain.indexOf(CODES[codeIndex].toLowerCase())<0)continue;
+                        int result=AutoPetEvents.codeReplyStatus(serial);giftReplyBase=latest;
+                        if(result==1){codeDone();return true;}
+                        if(result<0)throw new RuntimeException(text);
+                    }
+                    giftReplyBase=latest;
+                    // NPC code entry may only update inventory and send no result dialog.
+                    // Move on after a real TX, without resending or claiming redemption succeeded.
+                    if(giftSent && (AutoPetInventory.count(829)>giftPetCount || AutoPetInventory.count(1399)>giftMikaCount
+                        || System.currentTimeMillis()>=giftAdvanceAt))codeDone(false);
                 }
                 return true;
             }

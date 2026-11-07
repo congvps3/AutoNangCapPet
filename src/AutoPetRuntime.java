@@ -64,7 +64,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             r.active=true;r.notices="";serverError=null;r.bootIndex=0;r.phase=BOOT;r.deadline=System.currentTimeMillis()+15000;
             auditing=true;trace="";traceStart=System.currentTimeMillis();actionQ="-";actionTX="-";infoQ="-";infoTX="-";lastReply="-";
             for(int i=0;i<subCounts.length;i++)subCounts[i]=0;
-            lastRunState=r.waitingFor();record("START r20");
+            lastRunState=r.waitingFor();record("START r21");
             r.boot();
         } catch(Exception e) {r.fail("Không khởi động được: "+e.getMessage());}
     }
@@ -369,7 +369,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
         record(line);
     }
     public static synchronized void queued(WZKDTXfSh msg) {try {wire("Q",msg);}catch(Exception ignored) {}}
-    public static synchronized void transmitted(WZKDTXfSh msg) {try {wire("TX",msg);}catch(Exception ignored) {}}
+    public static synchronized void transmitted(WZKDTXfSh msg) {try {AutoPetEvents.transmitted(msg);wire("TX",msg);}catch(Exception ignored) {}}
     public static synchronized String diagnostics() {
         String subs="";boolean[] seen=new boolean[256];
         for(int n=0;n<8;n++) {
@@ -377,7 +377,7 @@ public final class AutoPetRuntime implements AutoPetEngine.Port {
             if(best<0)break;seen[best]=true;
             if(subs.length()>0)subs+=", ";subs+=(best>127?best-256:best)+"x"+subCounts[best];
         }
-        return "r20 | "+lastRunState+" | ID "+INSTANCE.templateId(INSTANCE.item)+"\n"
+        return AutoPetLevel.diagnostics()+"r21 | "+lastRunState+" | ID "+INSTANCE.templateId(INSTANCE.item)+"\n"
             +actionQ+"\n"+actionTX+"\n"+infoQ+"\n"+infoTX+"\n"+lastReply+"\n"
             +"Nhóm -30: "+(subs.length()==0?"-":subs)+"\n"+trace;
     }

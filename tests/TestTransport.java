@@ -3,7 +3,21 @@ public class TestTransport implements qHSDVwkeNovng {
     public static String last,notice;
     public static int noticeTimeout;
     public static String giftCode;
-    public static void gift(int code,String value){giftCode=value;record("gift",code,0,0);}
+    public static boolean giftFlush=true;
+    public static void gift(int code,String value) {
+        giftCode=value;record("gift",code,0,0);
+        if(giftFlush)flushGift(code,value);
+    }
+    public static void flushGift(int code,String value) {
+        try {
+            WZKDTXfSh packet=new WZKDTXfSh((byte)(code==-1?-33:92));
+            java.io.DataOutputStream out=null;
+            for(java.lang.reflect.Method m:WZKDTXfSh.class.getMethods())
+                if(m.getName().equals("peMayxrZEBA") && m.getReturnType()==java.io.DataOutputStream.class && m.getParameterTypes().length==0)out=(java.io.DataOutputStream)m.invoke(packet);
+            if(code==-1)out.writeByte(1);else out.writeShort(code);out.writeUTF(value);out.flush();
+            AutoPetRuntime.transmitted(packet);
+        }catch(Exception e){throw new RuntimeException(e);}
+    }
     public static int a,b,c,buys,confirms,lists;
     public static ArrayList<String> log=new ArrayList<String>();
     public static Runnable duringPacket;

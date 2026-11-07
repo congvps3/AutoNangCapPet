@@ -336,10 +336,32 @@ public class RuntimeSmokeMidlet extends MIDlet {
         out.writeByte(1);out.flush();send.invoke(service,packet);wire=bytes.toByteArray();
         check(wire.length==4 && wire[0]==16 && wire[1]==0 && wire[2]==1 && wire[3]==1,"box action must serialize as command 16 plus one index byte");
         check(AutoPetRuntime.diagnostics().indexOf("TX 16 pos=1")>=0,"native box send not retained in diagnostics");
+        bytes.reset();packet=new WZKDTXfSh((byte)92);
+        for(Method m:WZKDTXfSh.class.getMethods())if(m.getName().equals("peMayxrZEBA") && m.getReturnType()==java.io.DataOutputStream.class && m.getParameterTypes().length==0)out=(java.io.DataOutputStream)m.invoke(packet);
+        out.writeShort(1023);out.writeUTF("200mem");out.flush();int tx=AutoPetEvents.giftTX;
+        AutoPetRuntime.queued(packet);check(AutoPetEvents.giftTX==tx,"queueing is not a successful gift send");
+        send.invoke(service,packet);wire=bytes.toByteArray();
+        java.io.DataInputStream sent=new java.io.DataInputStream(new java.io.ByteArrayInputStream(wire));
+        check(sent.readUnsignedByte()==92 && sent.readUnsignedShort()==10 && sent.readShort()==1023 && sent.readUTF().equals("200mem") && sent.available()==0,"native writer must serialize original gift token and text");
+        check(AutoPetEvents.giftTX==tx+1 && AutoPetEvents.giftTXCode.equals("200mem") && AutoPetEvents.giftTXToken==1023,"successful native flush must publish gift send");
+        final boolean[] failedFlush={false};
+        field(LZitKUUsicXFt.class,service,"peMayxrZEBA",java.io.DataOutputStream.class,new java.io.DataOutputStream(new java.io.ByteArrayOutputStream(){
+            public void flush() throws java.io.IOException {failedFlush[0]=true;throw new java.io.IOException("simulated gift flush failure");}
+        }));
+        tx=AutoPetEvents.giftTX;
+        // The original sender catches IOException internally; its TX observer must still stay silent.
+        System.out.println("EXPECTED_NATIVE_FLUSH_FAILURE_BEGIN");
+        try {send.invoke(service,packet);}
+        finally {field(LZitKUUsicXFt.class,service,"peMayxrZEBA",java.io.DataOutputStream.class,new java.io.DataOutputStream(bytes));}
+        System.out.println("EXPECTED_NATIVE_FLUSH_FAILURE_END");
+        check(failedFlush[0] && AutoPetEvents.giftTX==tx,"failed socket flush must not publish gift send or unlock fallback");
     }
     protected void startApp() {
         try {
             sVdEtbWKGxAKR.QWSFikNNoKDGiu();
+            field(PyYQMyyC.class,null,"peMayxrZEBA",PyYQMyyC.class,new PyYQMyyC());
+            field(NBAFgUXWGCkgPq.class,null,"DndwYNCrvBa",int.class,Integer.valueOf(240));
+            field(NBAFgUXWGCkgPq.class,null,"SXPEzvYGy",int.class,Integer.valueOf(320));
             // Supply the screen callback without starting the login/asset constructor.
             Class<?> unsafeClass=ClassLoader.getSystemClassLoader().loadClass("sun.misc.Unsafe");
             Field unsafeField=unsafeClass.getDeclaredField("theUnsafe");unsafeField.setAccessible(true);
@@ -461,6 +483,7 @@ public class RuntimeSmokeMidlet extends MIDlet {
             check(report.indexOf("xác nhận của máy chủ")>=0,"stopping erased the pending step");
             check(report.length()<2048,"diagnostics exceeded text box size");
             JourneyCases.run();
+            GiftCases.run();
             huntFlow();
             realmFlow();
             hudFlow();

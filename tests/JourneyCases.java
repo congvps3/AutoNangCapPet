@@ -1,7 +1,7 @@
 import java.io.*;
 
 /** End-to-end level journey against the original classes and native packet creators. */
-public final class JourneyCases extends RuntimeSmokeMidlet {
+public class JourneyCases extends RuntimeSmokeMidlet {
     static HAeSnYtYmns okane() {HAeSnYtYmns t=new HAeSnYtYmns();t.mvjvhHcftNANDP=10;t.wLHNXXbvUSit="Okanechan";return t;}
     static void level(int n) throws Exception {field(oFpffzUyucjDJX.class,player,"vMyUkiiUKxerr",int.class,Integer.valueOf(n));}
     static void map(int n) throws Exception {field(SBnKDsbzS.class,null,"uTxJizAJr",short.class,Short.valueOf((short)n));}

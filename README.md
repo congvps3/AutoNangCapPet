@@ -1,13 +1,18 @@
-# AutoUpLv + AutoPet/LC r20
+# AutoUpLv + AutoPet/LC r21
 
-[Bản JAR r20](dist/AutoUpLv-AutoPetLC-r20.jar) giữ chức năng bản r19 và thêm
-chuỗi nhập mã, dùng vật phẩm, tự nhận Pet/Mika2. File r19 người dùng gửi đã được
+[Bản JAR r21](dist/AutoUpLv-AutoPetLC-r21.jar) giữ chức năng bản r19 và thêm
+chuỗi nhập mã, dùng vật phẩm, tự nhận Pet/Mika2. r21 sửa bước đứng chờ ở mã
+`200mem` khi máy chủ không trả popup, để tiếp tục sang `CODETUAN4`. File r19 người dùng gửi đã được
 đối chiếu SHA-256 với bản r19 trong repository; không sửa file gốc đã gửi.
 
 ## Chuỗi khi bật Tàn sát
 
 1. Về **Làng Tone (map 22)**, tìm **Okanechan**, chọn **Mã quà tặng**.
-   Nhập lần lượt **200mem** và **CODETUAN4**, chờ phản hồi từng mã trước khi gửi mã tiếp.
+   Nhập lần lượt **200mem** và **CODETUAN4**, mỗi mã chỉ gửi một lần.
+   Nếu có phản hồi thì xử lý ngay; nếu không có popup, sau khi bộ ghi mạng gốc
+   xác nhận gửi thành công, chờ tối đa **2,5 giây** rồi mở ô nhập mới cho mã tiếp.
+   Có vật phẩm thưởng mới trong hành trang thì chuyển bước sớm hơn.
+   Đã xếp hàng nhưng chưa gửi được thì vẫn dừng sau 15 giây, không tự gửi lại.
 2. Quét hành trang, sử dụng **829**, rồi **1399** nếu có. Chờ hành trang xác nhận
    đã dùng một đơn vị trước khi tiếp tục.
 3. Làm **Pet Long (1305)** ngay, kể cả khi nhân vật dưới cấp 21:
@@ -33,6 +38,11 @@ và chưa ghi nhận đã dùng. Mã đã được nhận trước đó được
 sai mã hoặc máy chủ từ chối sẽ dừng và báo nội dung lỗi.
 
 Tiến trình từng mã, từng vật phẩm và từng phần Pet/Mika2 lưu RMS theo mã/tên nhân vật.
+Với mã quà, lưu riêng trạng thái **đã gửi nhưng chưa có kết quả** và **đã có phản hồi**;
+không coi gửi thành công là đã nhận thưởng thành công. Cả hai trạng thái đều tránh
+nhập lại tự động sau khi vào lại game. Vật phẩm chỉ được dùng nếu thực sự có trong hành trang.
+Các bước dùng/luyện/nâng cấp vẫn phải có xác nhận trước khi chuyển bước.
+Dữ liệu tiến trình/cấu hình r20 được giữ nguyên khi dùng r21.
 Vào lại game không tự lặp các bước đã xác nhận hoàn tất. Xóa dữ liệu ứng dụng sẽ
 xóa tiến trình và cấu hình. Nếu đã đeo một món, chuỗi Tàn sát bỏ qua phần làm món đó;
 đeo đủ hai món thì không cần Enable AutoPet/LC sau phần chuẩn bị mã/vật phẩm.
@@ -40,7 +50,7 @@ Nút Auto vẫn cho phép chạy nâng cấp bằng tay khi cần.
 
 ## Cài đặt AutoPet/LC
 
-1. Mở **Menu → MenuAuto → AutoPet/LC**, kiểm tra tiêu đề **r20**.
+1. Mở **Menu → MenuAuto → AutoPet/LC**, kiểm tra tiêu đề **r21**.
 2. Bật Enable và chọn Luyện/Nâng cấp, chỉ số, giới hạn lượt luyện và cấp nâng
    riêng cho Pet Long và Mika2. Bấm **Lưu**.
 3. Bật **Tàn sát** để chạy toàn bộ chuỗi ở trên. Hoặc đứng gần Tashino ở Tone,
@@ -95,6 +105,10 @@ tắt và vàng khi bật; bỏ nền nâu/xanh và chấm trạng thái của b
 
 ## Phản hồi và dừng
 
+Thông báo mã quà được đọc thêm từ dòng thông báo trên màn hình, lời thoại Okanechan
+và cửa sổ thông tin; giữ các kết quả liên quan khi có nhiều thông báo đến cùng lúc.
+Chỉ lấy lời thoại từ đúng NPC đang nhập mã; không dùng chat của người chơi làm kết quả.
+
 Mỗi thời điểm chỉ chờ một thao tác nhận/dùng/luyện/nâng cấp. Không gửi lặp thao tác
 đang chờ; quá 15 giây sẽ dừng. Đọc thông tin vật phẩm được thử lại tối đa hai lần,
 không tiêu thêm lượt luyện. Bộ đọc hành trang dùng cùng khóa với bộ phân tích gói tin gốc,
@@ -111,7 +125,8 @@ xem trước trong danh sách làm kết quả luyện. Nhập mã dùng giao th
 
 Nút **?** trên màn hình cài đặt mở nhật ký AutoPet/LC. Nhật ký chỉ giữ mã gói,
 nguồn/ô vật phẩm và bước đang chờ; Q = xếp hàng, TX = gửi, RX = nhận/đã xử lý.
-Gói nền -30 được tổng hợp để không che mất thao tác chính. Không lưu đăng nhập,
+Gói nền -30 được tổng hợp để không che mất thao tác chính. Nhật ký r21 ghi thêm
+bước mở ô nhập/gửi/chờ kết quả và trạng thái gửi của từng mã, phân biệt với nhận thưởng. Không lưu đăng nhập,
 chat hay dữ liệu tài khoản; nhật ký chỉ ở bộ nhớ và không tự gửi ra ngoài.
 
 ## Build và kiểm tra
@@ -123,12 +138,14 @@ python tools/bootstrap.py
 bash build.sh input/AutoUpLv.jar
 ```
 
-Đầu ra: `dist/AutoUpLv-AutoPetLC-r20.jar`. Công cụ tải qua TLS và kiểm tra SHA-256;
+Đầu ra: `dist/AutoUpLv-AutoPetLC-r21.jar`. Công cụ tải qua TLS và kiểm tra SHA-256;
 biên dịch Java 1.3 với API CLDC 1.1, tạo StackMap Java ME.
 
 Kiểm tra gồm cấu hình/động cơ, luật map/Thủ lĩnh, Canvas/RMS, nạp 327 lớp,
 chuỗi nhập mã → dùng thưởng → nhận/luyện/dùng/nâng Pet → AutoLV → Mika2 ở cấp 21,
-mốc 20/30/50, ô hành trang bất kỳ, vào lại game, hủy và timeout.
+mốc 20/30/50, ô hành trang bất kỳ, vào lại game, hủy và timeout. Kiểm tra thêm máy chủ
+không gửi thông báo sau mã đầu, hai mã dùng token mới riêng, không lặp mã, chỉ xếp hàng
+chưa flush, phản hồi NPC/thông báo bị xen nhiều gói nền và giữ xác nhận bắt buộc khi dùng vật phẩm.
 Chạy cả bộ gửi mô phỏng và bộ tạo gói gốc của game (chỉ chặn ở hàng đợi mạng).
 Các lớp test không được đóng vào JAR phát hành; tài nguyên và lớp không vá giống
 file gốc theo byte. **Chưa thử đăng nhập và thao tác trên máy chủ thật.**
